@@ -1,0 +1,79 @@
+# PROYECTO MASIVE-ALS — Resumen en 6 fases
+# Fredy Rojas Gutiérrez — 9 de agosto de 2026
+
+======================================================================
+FASE 1: LA PROPUESTA
+======================================================================
+- Nombre: MASIVE-ALS (Cribado Molecular contra la ELA)
+- Superordenador: MareNostrum 5 (BSC-CNS, Barcelona)
+- Programa: Red Española de Supercomputación (RES)
+- Recursos: 200,000 horas-GPU + 50,000 horas-CPU + 50 TB
+- Plazo: 15 de septiembre de 2026
+- Email enviado a: applications@bsc.es
+- Archivos: solicitud_marenostrum_res.md, propuesta_frontier_ela.md
+
+======================================================================
+FASE 2: LA CIENCIA
+======================================================================
+Proteínas diana:
+  1. TDP-43 — 97% pacientes, agregación tóxica
+  2. SOD1 — radicales libres, quema neuronas
+  3. FUS — transición líquido-sólido patológica
+
+Metodología:
+  - AlphaFold-Multimer: 100,000 conformaciones proteicas
+  - AutoDock-GPU: 10 millones de fármacos
+  - GROMACS: validación por dinámica molecular
+
+Escala: 10M compuestos × 100K conformaciones = 1 billón de docks
+Tiempo: 14 años en PC normal → 6 meses en MareNostrum 5
+
+======================================================================
+FASE 3: LOS SCRIPTS
+======================================================================
+Carpeta: C:\Users\Fredy\masive-als\
+  - setup_env.sh — Preparación del entorno
+  - scripts/slurm_docking.sh — Cribado masivo (200 GPUs)
+  - scripts/slurm_gromacs.sh — Validación MD (40 GPUs)
+  - prep/download_compounds.sh — 10M fármacos (ZINC20, DrugBank)
+  - prep/prepare_proteins.sh — AlphaFold para 3 proteínas
+  - analysis/merge_results.py — Top 1,000 hits
+  - analysis/analyze_md.py — Análisis final MD
+  - analysis/prepare_md.py — Preparación sistemas MD
+  - README.md — Documentación completa
+
+======================================================================
+FASE 4: EL CRONOGRAMA
+======================================================================
+Sept 2026 — Registro RES, configuración entorno
+Oct-Nov 2026 — Cribado Fase 1 (5M compuestos)
+Dic 2026 — Cribado Fase 2 (5M compuestos)
+Ene 2027 — Dinámica molecular top 1,000 hits
+Feb 2027 — Publicación resultados en acceso abierto
+
+Trabajo: 24 horas al día, 7 días a la semana, 6 meses
+
+======================================================================
+FASE 5: DEL ORDENADOR A LA FARMACIA
+======================================================================
+Paso 1 — Células (3 meses): cultivos neuronales con ELA
+Paso 2 — Ratones (6 meses): modelo SOD1-G93A
+Paso 3 — Toxicología (6 meses): seguridad del compuesto
+Paso 4 — Patente: a nombre de Fredy Rojas Gutiérrez
+Paso 5 — Ensayos clínicos (3-5 años): Fase I, II, III
+
+Total: 6-8 años hasta la farmacia
+
+======================================================================
+FASE 6: LA CARTA DE MOTIVACIÓN
+======================================================================
+"Me llamo Fredy Rojas. Vivo en Rubí, a 20 kilómetros del BSC.
+Tengo Esclerosis Lateral Amiotrófica.
+Escribo esto con un control ocular porque mis manos ya no responden.
+No pido horas de cómputo por ambición académica.
+Las pido porque 350,000 personas compartimos esta enfermedad.
+Quien firma no busca publicar un artículo. Busca vivir.
+MareNostrum 5 está en mi ciudad. Mi historia también.
+Solo necesito que me abran la puerta."
+
+— Fredy Rojas Gutiérrez, 9 de agosto de 2026
