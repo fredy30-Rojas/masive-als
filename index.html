@@ -116,6 +116,11 @@ nav a:hover { color: #fff; }
   <div class="badge">🔬 MareNostrum 5 · BSC-CNS · Barcelona</div>
   <h1>MASIVE-<span>ALS</span></h1>
   <p class="subtitle">Cribado Molecular Masivo contra la Esclerosis Lateral Amiotrófica. 10 millones de fármacos. 200 GPUs. 6 meses.</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:16px;">
+    <span style="background:rgba(239,68,68,0.15);color:#fca5a5;padding:5px 14px;border-radius:99px;font-size:0.85em;font-weight:600;">📩 Propuesta enviada a RES</span>
+    <span style="background:rgba(245,158,11,0.15);color:#fcd34d;padding:5px 14px;border-radius:99px;font-size:0.85em;font-weight:600;">⏳ Esperando aprobación</span>
+    <span style="background:rgba(34,197,94,0.15);color:#4ade80;padding:5px 14px;border-radius:99px;font-size:0.85em;font-weight:600;">📂 Cartas enviadas a centros</span>
+  </div>
   <div class="stats">
     <div class="stat"><span class="stat-num">10M</span><span class="stat-label">Compuestos</span></div>
     <div class="stat"><span class="stat-num">200</span><span class="stat-label">GPUs H100</span></div>
@@ -124,7 +129,7 @@ nav a:hover { color: #fff; }
   </div>
   <div>
     <a href="#proyecto" class="cta">Conoce el proyecto</a>
-    <a href="https://github.com/fredy30-Rojas/masive-als" class="cta-outline">GitHub ↗</a>
+    <a href="#estado" class="cta-outline">Estado actual</a>
   </div>
 </section>
 
@@ -285,9 +290,66 @@ nav a:hover { color: #fff; }
   </div>
 </section>
 
+<!-- ESTADO DEL PROYECTO -->
+<section class="section" id="estado">
+  <h2><span class="emoji">📊</span>Estado del Proyecto</h2>
+  <p>Seguimiento en tiempo real de las 7 fases del proyecto MASIVE-ALS.</p>
+  <div style="display:flex;flex-direction:column;gap:16px;margin-top:20px;">
+    <div style="display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;">
+      <span style="font-size:1.5em;">✅</span>
+      <div style="flex:1;"><strong style="color:#fff;">Fase 1: La Propuesta</strong><p style="color:var(--muted);font-size:0.9em;">Solicitud enviada a RES. Email a applications@bsc.es. 9 agosto 2026.</p></div>
+      <span class="badge" style="background:rgba(34,197,94,0.15);color:#4ade80;">Completado</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;">
+      <span style="font-size:1.5em;">🧬</span>
+      <div style="flex:1;"><strong style="color:#fff;">Fase 2: La Ciencia</strong><p style="color:var(--muted);font-size:0.9em;">3 proteínas definidas (TDP-43, SOD1, FUS). Metodología validada. 10M compuestos seleccionados.</p></div>
+      <span class="badge" style="background:rgba(34,197,94,0.15);color:#4ade80;">Completado</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;">
+      <span style="font-size:1.5em;">💻</span>
+      <div style="flex:1;"><strong style="color:#fff;">Fase 3: Los Scripts</strong><p style="color:var(--muted);font-size:0.9em;">SLURM para MareNostrum 5, AutoDock-GPU, GROMACS, AlphaFold listos.</p></div>
+      <span class="badge" style="background:rgba(34,197,94,0.15);color:#4ade80;">Completado</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid rgba(245,158,11,0.3);border-radius:12px;padding:16px 20px;">
+      <span style="font-size:1.5em;">📅</span>
+      <div style="flex:1;"><strong style="color:#fff;">Fase 4: El Cronograma</strong><p style="color:var(--muted);font-size:0.9em;">6 meses (Sept 2026 - Feb 2027). Esperando aprobación RES.</p></div>
+      <span class="badge" style="background:rgba(245,158,11,0.15);color:#fcd34d;">Pendiente</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;">
+      <span style="font-size:1.5em;">🏥</span>
+      <div style="flex:1;"><strong style="color:#fff;">Fase 5: Centros Colaboradores</strong><p style="color:var(--muted);font-size:0.9em;">Cartas enviadas a IRB Barcelona, VHIR Vall d'Hebron y Bellvitge (Dra. Povedano).</p></div>
+      <span class="badge" style="background:rgba(34,197,94,0.15);color:#4ade80;">Enviado</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;opacity:0.6;">
+      <span style="font-size:1.5em;">💊</span>
+      <div style="flex:1;"><strong style="color:#fff;">Fase 6: Del Ordenador a la Farmacia</strong><p style="color:var(--muted);font-size:0.9em;">Células → Ratones → Toxicología → Patente → Ensayos clínicos. 6-8 años.</p></div>
+      <span class="badge" style="background:rgba(100,100,100,0.2);color:#888;">Futuro</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;opacity:0.6;">
+      <span style="font-size:1.5em;">🌍</span>
+      <div style="flex:1;"><strong style="color:#fff;">Fase 7: Impacto Global</strong><p style="color:var(--muted);font-size:0.9em;">350,000 pacientes en el mundo. Acceso abierto CC-BY 4.0. Resultados para todos.</p></div>
+      <span class="badge" style="background:rgba(100,100,100,0.2);color:#888;">Futuro</span>
+    </div>
+  </div>
+</section>
+
+<!-- EL INVESTIGADOR -->
+<section class="section" style="background: rgba(124,58,237,0.03);">
+  <h2><span class="emoji">👤</span>El Investigador</h2>
+  <div class="card" style="max-width:700px;margin:20px auto;">
+    <p style="font-size:1.1em;color:#fff;margin-bottom:12px;"><strong>Fredy Rojas Gutiérrez</strong> — 53 años — Rubí, Barcelona</p>
+    <p style="color:var(--muted);margin-bottom:8px;">🧠 Paciente de ELA desde hace años. Escribe con control ocular Tobii 4C.</p>
+    <p style="color:var(--muted);margin-bottom:8px;">💻 Programa sin mover las manos. Este proyecto entero se construyó con los ojos.</p>
+    <p style="color:var(--muted);margin-bottom:8px;">🏥 Paciente de la Unidad de ELA del Hospital de Bellvitge (Dra. Mónica Povedano).</p>
+    <p style="color:var(--muted);margin-bottom:8px;">🎵 También compone canciones y las distribuye en plataformas digitales.</p>
+    <p style="color:var(--purple-glow);margin-top:16px;font-style:italic;">"No busco publicar un artículo. Busco vivir."</p>
+  </div>
+</section>
+
 <footer>
   <p>MASIVE-ALS · MareNostrum 5 · Barcelona Supercomputing Center</p>
   <p style="margin-top:6px;">Fredy escribe con control ocular Tobii 4C. Este proyecto se creó sin mover las manos.</p>
+  <p style="margin-top:6px;"><a href="https://github.com/fredy30-Rojas/masive-als" style="color:var(--purple-glow);">GitHub</a> · <a href="https://masive-als.is-a.dev" style="color:var(--purple-glow);">masive-als.is-a.dev</a> · <a href="https://conmimirada.is-a.dev" style="color:var(--purple-glow);">conmimirada.is-a.dev</a></p>
   <p style="margin-top:10px; color:#6c5ce7;">CC-BY 4.0 · Open Science · 2026</p>
 </footer>
 
