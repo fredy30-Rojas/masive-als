@@ -27,17 +27,20 @@ module load python/3.11 2>/dev/null && echo "  Python 3.11: OK" || echo "  Pytho
 module load alphafold/2.3.2 2>/dev/null && echo "  AlphaFold: OK" || echo "  AlphaFold: PENDIENTE (requiere instalacion)"
 module load openbabel/3.1.1 2>/dev/null && echo "  OpenBabel: OK" || echo "  OpenBabel: PENDIENTE"
 
-# 3. Copiar scripts al proyecto
+# 3. Copiar scripts al proyecto (asumiendo que se ejecuta desde el repo clonado)
 echo ">>> Copiando scripts..."
-cp slurm_docking.sh slurm_gromacs.sh ${PROJECT_DIR}/scripts/
-chmod +x ${PROJECT_DIR}/scripts/*.sh
+SCRIPT_SRC="$(dirname "$(readlink -f "$0")")"
+cp "${SCRIPT_SRC}/scripts/slurm_docking.sh" "${PROJECT_DIR}/scripts/" 2>/dev/null || echo "  slurm_docking.sh: copiar manualmente"
+cp "${SCRIPT_SRC}/scripts/slurm_gromacs.sh" "${PROJECT_DIR}/scripts/" 2>/dev/null || echo "  slurm_gromacs.sh: copiar manualmente"
+cp -r "${SCRIPT_SRC}/analysis/"* "${PROJECT_DIR}/analysis/" 2>/dev/null || echo "  analysis/: copiar manualmente"
+chmod +x ${PROJECT_DIR}/scripts/*.sh 2>/dev/null || true
 
 # 4. Crear entorno virtual Python
 echo ">>> Configurando Python..."
 python3 -m venv ${PROJECT_DIR}/venv
 source ${PROJECT_DIR}/venv/bin/activate
 pip install --upgrade pip -q
-pip install numpy pandas scipy matplotlib seaborn rdkit openbabel biopython -q
+pip install numpy pandas scipy matplotlib seaborn rdkit biopython -q 2>/dev/null || pip install numpy pandas scipy matplotlib seaborn rdkit-pypi biopython -q
 echo "Python OK"
 
 # 5. Verificar espacio

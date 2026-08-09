@@ -47,7 +47,7 @@ for target in "${!SEQUENCES[@]}"; do
     
     # Limitar a 5 trabajos simultaneos
     if (( $(jobs -r | wc -l) >= 5 )); then
-        wait -n
+        wait -n 2>/dev/null || wait
     fi
 done
 wait

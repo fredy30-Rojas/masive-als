@@ -7,16 +7,17 @@
 #SBATCH --partition=acc
 #SBATCH --qos=acc_res
 #SBATCH --nodes=50
-#SBATCH --ntasks-per-node=4
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=16
 #SBATCH --gres=gpu:4
 #SBATCH --time=48:00:00
-#SBATCH --output=logs/dock_%A_%a.out
-#SBATCH --error=logs/dock_%A_%a.err
+#SBATCH --output=/gpfs/projects/masive-als/logs/dock_%A_%a.out
+#SBATCH --error=/gpfs/projects/masive-als/logs/dock_%A_%a.err
 #SBATCH --array=1-50
 #SBATCH --account=masive-als
 
-# Total: 50 nodos x 4 GPUs = 200 GPUs simultaneas
-# Cada array job procesa 200,000 compuestos (~5 horas)
+# Total: 50 jobs x 4 GPUs = 200 GPUs simultaneas
+# Cada array job procesa 200,000 compuestos
 
 set -e
 
@@ -39,6 +40,7 @@ PROTEINS="${WORKDIR}/proteins"
 RESULTS="${WORKDIR}/results/dock_${SLURM_ARRAY_TASK_ID}"
 
 mkdir -p "${RESULTS}"
+mkdir -p "${WORKDIR}/logs"
 
 # Calcular rango de compuestos para esta tarea
 CHUNK_SIZE=200000
@@ -52,26 +54,39 @@ for target in TDP43 SOD1 FUS; do
     echo "--- Diana: ${target} ---"
     
     PROTEIN_PDB="${PROTEINS}/${target}/conformations"
+    LIGAND_FILE="${COMPOUNDS}/${target}_batch_${SLURM_ARRAY_TASK_ID}.pdbqt"
     
-    # Seleccionar las 500 conformaciones mas representativas
-    for conf in $(ls ${PROTEIN_PDB}/*.pdbqt | head -500); do
+    if [ ! -f "${LIGAND_FILE}" ]; then
+        echo "ERROR: No se encuentra ${LIGAND_FILE}. Saltando ${target}."
+        continue
+    fi
+    
+    # Seleccionar 100 conformaciones mas representativas
+    conf_count=0
+    for conf in $(ls ${PROTEIN_PDB}/*.pdbqt 2>/dev/null | head -100); do
         conf_name=$(basename ${conf} .pdbqt)
+        conf_count=$((conf_count + 1))
         
-        # Ejecutar AutoDock-GPU en las 4 GPUs del nodo
-        srun --ntasks=1 --gres=gpu:1 autodock_gpu \
-            -lfile ${COMPOUNDS}/ligands_${target}.pdbqt \
-            -ffile ${conf} \
+        # AutoDock-GPU: cada instancia usa 1 GPU
+        CUDA_VISIBLE_DEVICES=$(( (conf_count - 1) % 4 )) autodock_gpu \
+            -lfile "${LIGAND_FILE}" \
+            -ffile "${conf}" \
             -nrun 10 \
             -ngen 27000 \
             -npdb 10 \
-            -resnam ${RESULTS}/${target}_${conf_name}_${SLURM_ARRAY_TASK_ID} &
+            -resnam "${RESULTS}/${target}_${conf_name}_${SLURM_ARRAY_TASK_ID}" &
+        
+        # Limitar a 4 procesos simultaneos (una por GPU)
+        if (( conf_count % 4 == 0 )); then
+            wait
+        fi
     done
     wait
 done
 
 # Consolidar resultados
 python3 ${WORKDIR}/analysis/merge_results.py \
-    --input ${RESULTS} \
-    --output ${WORKDIR}/results/merged_${SLURM_ARRAY_TASK_ID}.csv
+    --input "${RESULTS}" \
+    --output "${WORKDIR}/results/merged_${SLURM_ARRAY_TASK_ID}.csv"
 
 echo "Tarea ${SLURM_ARRAY_TASK_ID} completada: $(date)"

@@ -10,8 +10,8 @@
 #SBATCH --ntasks-per-node=4
 #SBATCH --gres=gpu:4
 #SBATCH --time=72:00:00
-#SBATCH --output=logs/md_%A_%a.out
-#SBATCH --error=logs/md_%A_%a.err
+#SBATCH --output=/gpfs/projects/masive-als/logs/md_%A_%a.out
+#SBATCH --error=/gpfs/projects/masive-als/logs/md_%A_%a.err
 #SBATCH --array=1-20
 #SBATCH --account=masive-als
 
@@ -43,32 +43,43 @@ python3 ${WORKDIR}/analysis/prepare_md.py \
     --output ${MDDIR}/job_${SLURM_ARRAY_TASK_ID}
 
 # Para cada compuesto, ejecutar MD de 1 microsegundo
-cd ${MDDIR}/job_${SLURM_ARRAY_TASK_ID}
+JOB_DIR="${MDDIR}/job_${SLURM_ARRAY_TASK_ID}"
+cd "${JOB_DIR}" || { echo "ERROR: No se encuentra ${JOB_DIR}"; exit 1; }
 
-for system in system_*; do
-    cd ${system}
+for system_dir in system_*; do
+    if [ ! -d "${system_dir}" ]; then continue; fi
+    cd "${JOB_DIR}/${system_dir}" || continue
+    
+    echo "  MD: ${system_dir}"
+    
+    # Verificar que existen los archivos necesarios
+    if [ ! -f "complex.gro" ] || [ ! -f "topol.top" ]; then
+        echo "  WARNING: Faltan archivos en ${system_dir}, saltando"
+        cd "${JOB_DIR}"
+        continue
+    fi
     
     # Minimizacion
-    gmx grompp -f minim.mdp -c complex.gro -p topol.top -o minim.tpr
-    gmx mdrun -deffnm minim -nb gpu -bonded gpu -pme gpu
+    gmx grompp -f minim.mdp -c complex.gro -p topol.top -o minim.tpr -maxwarn 1
+    gmx mdrun -deffnm minim -nb gpu -bonded gpu -pme gpu -ntmpi 1
     
     # Equilibracion NVT
-    gmx grompp -f nvt.mdp -c minim.gro -p topol.top -o nvt.tpr
-    gmx mdrun -deffnm nvt -nb gpu -bonded gpu -pme gpu
+    gmx grompp -f nvt.mdp -c minim.gro -p topol.top -o nvt.tpr -maxwarn 1
+    gmx mdrun -deffnm nvt -nb gpu -bonded gpu -pme gpu -ntmpi 1
     
     # Equilibracion NPT
-    gmx grompp -f npt.mdp -c nvt.gro -p topol.top -o npt.tpr
-    gmx mdrun -deffnm npt -nb gpu -bonded gpu -pme gpu
+    gmx grompp -f npt.mdp -c nvt.gro -p topol.top -o npt.tpr -maxwarn 1
+    gmx mdrun -deffnm npt -nb gpu -bonded gpu -pme gpu -ntmpi 1
     
-    # Produccion 1 microsegundo
-    gmx grompp -f md.mdp -c npt.gro -p topol.top -o md.tpr
-    gmx mdrun -deffnm md -nb gpu -bonded gpu -pme gpu -nsteps 500000000
+    # Produccion 1 microsegundo (500M steps x 0.002 ps = 1 us)
+    gmx grompp -f md.mdp -c npt.gro -p topol.top -o md.tpr -maxwarn 1
+    gmx mdrun -deffnm md -nb gpu -bonded gpu -pme gpu -nsteps 500000000 -ntmpi 1
     
-    # Analisis MM-GBSA
-    gmx rms -s md.tpr -f md.xtc -o rmsd.xvg
-    gmx gyrate -s md.tpr -f md.xtc -o gyrate.xvg
+    # Analisis post-MD
+    echo "0 0" | gmx rms -s md.tpr -f md.xtc -o rmsd.xvg -tu ns 2>/dev/null || true
+    echo "0 0" | gmx gyrate -s md.tpr -f md.xtc -o gyrate.xvg 2>/dev/null || true
     
-    cd ..
+    cd "${JOB_DIR}"
 done
 
 # Consolidar resultados MD de esta tanda

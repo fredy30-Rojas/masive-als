@@ -13,16 +13,28 @@ echo ">>> Descargando librerias de compuestos..."
 
 # 1. ZINC20 - compuestos drug-like (gratuito, ~5M compuestos)
 echo ">>> ZINC20: descargando compuestos drug-like..."
+mkdir -p ${COMPOUNDS}/zinc20
 # ZINC20 se descarga por tranches desde zinc20.docking.org
+# Usamos wget con patrones correctos para cada tranche
 for tranche in {A..Z}; do
-    wget -q -P ${COMPOUNDS}/zinc20 \
-        "https://zinc20.docking.org/tranches/${tranche}/{A..Z}/*.mol2.gz" \
-        --accept "*.mol2.gz" \
-        --limit-rate=100M \
-        --continue &
+    for subtranche in {A..Z}; do
+        url="https://zinc20.docking.org/tranches/${tranche}${subtranche}/${tranche}${subtranche}.mol2.gz"
+        wget -q -P "${COMPOUNDS}/zinc20" \
+            "${url}" \
+            -A "*.mol2.gz" \
+            --limit-rate=100M \
+            --timeout=30 \
+            --tries=2 \
+            --continue 2>/dev/null &
+        
+        # Limitar a 10 descargas simultaneas
+        if (( $(jobs -r | wc -l) >= 10 )); then
+            wait -n 2>/dev/null || true
+        fi
+    done
 done
 wait
-echo "ZINC20: OK"
+echo "ZINC20: descarga completada ($(ls ${COMPOUNDS}/zinc20/*.mol2.gz 2>/dev/null | wc -l) archivos)"
 
 # 2. DrugBank - farmacos aprobados y experimentales (~15K compuestos)
 echo ">>> DrugBank: descargando..."
