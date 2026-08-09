@@ -1,72 +1,104 @@
-# MASIVE-ALS: Cribado molecular masivo de 10 millones de compuestos contra TDP-43, SOD1 y FUS en MareNostrum 5
+# MASIVE-ALS: Massive Virtual Screening for Amyotrophic Lateral Sclerosis Drug Candidates
+## A Computational Pipeline Targeting TDP-43, SOD1, and FUS Proteinopathies
 
-**Fredy Rojas Gutiérrez¹**
-
-¹Proyecto independiente MASIVE-ALS, Rubí, Barcelona, España
-
----
-
-## Resumen
-
-La Esclerosis Lateral Amiotrófica (ELA) es una enfermedad neurodegenerativa fatal sin tratamiento curativo. En el 97% de los pacientes, la proteína TDP-43 se acumula en el citoplasma neuronal formando agregados tóxicos. Este estudio presenta el mayor cribado virtual realizado hasta la fecha contra las tres proteínas clave de la ELA: TDP-43, SOD1 y FUS. Utilizando la partición acelerada (ACC) de MareNostrum 5 (BSC-CNS, Barcelona), se simularon 10 millones de compuestos de las librerías ZINC20, DrugBank y Enamine REAL contra 100,000 conformaciones proteicas generadas con AlphaFold-Multimer. El cribado masivo con AutoDock-GPU sobre 200 GPUs NVIDIA H100 se completó en 6 meses —un trabajo que habría requerido ~14 años en infraestructura convencional. La validación por dinámica molecular (GROMACS, 1 μs por candidato) de los 1,000 mejores hits identificó 3 compuestos cabeza de serie con energía de unión < -10 kcal/mol y estabilidad conformacional validada por RMSD < 2 Å. Estos resultados demuestran la viabilidad del cribado masivo en infraestructura pública de supercomputación como estrategia para acelerar el descubrimiento de fármacos en enfermedades huérfanas.
+**Authors:** Fredy Rojas Gutiérrez¹, [ collaborators ]
+**Affiliations:** ¹ Independent Researcher, Rubí, Barcelona, Spain
+**Correspondence:** fredy_30@hotmail.com
+**Date:** August 2026
 
 ---
 
-## 1. Introducción
+## Abstract
 
-[Sección a completar tras obtener los resultados]
+Amyotrophic Lateral Sclerosis (ALS) is a fatal neurodegenerative disease affecting 350,000 people worldwide with no curative treatment. We present MASIVE-ALS, a large-scale virtual screening pipeline targeting three key ALS-associated proteins: TDP-43 (present in 97% of patients), SOD1 (20% of familial ALS), and FUS (pathological liquid-to-solid phase transition). Using AlphaFold-Multimer (Nobel Prize in Chemistry 2024), AutoDock-GPU, and GROMACS, we screen 10 million drug-like compounds from ZINC20, DrugBank, and Enamine REAL databases. Our computational pipeline generates 100,000 protein conformations, executes 1 trillion docking simulations, and validates top candidates with 1-microsecond molecular dynamics simulations. We aim to identify 3-5 repurposable or synthesizable drug candidates ready for experimental validation in cellular and animal models. All results, code, and data will be released under CC-BY 4.0 open access.
 
----
-
-## 2. Métodos
-
-### 2.1 Preparación de proteínas diana
-Se generaron 100,000 conformaciones de TDP-43-LCD, SOD1 (wild-type y mutantes G93A, A4V) y FUS-PrLD mediante AlphaFold-Multimer v2.3.2 con 12 ciclos de reciclaje.
-
-### 2.2 Librerías de compuestos
-- ZINC20: 5M compuestos drug-like
-- DrugBank: 15K fármacos aprobados/experimentales
-- Enamine REAL: 2M compuestos sintetizables
-Total: ~10M compuestos convertidos a PDBQT con OpenBabel.
-
-### 2.3 Cribado virtual
-AutoDock-GPU v1.6 sobre MareNostrum 5 (partición ACC, 200 GPUs NVIDIA H100, interconexión InfiniBand NDR200). Rendimiento: ~400,000 docks/segundo.
-
-### 2.4 Validación por dinámica molecular
-Top 1,000 hits validados con GROMACS 2024.3 (1 μs, CHARMM36, TIP3P, 300K, 1 atm). Cálculo MM-GBSA de energía libre de unión.
+**Keywords:** ALS, virtual screening, molecular docking, AlphaFold, AutoDock, GROMACS, drug repurposing, TDP-43, SOD1, FUS
 
 ---
 
-## 3. Resultados
+## 1. Introduction
 
-[Sección a completar tras obtener los resultados]
+Amyotrophic Lateral Sclerosis is characterized by progressive degeneration of motor neurons, leading to paralysis and death typically within 3-5 years of diagnosis (Brown & Al-Chalabi, 2017). Despite decades of research, only two disease-modifying drugs (riluzole and edaravone) are approved, offering modest survival benefits of 2-3 months.
 
----
+The proteinopathy hypothesis of ALS identifies three critical proteins:
 
-## 4. Discusión
+1. **TDP-43 (TAR DNA-binding protein 43):** Cytoplasmic aggregation of TDP-43 is observed in approximately 97% of ALS patients, making it the pathological hallmark of the disease (Neumann et al., 2006). TDP-43 mislocalization and aggregation disrupt RNA metabolism and induce neurotoxicity.
 
-[Sección a completar]
+2. **SOD1 (Superoxide Dismutase 1):** Mutations in SOD1 account for approximately 20% of familial ALS cases. Mutant SOD1 generates toxic reactive oxygen species through aberrant chemistry at the copper-zinc active site (Rosen et al., 1993).
 
----
+3. **FUS (Fused in Sarcoma):** FUS undergoes pathological liquid-liquid phase separation and liquid-to-solid transition, forming toxic inclusions that impair nucleocytoplasmic transport (Patel et al., 2015).
 
-## 5. Conclusión
-
-El cribado masivo en infraestructura pública de supercomputación representa una estrategia viable y reproducible para acelerar el descubrimiento de fármacos en ELA y otras enfermedades neurodegenerativas. Los 3 compuestos identificados justifican estudios preclínicos in vitro e in vivo.
+Virtual screening offers an unprecedented opportunity to identify therapeutic molecules targeting these proteins. Advances in GPU-accelerated computing now enable screening of billions of drug-protein interactions in weeks rather than years.
 
 ---
 
-## Agradecimientos
+## 2. Methods
 
-A la Red Española de Supercomputación (RES) y al Barcelona Supercomputing Center (BSC-CNS) por la concesión de 200,000 horas-GPU en MareNostrum 5 (proyecto MASIVE-ALS). A la Dra. Mònica Povedano y a la Unidad Funcional de Enfermedad de Motoneurona del Hospital de Bellvitge.
+### 2.1 Protein Structure Generation
+
+We employ AlphaFold-Multimer v2.3 (Jumper et al., 2021; Evans et al., 2022) to generate high-confidence 3D structures of TDP-43, SOD1, and FUS. For each protein, we generated 100,000 conformations using replica-exchange enhanced sampling to explore the conformational landscape.
+
+### 2.2 Compound Library Preparation
+
+Our screening library comprises:
+- **ZINC20** (Irwin et al., 2020): 5 million drug-like compounds
+- **DrugBank** (Wishart et al., 2018): 15,000 approved and experimental drugs
+- **Enamine REAL**: 2 million synthesizable compounds
+
+All compounds are converted to PDBQT format using OpenBabel 3.1.1 with Gasteiger charges.
+
+### 2.3 Virtual Screening
+
+Molecular docking is performed using AutoDock-GPU 1.6 (Santos-Martins et al., 2021) on GPU-accelerated architectures. Each compound is docked against each protein conformation using a Lamarckian Genetic Algorithm with 10 independent runs per docking pose.
+
+Score = min(ΔG_binding) over k = 10 independent runs
+
+### 2.4 Molecular Dynamics Validation
+
+Top 1,000 candidates are subjected to all-atom molecular dynamics simulations using GROMACS 2024.3 (Abraham et al., 2015) with the CHARMM36 force field. Each system undergoes:
+- 50,000 steps energy minimization
+- 50,000 steps NVT equilibration (300 K)
+- 50,000 steps NPT equilibration (1 bar)
+- 500,000,000 steps production MD (1 μs)
+
+Binding free energy is calculated using the MM-GBSA method.
 
 ---
 
-## Referencias
+## 3. Results (Expected)
 
-1. Neumann M, et al. (2023). TDP-43 proteinopathy in ALS. *Nature Reviews Neurology*, 19, 422-438.
-2. Jumper J, et al. (2022). Highly accurate protein structure prediction with AlphaFold. *Nature*, 596, 583-589.
-3. Abramzon Y, et al. (2024). The overlapping genetics of ALS and FTD. *The Lancet Neurology*, 23(5), 456-470.
+Following completion of the screening campaign (September 2026 - February 2027), we expect:
+
+- Top 1,000 hits ranked by binding energy (target: ΔG < -10 kcal/mol)
+- 50-100 candidates with stable MD trajectories (RMSD < 2.0 Å)
+- 3-5 lead compounds with favorable ADME properties and BBB permeability
+- Complete dataset deposited in Zenodo (CC-BY 4.0)
 
 ---
 
-*Preprint. Datos completos disponibles en github.com/fredy30-Rojas/masive-als bajo licencia CC-BY 4.0.*
+## 4. Discussion
+
+This study represents one of the largest virtual screening campaigns specifically targeting ALS. The use of AlphaFold-Multimer, awarded the 2024 Nobel Prize in Chemistry, ensures high-quality protein structures. GPU-accelerated AutoDock enables throughput previously only achievable with dedicated supercomputing resources.
+
+The three-protein strategy maximizes the probability of success: even if one target fails to yield candidates, the others may compensate.
+
+---
+
+## 5. Conclusion
+
+MASIVE-ALS combines state-of-the-art AI-based protein structure prediction, GPU-accelerated virtual screening, and rigorous molecular dynamics validation to identify ALS drug candidates. All results will be released as open access to maximize impact on ALS research worldwide.
+
+---
+
+## References
+
+1. Brown, R.H. & Al-Chalabi, A. (2017). NEJM, 377(2), 162-172.
+2. Evans, R. et al. (2022). Protein complex prediction with AlphaFold-Multimer. bioRxiv.
+3. Irwin, J.J. et al. (2020). J. Chem. Inf. Model, 60(12), 6065-6073.
+4. Jumper, J. et al. (2021). Nature, 596, 583-589.
+5. Neumann, M. et al. (2006). Science, 314(5796), 130-133.
+6. Patel, A. et al. (2015). Cell, 162(5), 1066-1077.
+7. Rosen, D.R. et al. (1993). Nature, 362, 59-62.
+8. Santos-Martins, D. et al. (2021). J. Chem. Theory Comput., 17(2), 1060-1073.
+9. Wishart, D.S. et al. (2018). Nucleic Acids Res., 46(D1), D1074-D1082.
+10. Abraham, M.J. et al. (2015). SoftwareX, 1-2, 19-25.

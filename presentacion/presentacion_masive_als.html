@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MASIVE-ALS — Presentación</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: system-ui, sans-serif; background: #060610; color: #e0e0e8; overflow-x: hidden; }
+.slide { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px 24px; position: relative; }
+.slide:nth-child(odd) { background: #060610; }
+.slide:nth-child(even) { background: #0a0a1a; }
+h1 { font-size: clamp(2.5em, 6vw, 5em); font-weight: 900; text-align: center; }
+h1 span { background: linear-gradient(135deg, #a78bfa, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+h2 { font-size: 2.2em; color: #fff; text-align: center; margin-bottom: 30px; }
+p, li { font-size: 1.2em; color: #94a3b8; max-width: 700px; text-align: center; line-height: 1.6; }
+.big-num { font-size: 4em; font-weight: 900; background: linear-gradient(135deg, #a78bfa, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 900px; margin-top: 20px; }
+@media(max-width:700px){ .grid3{grid-template-columns:1fr;} }
+.card { background: #0e0e20; border: 1px solid #1e1e3a; border-radius: 16px; padding: 28px; text-align: center; }
+.card h3 { color: #fff; font-size: 1.3em; margin: 10px 0 8px; }
+.card .emoji { font-size: 2.5em; }
+.card p { font-size: 0.9em; }
+.quote { font-size: 1.6em; font-style: italic; color: #a78bfa; text-align: center; max-width: 600px; margin-top: 20px; }
+.quote cite { display: block; font-size: 0.6em; color: #94a3b8; margin-top: 12px; font-style: normal; }
+.timeline { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; max-width: 800px; }
+.timeline-item { background: #0e0e20; border: 1px solid #1e1e3a; border-radius: 12px; padding: 16px; text-align: center; min-width: 120px; }
+.timeline-item .month { color: #a78bfa; font-weight: 700; font-size: 0.9em; }
+.timeline-item .task { color: #94a3b8; font-size: 0.85em; }
+.footer { text-align: center; padding: 20px; color: #555; font-size: 0.8em; }
+</style>
+</head>
+<body>
+
+<section class="slide">
+  <h1>MASIVE-<span>ALS</span></h1>
+  <p style="margin-top:10px;font-size:1.3em;">Cribado Molecular Masivo contra la ELA</p>
+  <p style="margin-top:6px;">MareNostrum 5 · Barcelona Supercomputing Center</p>
+  <p style="margin-top:20px;color:#a78bfa;">Fredy Rojas Gutiérrez · Rubí, Barcelona · 2026</p>
+</section>
+
+<section class="slide">
+  <h2>El Problema</h2>
+  <div class="grid3">
+    <div class="card"><div class="emoji">🧠</div><h3>350,000</h3><p>Personas con ELA en el mundo. 4,000 en España.</p></div>
+    <div class="card"><div class="emoji">💊</div><h3>Sin cura</h3><p>Solo 2 fármacos aprobados. Extienden la vida 2-3 meses.</p></div>
+    <div class="card"><div class="emoji">⏱️</div><h3>3-5 años</h3><p>Esperanza de vida tras el diagnóstico.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <h2>Las 3 Proteínas Diana</h2>
+  <div class="grid3">
+    <div class="card"><div class="emoji">🔴</div><h3>TDP-43</h3><p>Presente en el 97% de pacientes. Se acumula y forma agregados tóxicos.</p></div>
+    <div class="card"><div class="emoji">🟡</div><h3>SOD1</h3><p>Mutada en el 20% de ELA familiar. Genera radicales libres.</p></div>
+    <div class="card"><div class="emoji">🔵</div><h3>FUS</h3><p>Transición líquido→sólido patológica. Forma inclusiones tóxicas.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <h2>Las Herramientas</h2>
+  <div class="grid3">
+    <div class="card"><div class="emoji">🏆</div><h3>AlphaFold</h3><p>Nobel de Química 2024. Predice la estructura 3D en minutos.</p></div>
+    <div class="card"><div class="emoji">🔑</div><h3>AutoDock-GPU</h3><p>400,000 pruebas por segundo. 10M fármacos en semanas.</p></div>
+    <div class="card"><div class="emoji">🎬</div><h3>GROMACS</h3><p>1 µs de simulación atómica. La prueba de fuego final.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <h2>La Escala</h2>
+  <div class="big-num">10,000,000</div>
+  <p>Compuestos químicos</p>
+  <div class="big-num" style="margin-top:20px;">1,000,000,000,000</div>
+  <p>Simulaciones de docking (1 billón)</p>
+  <div class="big-num" style="margin-top:20px;">200</div>
+  <p>GPUs trabajando en paralelo</p>
+</section>
+
+<section class="slide">
+  <h2>Cronograma</h2>
+  <div class="timeline">
+    <div class="timeline-item"><div class="month">Sept 2026</div><div class="task">Preparación</div></div>
+    <div class="timeline-item"><div class="month">Oct-Nov</div><div class="task">Cribado Fase 1</div></div>
+    <div class="timeline-item"><div class="month">Dic 2026</div><div class="task">Cribado Fase 2</div></div>
+    <div class="timeline-item"><div class="month">Ene 2027</div><div class="task">Validación MD</div></div>
+    <div class="timeline-item"><div class="month">Feb 2027</div><div class="task">Resultados</div></div>
+  </div>
+  <p style="margin-top:30px;">6 meses · 24/7 · Sin pausa</p>
+</section>
+
+<section class="slide">
+  <h2>Colaboradores</h2>
+  <div class="grid3">
+    <div class="card"><div class="emoji">🧫</div><h3>IRB Barcelona</h3><p>Validación in vitro. Cultivos neuronales.</p></div>
+    <div class="card"><div class="emoji">🐁</div><h3>VHIR Vall d'Hebron</h3><p>Modelos animales. Ratones SOD1.</p></div>
+    <div class="card"><div class="emoji">🏥</div><h3>Bellvitge</h3><p>Ensayos clínicos. Dra. Povedano.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <h2>El Investigador</h2>
+  <p style="font-size:1.3em;color:#fff;">Fredy Rojas Gutiérrez</p>
+  <p>53 años · Rubí, Barcelona</p>
+  <p style="margin-top:12px;">Paciente de ELA · Escribe con control ocular Tobii 4C</p>
+  <p style="margin-top:12px;">Este proyecto se construyó sin mover las manos.</p>
+  <div class="quote">
+    "No busco publicar un artículo. Busco vivir."
+    <cite>— Fredy Rojas</cite>
+  </div>
+</section>
+
+<section class="slide">
+  <h2>Contacto</h2>
+  <p style="font-size:1.2em;color:#fff;">fredy_30@hotmail.com</p>
+  <p>+34 675 31 58 41</p>
+  <p style="margin-top:12px;">Rubí, Barcelona, España</p>
+  <p style="margin-top:20px;">github.com/fredy30-Rojas/masive-als</p>
+  <p style="margin-top:20px;color:#a78bfa;">CC-BY 4.0 · Open Science</p>
+</section>
+
+<div class="footer">MASIVE-ALS · 2026 · Presentación para colaboradores</div>
+
+</body>
+</html>
