@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MASIVE-ALS — Cribado Molecular contra la ELA | MareNostrum 5</title>
+<meta name="description" content="Proyecto MASIVE-ALS: 10 millones de fármacos contra la ELA en el superordenador MareNostrum 5. Investigador principal: Fredy Rojas Gutiérrez.">
+<style>
+:root {
+  --bg: #050510;
+  --card: #0c0c22;
+  --ink: #d4d4e0;
+  --muted: #8080a0;
+  --purple: #7c3aed;
+  --purple-glow: #a78bfa;
+  --blue: #3b82f6;
+  --border: #1e1e3a;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; background: var(--bg); color: var(--ink); line-height: 1.7; overflow-x: hidden; }
+
+/* Hero */
+.hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px 20px; position: relative; background: radial-gradient(ellipse at 50% 0%, rgba(124,58,237,0.15) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(59,130,246,0.08) 0%, transparent 50%), var(--bg); }
+.hero::after { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%237c3aed' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); opacity: 0.5; pointer-events: none; }
+.hero > * { position: relative; z-index: 1; }
+.badge { display: inline-block; background: rgba(124,58,237,0.2); color: var(--purple-glow); border: 1px solid rgba(124,58,237,0.3); padding: 6px 16px; border-radius: 99px; font-size: 0.85em; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 24px; }
+.hero h1 { font-size: clamp(2.5em, 8vw, 5em); font-weight: 900; letter-spacing: -1px; line-height: 1.1; color: #fff; margin-bottom: 12px; }
+.hero h1 span { background: linear-gradient(135deg, #a78bfa, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero .subtitle { font-size: clamp(1.1em, 3vw, 1.5em); color: var(--muted); max-width: 600px; margin: 0 auto 30px; }
+.hero .stats { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; margin: 20px 0 30px; }
+.hero .stat { text-align: center; }
+.hero .stat-num { font-size: 2.5em; font-weight: 900; color: var(--purple-glow); display: block; }
+.hero .stat-label { font-size: 0.85em; color: var(--muted); }
+.cta { display: inline-block; background: var(--purple); color: #fff; padding: 16px 36px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 1.1em; transition: all 0.3s; box-shadow: 0 4px 24px rgba(124,58,237,0.3); }
+.cta:hover { background: #6d28d9; transform: translateY(-2px); box-shadow: 0 8px 32px rgba(124,58,237,0.5); }
+.cta-outline { display: inline-block; border: 2px solid var(--border); color: var(--ink); padding: 14px 34px; border-radius: 12px; text-decoration: none; font-weight: 600; margin-left: 12px; transition: all 0.3s; }
+.cta-outline:hover { border-color: var(--purple); color: #fff; }
+
+/* Sections */
+.section { padding: 80px 20px; max-width: 1000px; margin: 0 auto; }
+.section h2 { font-size: 2.2em; font-weight: 800; color: #fff; margin-bottom: 16px; }
+.section h2 .emoji { margin-right: 10px; }
+.section > p { color: var(--muted); font-size: 1.1em; max-width: 700px; margin-bottom: 40px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+
+/* Cards */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; transition: all 0.3s; position: relative; overflow: hidden; }
+.card:hover { border-color: rgba(124,58,237,0.4); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+.card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, var(--purple), var(--blue)); opacity: 0; transition: opacity 0.3s; }
+.card:hover::before { opacity: 1; }
+.card h3 { font-size: 1.3em; color: #fff; margin-bottom: 8px; }
+.card p { color: var(--muted); font-size: 0.95em; }
+.card .card-icon { font-size: 2em; margin-bottom: 12px; display: block; }
+
+/* Protein cards */
+.protein { border-left: 4px solid transparent; }
+.protein:nth-child(1) { border-left-color: #ef4444; }
+.protein:nth-child(2) { border-left-color: #f59e0b; }
+.protein:nth-child(3) { border-left-color: #3b82f6; }
+.protein .tag { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 0.75em; font-weight: 700; margin-top: 8px; }
+.tag-red { background: rgba(239,68,68,0.15); color: #fca5a5; }
+.tag-yellow { background: rgba(245,158,11,0.15); color: #fcd34d; }
+.tag-blue { background: rgba(59,130,246,0.15); color: #93c5fd; }
+
+/* Timeline */
+.timeline { position: relative; padding-left: 30px; }
+.timeline::before { content: ''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+.timeline-item { position: relative; margin-bottom: 30px; padding-left: 24px; }
+.timeline-item::before { content: ''; position: absolute; left: -26px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--purple); border: 2px solid var(--purple-glow); }
+.timeline-item h4 { color: #fff; margin-bottom: 4px; }
+.timeline-item p { color: var(--muted); font-size: 0.9em; }
+
+/* Quote */
+.quote { background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(59,130,246,0.05)); border: 1px solid var(--border); border-radius: 20px; padding: 40px; text-align: center; margin: 60px 0; }
+.quote blockquote { font-size: 1.6em; font-weight: 300; color: #fff; font-style: italic; line-height: 1.4; }
+.quote blockquote::before { content: '"'; }
+.quote blockquote::after { content: '"'; }
+.quote cite { display: block; margin-top: 16px; color: var(--muted); font-size: 1em; font-style: normal; }
+
+/* Contact */
+.contact { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; text-align: center; }
+.contact a { color: var(--purple-glow); text-decoration: none; }
+.contact a:hover { text-decoration: underline; }
+
+/* Footer */
+footer { text-align: center; padding: 40px; color: #444; font-size: 0.85em; border-top: 1px solid #0a0a18; }
+
+/* Nav */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 10; padding: 16px 20px; background: rgba(5,5,16,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(30,30,58,0.5); display: flex; justify-content: center; gap: 24px; }
+nav a { color: var(--muted); text-decoration: none; font-size: 0.9em; font-weight: 500; transition: color 0.2s; }
+nav a:hover { color: #fff; }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .hero .stats { gap: 20px; }
+  .hero .stat-num { font-size: 1.8em; }
+  .cta-outline { margin-left: 0; margin-top: 10px; }
+  .section h2 { font-size: 1.6em; }
+  .quote blockquote { font-size: 1.2em; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#proyecto">Proyecto</a>
+  <a href="#ciencia">Ciencia</a>
+  <a href="#cronograma">Plan</a>
+  <a href="#equipo">Colaboradores</a>
+  <a href="#open">Open Source</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge">🔬 MareNostrum 5 · BSC-CNS · Barcelona</div>
+  <h1>MASIVE-<span>ALS</span></h1>
+  <p class="subtitle">Cribado Molecular Masivo contra la Esclerosis Lateral Amiotrófica. 10 millones de fármacos. 200 GPUs. 6 meses.</p>
+  <div class="stats">
+    <div class="stat"><span class="stat-num">10M</span><span class="stat-label">Compuestos</span></div>
+    <div class="stat"><span class="stat-num">200</span><span class="stat-label">GPUs H100</span></div>
+    <div class="stat"><span class="stat-num">3</span><span class="stat-label">Proteínas diana</span></div>
+    <div class="stat"><span class="stat-num">6</span><span class="stat-label">Meses</span></div>
+  </div>
+  <div>
+    <a href="#proyecto" class="cta">Conoce el proyecto</a>
+    <a href="https://github.com/fredy30-Rojas/masive-als" class="cta-outline">GitHub ↗</a>
+  </div>
+</section>
+
+<!-- PROYECTO -->
+<section class="section" id="proyecto">
+  <h2><span class="emoji">🧬</span>El Proyecto</h2>
+  <p>La ELA afecta a <strong>350,000 personas</strong> en el mundo y <strong>4,000 en España</strong>. No existe cura. MASIVE-ALS usa el superordenador más potente de España para cambiar eso.</p>
+  <div class="grid">
+    <div class="card">
+      <span class="card-icon">💻</span>
+      <h3>MareNostrum 5</h3>
+      <p>El superordenador del BSC-CNS, en Barcelona. 200 GPUs NVIDIA Hopper trabajando en paralelo. Capacidad de 400,000 simulaciones de docking por segundo.</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">🎯</span>
+      <h3>Objetivo</h3>
+      <p>Identificar <strong>3-5 fármacos candidatos</strong> que ataquen las causas moleculares de la ELA. Fármacos que ya existen o que se pueden fabricar.</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">⏱️</span>
+      <h3>Velocidad</h3>
+      <p>En un PC con 4 GPUs: <strong>8 años</strong>. En MareNostrum 5 con 200 GPUs: <strong>6 meses</strong>. Lo que la biología tarda décadas, la computación lo resuelve en meses.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CIENCIA -->
+<section class="section" id="ciencia" style="background: rgba(124,58,237,0.03);">
+  <h2><span class="emoji">🔬</span>La Ciencia</h2>
+  <p>Tres proteínas son las responsables del daño neuronal en prácticamente todos los pacientes de ELA. Si encontramos moléculas que las detengan, encontramos un tratamiento.</p>
+  <div class="grid">
+    <div class="card protein">
+      <span class="card-icon">🔴</span>
+      <h3>TDP-43</h3>
+      <p>En el <strong>97% de pacientes</strong>, esta proteína se acumula de forma tóxica en el citoplasma. Buscamos moléculas que la desagreguen.</p>
+      <span class="tag tag-red">97% pacientes</span>
+    </div>
+    <div class="card protein">
+      <span class="card-icon">🟡</span>
+      <h3>SOD1</h3>
+      <p>Mutada en el <strong>20% de ELA familiar</strong>. Genera radicales libres que queman la neurona motora. Buscamos estabilizar su forma correcta.</p>
+      <span class="tag tag-yellow">20% familiar</span>
+    </div>
+    <div class="card protein">
+      <span class="card-icon">🔵</span>
+      <h3>FUS</h3>
+      <p>Sufre una transición de fase aberrante: pasa de líquido a sólido y forma inclusiones tóxicas. Buscamos bloquear esa transición.</p>
+      <span class="tag tag-blue">Transición de fase</span>
+    </div>
+  </div>
+
+  <h2 style="margin-top:60px;"><span class="emoji">🛠</span>Herramientas</h2>
+  <div class="grid">
+    <div class="card">
+      <span class="card-icon">🏆</span>
+      <h3>AlphaFold-Multimer</h3>
+      <p>Nobel de Química 2024. Predice la estructura 3D de proteínas con precisión atómica. Generamos 100,000 conformaciones de cada proteína.</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">⚡</span>
+      <h3>AutoDock-GPU</h3>
+      <p>Cribado masivo: 400,000 simulaciones de docking por segundo. Prueba cada fármaco contra cada forma de cada proteína.</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">💧</span>
+      <h3>GROMACS</h3>
+      <p>Dinámica molecular de 1 microsegundo para validar los mejores candidatos. Simula el movimiento real de átomos en solución.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CRONOGRAMA -->
+<section class="section" id="cronograma">
+  <h2><span class="emoji">📅</span>Plan de 6 meses</h2>
+  <p>Solicitado a la Red Española de Supercomputación (RES). Septiembre 2026 - Febrero 2027.</p>
+  <div class="timeline">
+    <div class="timeline-item">
+      <h4>Sept 2026 — Preparación</h4>
+      <p>Descarga de 10 millones de compuestos de ZINC20, DrugBank y Enamine REAL. Generación de 100K conformaciones proteicas con AlphaFold.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>Oct-Nov 2026 — Cribado Fase 1</h4>
+      <p>5 millones de compuestos contra las 3 proteínas. 200 GPUs H100 en paralelo. 50 tareas simultáneas.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>Dic 2026 — Cribado Fase 2</h4>
+      <p>Segunda tanda de 5 millones de compuestos. Análisis de los mejores hits de la Fase 1.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>Ene 2027 — Validación</h4>
+      <p>Dinámica molecular de los top 1,000 candidatos. 1 microsegundo por simulación. Cálculo de energía libre de unión (MM-GBSA).</p>
+    </div>
+    <div class="timeline-item">
+      <h4>Feb 2027 — Resultados</h4>
+      <p>3-5 fármacos candidatos listos para validación experimental. Publicación en acceso abierto (CC-BY 4.0).</p>
+    </div>
+  </div>
+</section>
+
+<!-- COLABORADORES -->
+<section class="section" id="equipo" style="background: rgba(124,58,237,0.03);">
+  <h2><span class="emoji">🤝</span>Colaboradores</h2>
+  <p>Una vez identificados los fármacos candidatos, la validación experimental se hará en Barcelona.</p>
+  <div class="grid">
+    <div class="card">
+      <span class="card-icon">🧫</span>
+      <h3>IRB Barcelona</h3>
+      <p>Validación in vitro: cultivos de neuronas motoras con ELA. Centro Severo Ochoa de excelencia.</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">🐁</span>
+      <h3>VHIR Vall d'Hebron</h3>
+      <p>Modelos animales: ratones SOD1-G93A. Plataforma FVPR de experimentación in vivo.</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">🏥</span>
+      <h3>Bellvitge · Dra. Povedano</h3>
+      <p>Ensayos clínicos. La Unidad de ELA más importante de Cataluña. La Dra. Povedano ya conoce el proyecto.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ACCESO ABIERTO -->
+<section class="section" id="open">
+  <h2><span class="emoji">🔓</span>Acceso Abierto</h2>
+  <div class="grid">
+    <div class="card">
+      <span class="card-icon">📂</span>
+      <h3>Resultados públicos</h3>
+      <p>Todos los datos se publicarán en Zenodo con licencia CC-BY 4.0. Cualquier laboratorio del mundo podrá usar nuestros resultados.</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">🐙</span>
+      <h3>Código abierto</h3>
+      <p>Scripts, pipelines y metodología en GitHub. Transparencia total. Ciencia reproducible.</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">📰</span>
+      <h3>Paper científico</h3>
+      <p>Artículo listo para publicar detallando metodología y resultados. Citación a RES y BSC.</p>
+    </div>
+  </div>
+
+  <div class="quote">
+    <blockquote>No busco publicar un artículo. Busco vivir.</blockquote>
+    <cite>— Fredy Rojas Gutiérrez, investigador principal · Rubí, Barcelona · 53 años · Paciente de ELA</cite>
+  </div>
+</section>
+
+<!-- CONTACTO -->
+<section class="section">
+  <div class="contact">
+    <h2 style="margin-bottom:12px;">📬 Contacto</h2>
+    <p style="margin-bottom:8px;"><strong>Investigador Principal:</strong> Fredy Rojas Gutiérrez</p>
+    <p style="margin-bottom:8px;">📧 <a href="mailto:fredy_30@hotmail.com">fredy_30@hotmail.com</a></p>
+    <p style="margin-bottom:8px;">🐙 <a href="https://github.com/fredy30-Rojas/masive-als">github.com/fredy30-Rojas/masive-als</a></p>
+    <p>📍 Rubí, Barcelona, España · Agosto 2026</p>
+  </div>
+</section>
+
+<footer>
+  <p>MASIVE-ALS · MareNostrum 5 · Barcelona Supercomputing Center</p>
+  <p style="margin-top:6px;">Fredy escribe con control ocular Tobii 4C. Este proyecto se creó sin mover las manos.</p>
+  <p style="margin-top:10px; color:#6c5ce7;">CC-BY 4.0 · Open Science · 2026</p>
+</footer>
+
+</body>
+</html>
