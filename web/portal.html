@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fredy Rojas — Proyectos</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #06060f; color: #e0e0e0; line-height: 1.7; min-height: 100vh; }
+.hero { background: linear-gradient(160deg, #050520 0%, #0a0a30 30%, #0d0d28 60%, #050518 100%); padding: 60px 20px 40px; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 50%, rgba(108,92,231,0.08) 0%, transparent 60%), radial-gradient(ellipse at 70% 30%, rgba(59,130,246,0.06) 0%, transparent 50%); animation: pulse 8s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+.hero h1 { font-size: 2.8em; color: #fff; position: relative; }
+.hero .subtitle { font-size: 1.15em; color: #94a3b8; margin-top: 8px; position: relative; }
+.container { max-width: 1000px; margin: 0 auto; padding: 30px 20px; }
+.projects { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 24px; margin-top: -20px; position: relative; }
+.card { background: #0e0e20; border: 1px solid #1e1e3a; border-radius: 16px; padding: 32px; transition: all 0.3s; position: relative; overflow: hidden; cursor: pointer; }
+.card:hover { border-color: #6c5ce7; transform: translateY(-4px); box-shadow: 0 12px 40px rgba(108,92,231,0.15); }
+.card .icon { font-size: 3em; margin-bottom: 16px; }
+.card h2 { font-size: 1.6em; color: #fff; margin-bottom: 8px; }
+.card .tagline { color: #a0c4ff; font-size: 0.95em; margin-bottom: 14px; }
+.card p { color: #94a3b8; font-size: 0.9em; margin-bottom: 6px; }
+.card .badge { display: inline-block; padding: 4px 12px; border-radius: 99px; font-size: 0.75em; font-weight: 600; margin: 3px; }
+.badge-purple { background: rgba(108,92,231,0.2); color: #a78bfa; }
+.badge-blue { background: rgba(59,130,246,0.2); color: #60a5fa; }
+.badge-green { background: rgba(34,197,94,0.2); color: #4ade80; }
+.card .links { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+.card .links a { padding: 10px 22px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9em; transition: all 0.2s; }
+.btn-primary { background: #6c5ce7; color: #fff; }
+.btn-primary:hover { background: #5a4bd1; }
+.btn-outline { border: 1px solid #3b3b5e; color: #a0c4ff; }
+.btn-outline:hover { border-color: #6c5ce7; background: rgba(108,92,231,0.1); }
+.card-masive { border-top: 3px solid #6c5ce7; }
+.card-masive .icon { color: #6c5ce7; }
+.card-conmimirada { border-top: 3px solid #3b82f6; }
+.card-conmimirada .icon { color: #3b82f6; }
+.about { background: #0a0a1e; border: 1px solid #1e1e3a; border-radius: 16px; padding: 32px; margin-bottom: 30px; text-align: center; }
+.about h3 { color: #fff; font-size: 1.3em; margin-bottom: 10px; }
+.about p { color: #94a3b8; max-width: 600px; margin: 0 auto; }
+footer { text-align: center; padding: 30px; color: #555; font-size: 0.85em; border-top: 1px solid #111; margin-top: 40px; }
+a { color: inherit; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>Fredy Rojas</h1>
+    <p class="subtitle">Proyectos de software libre — Rubí, Barcelona</p>
+</div>
+
+<div class="container">
+
+    <div class="about">
+        <h3>👁️ Todo esto se hace con control ocular</h3>
+        <p>Fredy tiene ELA y escribe con los ojos usando un Tobii 4C y software gratuito. Aquí están sus dos proyectos principales: herramientas de accesibilidad para todos, y un proyecto científico contra la ELA.</p>
+    </div>
+
+    <div class="projects">
+
+        <a href="https://accesibilidad.79.72.57.253.nip.io" class="card card-conmimirada">
+            <div class="icon">🖥️</div>
+            <h2>Controla tu PC con los ojos</h2>
+            <p class="tagline">Guía gratuita de accesibilidad</p>
+            <p>Instala y configura OptiKey, Freebuff, y control ocular — todo gratis.</p>
+            <div style="margin-top:12px">
+                <span class="badge badge-blue">OptiKey</span>
+                <span class="badge badge-blue">Freebuff IA</span>
+                <span class="badge badge-green">Gratis</span>
+            </div>
+            <div class="links">
+                <span class="btn-primary">Abrir guía →</span>
+                <span class="btn-outline">conmimirada.is-a.dev</span>
+            </div>
+        </a>
+
+        <a href="masive-als/" class="card card-masive">
+            <div class="icon">🔬</div>
+            <h2>MASIVE-ALS</h2>
+            <p class="tagline">Cribado molecular contra la ELA en MareNostrum 5</p>
+            <p>10 millones de fármacos · AlphaFold · AutoDock-GPU · 200 GPUs</p>
+            <div style="margin-top:12px">
+                <span class="badge badge-purple">MareNostrum 5</span>
+                <span class="badge badge-purple">BSC-CNS</span>
+                <span class="badge badge-green">Open Source</span>
+            </div>
+            <div class="links">
+                <span class="btn-primary">Ver proyecto →</span>
+                <span class="btn-outline">masive-als.is-a.dev</span>
+            </div>
+        </a>
+
+    </div>
+
+</div>
+
+<footer>
+    <p>Fredy Rojas Gutiérrez · Rubí, Barcelona · 2026</p>
+    <p style="margin-top:6px">"No busco publicar un artículo. Busco vivir."</p>
+</footer>
+
+</body>
+</html>
