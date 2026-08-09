@@ -3,104 +3,113 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fredy Rojas — Proyectos</title>
+<title>Fredy Rojas — Portal</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Segoe UI', system-ui, sans-serif; background: #06060f; color: #e0e0e0; line-height: 1.7; min-height: 100vh; }
-.hero { background: linear-gradient(160deg, #050520 0%, #0a0a30 30%, #0d0d28 60%, #050518 100%); padding: 60px 20px 40px; text-align: center; position: relative; overflow: hidden; }
-.hero::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 50%, rgba(108,92,231,0.08) 0%, transparent 60%), radial-gradient(ellipse at 70% 30%, rgba(59,130,246,0.06) 0%, transparent 50%); animation: pulse 8s ease-in-out infinite; }
-@keyframes pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
-.hero h1 { font-size: 2.8em; color: #fff; position: relative; }
-.hero .subtitle { font-size: 1.15em; color: #94a3b8; margin-top: 8px; position: relative; }
-.container { max-width: 1000px; margin: 0 auto; padding: 30px 20px; }
-.projects { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 24px; margin-top: -20px; position: relative; }
-.card { background: #0e0e20; border: 1px solid #1e1e3a; border-radius: 16px; padding: 32px; transition: all 0.3s; position: relative; overflow: hidden; cursor: pointer; }
-.card:hover { border-color: #6c5ce7; transform: translateY(-4px); box-shadow: 0 12px 40px rgba(108,92,231,0.15); }
-.card .icon { font-size: 3em; margin-bottom: 16px; }
-.card h2 { font-size: 1.6em; color: #fff; margin-bottom: 8px; }
-.card .tagline { color: #a0c4ff; font-size: 0.95em; margin-bottom: 14px; }
-.card p { color: #94a3b8; font-size: 0.9em; margin-bottom: 6px; }
-.card .badge { display: inline-block; padding: 4px 12px; border-radius: 99px; font-size: 0.75em; font-weight: 600; margin: 3px; }
-.badge-purple { background: rgba(108,92,231,0.2); color: #a78bfa; }
-.badge-blue { background: rgba(59,130,246,0.2); color: #60a5fa; }
-.badge-green { background: rgba(34,197,94,0.2); color: #4ade80; }
-.card .links { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
-.card .links a { padding: 10px 22px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9em; transition: all 0.2s; }
-.btn-primary { background: #6c5ce7; color: #fff; }
-.btn-primary:hover { background: #5a4bd1; }
-.btn-outline { border: 1px solid #3b3b5e; color: #a0c4ff; }
-.btn-outline:hover { border-color: #6c5ce7; background: rgba(108,92,231,0.1); }
-.card-masive { border-top: 3px solid #6c5ce7; }
-.card-masive .icon { color: #6c5ce7; }
-.card-conmimirada { border-top: 3px solid #3b82f6; }
-.card-conmimirada .icon { color: #3b82f6; }
-.about { background: #0a0a1e; border: 1px solid #1e1e3a; border-radius: 16px; padding: 32px; margin-bottom: 30px; text-align: center; }
-.about h3 { color: #fff; font-size: 1.3em; margin-bottom: 10px; }
-.about p { color: #94a3b8; max-width: 600px; margin: 0 auto; }
-footer { text-align: center; padding: 30px; color: #555; font-size: 0.85em; border-top: 1px solid #111; margin-top: 40px; }
-a { color: inherit; text-decoration: none; }
+:root {
+  --bg: #0a0a14;
+  --card1: #13132a;
+  --card2: #13132a;
+  --ink: #e0e0ec;
+  --muted: #8080a0;
+  --blue: #3b82f6;
+  --purple: #8b5cf6;
+  --green: #22c55e;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+.hero { text-align: center; padding: 60px 20px 30px; background: radial-gradient(ellipse at 50% 20%, rgba(139,92,246,0.12) 0%, transparent 60%); }
+.hero h1 { font-size: 3em; font-weight: 900; letter-spacing: -1px; background: linear-gradient(135deg, #c4b5fd, #93c5fd, #86efac); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+.hero .loc { color: var(--muted); font-size: 1.1em; }
+.hero .tagline { color: var(--muted); font-size: 0.95em; margin-top: 6px; max-width: 500px; margin-left: auto; margin-right: auto; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 900px; margin: 0 auto; padding: 10px 20px 40px; }
+@media(max-width:700px){ .grid{grid-template-columns:1fr;} }
+.card { border-radius: 20px; padding: 36px 28px; cursor: pointer; text-decoration: none; color: inherit; transition: all 0.35s; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+.card:hover { transform: translateY(-6px); }
+.card-ocular { background: linear-gradient(160deg, #0f172a, #1e1b4b); border: 1px solid #1e3a5f; }
+.card-ocular:hover { border-color: #3b82f6; box-shadow: 0 0 40px rgba(59,130,246,0.15); }
+.card-ocular .icon { font-size: 3.5em; margin-bottom: 14px; }
+.card-ocular h2 { font-size: 1.8em; color: #60a5fa; margin-bottom: 6px; }
+.card-ocular .sub { color: #93c5fd; font-size: 0.95em; margin-bottom: 12px; }
+.card-ocular p { color: #94a3b8; font-size: 0.9em; flex:1; }
+.card-ocular .tags { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+.tag-blue { background: rgba(59,130,246,0.18); color: #93c5fd; padding: 5px 12px; border-radius: 99px; font-size: 0.78em; font-weight: 600; }
+
+.card-als { background: linear-gradient(160deg, #1a0f2e, #1b0f1b); border: 1px solid #3d1f5f; }
+.card-als:hover { border-color: #8b5cf6; box-shadow: 0 0 40px rgba(139,92,246,0.15); }
+.card-als .icon { font-size: 3.5em; margin-bottom: 14px; }
+.card-als h2 { font-size: 1.8em; color: #c4b5fd; margin-bottom: 6px; }
+.card-als .sub { color: #a78bfa; font-size: 0.95em; margin-bottom: 12px; }
+.card-als p { color: #94a3b8; font-size: 0.9em; flex:1; }
+.card-als .tags { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+.tag-purple { background: rgba(139,92,246,0.18); color: #c4b5fd; padding: 5px 12px; border-radius: 99px; font-size: 0.78em; font-weight: 600; }
+.tag-green { background: rgba(34,197,94,0.18); color: #86efac; padding: 5px 12px; border-radius: 99px; font-size: 0.78em; font-weight: 600; }
+
+.card .arrow { margin-top: 18px; font-size: 1.3em; opacity: 0; transform: translateX(-10px); transition: all 0.3s; }
+.card:hover .arrow { opacity: 1; transform: translateX(4px); }
+
+.status-bar { display: flex; justify-content: center; gap: 16px; padding: 10px 20px 30px; flex-wrap: wrap; }
+.status { padding: 6px 16px; border-radius: 99px; font-size: 0.78em; font-weight: 600; }
+.status-green { background: rgba(34,197,94,0.12); color: #86efac; }
+.status-yellow { background: rgba(234,179,8,0.12); color: #fde047; }
+
+.about { text-align: center; max-width: 600px; margin: 0 auto; padding: 0 20px 40px; color: var(--muted); font-size: 0.9em; }
+.about span { color: #c4b5fd; }
+
+footer { text-align: center; padding: 30px 20px; color: #444; font-size: 0.8em; border-top: 1px solid #111; }
+footer a { color: var(--purple); text-decoration: none; }
 </style>
 </head>
 <body>
 
 <div class="hero">
-    <h1>Fredy Rojas</h1>
-    <p class="subtitle">Proyectos de software libre — Rubí, Barcelona</p>
+  <h1>Fredy Rojas</h1>
+  <p class="loc">Rubí, Barcelona</p>
+  <p class="tagline">Dos proyectos. Una misma persona. Todo creado con control ocular.</p>
 </div>
 
-<div class="container">
+<div class="status-bar">
+  <span class="status status-green">🟢 Oracle activo</span>
+  <span class="status status-green">🟢 SSH restaurado</span>
+  <span class="status status-yellow">🟡 Dominios pendientes</span>
+</div>
 
-    <div class="about">
-        <h3>👁️ Todo esto se hace con control ocular</h3>
-        <p>Fredy tiene ELA y escribe con los ojos usando un Tobii 4C y software gratuito. Aquí están sus dos proyectos principales: herramientas de accesibilidad para todos, y un proyecto científico contra la ELA.</p>
-        <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-            <span style="background:rgba(34,197,94,0.15);color:#4ade80;padding:4px 12px;border-radius:99px;font-size:0.8em;font-weight:600;">🟢 SSH Oracle restaurado</span>
-            <span style="background:rgba(34,197,94,0.15);color:#4ade80;padding:4px 12px;border-radius:99px;font-size:0.8em;font-weight:600;">🟢 Portal desplegado</span>
-            <span style="background:rgba(245,158,11,0.15);color:#fcd34d;padding:4px 12px;border-radius:99px;font-size:0.8em;font-weight:600;">🟡 Dominios pendientes</span>
-        </div>
+<div class="grid">
+
+  <a href="https://accesibilidad.79.72.57.253.nip.io" class="card card-ocular">
+    <div class="icon">🖥️</div>
+    <h2>Controla tu PC con los ojos</h2>
+    <p class="sub">Guía gratuita de accesibilidad</p>
+    <p>Instala y configura OptiKey, Freebuff, y control ocular. Todo gratis. Para personas con discapacidad motora.</p>
+    <div class="tags">
+      <span class="tag-blue">OptiKey</span>
+      <span class="tag-blue">Tobii 4C</span>
+      <span class="tag-green">Gratis</span>
     </div>
+    <div class="arrow">Entrar →</div>
+  </a>
 
-    <div class="projects">
-
-        <a href="https://accesibilidad.79.72.57.253.nip.io" class="card card-conmimirada">
-            <div class="icon">🖥️</div>
-            <h2>Controla tu PC con los ojos</h2>
-            <p class="tagline">Guía gratuita de accesibilidad</p>
-            <p>Instala y configura OptiKey, Freebuff, y control ocular — todo gratis.</p>
-            <div style="margin-top:12px">
-                <span class="badge badge-blue">OptiKey</span>
-                <span class="badge badge-blue">Freebuff IA</span>
-                <span class="badge badge-green">Gratis</span>
-            </div>
-            <div class="links">
-                <span class="btn-primary">Abrir guía →</span>
-                <span class="btn-outline">conmimirada.is-a.dev</span>
-            </div>
-        </a>
-
-        <a href="masive-als/" class="card card-masive">
-            <div class="icon">🔬</div>
-            <h2>MASIVE-ALS</h2>
-            <p class="tagline">Cribado molecular contra la ELA en MareNostrum 5</p>
-            <p>10 millones de fármacos · AlphaFold · AutoDock-GPU · 200 GPUs</p>
-            <div style="margin-top:12px">
-                <span class="badge badge-purple">MareNostrum 5</span>
-                <span class="badge badge-purple">BSC-CNS</span>
-                <span class="badge badge-green">Open Source</span>
-            </div>
-            <div class="links">
-                <span class="btn-primary">Ver proyecto →</span>
-                <span class="btn-outline">masive-als.is-a.dev</span>
-            </div>
-        </a>
-
+  <a href="/masive-als/" class="card card-als">
+    <div class="icon">🔬</div>
+    <h2>MASIVE-ALS</h2>
+    <p class="sub">Cribado molecular contra la ELA · MareNostrum 5</p>
+    <p>10 millones de fármacos. 200 GPUs. AlphaFold + AutoDock + GROMACS. Ciencia abierta contra la enfermedad.</p>
+    <div class="tags">
+      <span class="tag-purple">MareNostrum 5</span>
+      <span class="tag-purple">BSC-CNS</span>
+      <span class="tag-green">Open Source</span>
     </div>
+    <div class="arrow">Explorar →</div>
+  </a>
 
+</div>
+
+<div class="about">
+  <p>👁️ Fredy tiene <span>ELA</span>. Escribe con los ojos usando un <span>Tobii 4C</span> y software gratuito. No mueve las manos para programar.</p>
 </div>
 
 <footer>
-    <p>Fredy Rojas Gutiérrez · Rubí, Barcelona · 2026</p>
-    <p style="margin-top:6px">"No busco publicar un artículo. Busco vivir."</p>
+  <p>Fredy Rojas Gutiérrez · <a href="mailto:fredy_30@hotmail.com">fredy_30@hotmail.com</a></p>
+  <p style="margin-top:6px">"No busco publicar un artículo. Busco vivir."</p>
 </footer>
 
 </body>
