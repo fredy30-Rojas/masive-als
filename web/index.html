@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MASIVE-ALS | Cribado Molecular contra la ELA</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', sans-serif; background: #0a0a1a; color: #e0e0e0; line-height: 1.7; }
+.hero { background: linear-gradient(135deg, #0a0a2e 0%, #1a0a3e 50%, #0a1a2e 100%); padding: 80px 20px; text-align: center; }
+.hero h1 { font-size: 3em; color: #fff; margin-bottom: 10px; }
+.hero .subtitle { font-size: 1.3em; color: #a0c4ff; margin-bottom: 30px; }
+.hero .badge { display: inline-block; background: #6c5ce7; color: #fff; padding: 8px 20px; border-radius: 20px; font-size: 0.9em; }
+.container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+.section { margin-bottom: 50px; }
+.section h2 { color: #6c5ce7; font-size: 1.8em; margin-bottom: 15px; border-bottom: 2px solid #2a2a4a; padding-bottom: 8px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+.card { background: #12122a; padding: 25px; border-radius: 12px; border: 1px solid #2a2a4a; }
+.card h3 { color: #a0c4ff; margin-bottom: 10px; }
+.stat { text-align: center; font-size: 2.5em; color: #6c5ce7; font-weight: bold; }
+.stat-label { text-align: center; color: #888; font-size: 0.9em; }
+.cta { background: #6c5ce7; color: #fff; padding: 15px 30px; border-radius: 8px; text-decoration: none; display: inline-block; margin-top: 20px; font-weight: bold; }
+.cta:hover { background: #5a4bd1; }
+footer { text-align: center; padding: 30px; color: #666; font-size: 0.9em; border-top: 1px solid #1a1a3a; }
+strong { color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>MASIVE-ALS</h1>
+    <p class="subtitle">Cribado Molecular Masivo contra la Esclerosis Lateral Amiotrófica</p>
+    <span class="badge">MareNostrum 5 • BSC-CNS • Barcelona</span>
+</div>
+
+<div class="container">
+
+    <div class="section">
+        <h2>🔬 El Proyecto</h2>
+        <p>MASIVE-ALS utiliza el superordenador <strong>MareNostrum 5</strong> del Barcelona Supercomputing Center para realizar el mayor cribado virtual de fármacos contra la ELA jamás intentado: <strong>10 millones de compuestos</strong> contra las 3 proteínas clave de la enfermedad.</p>
+    </div>
+
+    <div class="section">
+        <h2>📊 Escala</h2>
+        <div class="grid">
+            <div class="card">
+                <div class="stat">10M</div>
+                <div class="stat-label">Compuestos cribados</div>
+            </div>
+            <div class="card">
+                <div class="stat">200</div>
+                <div class="stat-label">GPUs simultáneas</div>
+            </div>
+            <div class="card">
+                <div class="stat">6</div>
+                <div class="stat-label">Meses de cómputo</div>
+            </div>
+            <div class="card">
+                <div class="stat">3-5</div>
+                <div class="stat-label">Fármacos candidatos</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🧬 Proteínas Diana</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>TDP-43</h3>
+                <p>Presente en el <strong>97%</strong> de pacientes. Forma agregados tóxicos en el citoplasma neuronal.</p>
+            </div>
+            <div class="card">
+                <h3>SOD1</h3>
+                <p>Mutada en el <strong>20%</strong> de ELA familiar. Genera radicales libres que queman la neurona.</p>
+            </div>
+            <div class="card">
+                <h3>FUS</h3>
+                <p>Transición de fase líquido-sólido patológica. Forma inclusiones tóxicas.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🛠 Herramientas</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>AlphaFold-Multimer</h3>
+                <p>Predicción de estructura 3D. Nobel de Química 2024.</p>
+            </div>
+            <div class="card">
+                <h3>AutoDock-GPU</h3>
+                <p>400,000 simulaciones de docking por segundo.</p>
+            </div>
+            <div class="card">
+                <h3>GROMACS</h3>
+                <p>Dinámica molecular de 1 microsegundo por candidato.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🗺 Hoja de Ruta</h2>
+        <div class="grid">
+            <div class="card"><h3>Fase 1</h3><p>Cribado computacional<br><strong>Sept 2026 - Feb 2027</strong></p></div>
+            <div class="card"><h3>Fase 2</h3><p>Validación in vitro<br><strong>IRB Barcelona</strong></p></div>
+            <div class="card"><h3>Fase 3</h3><p>Modelos animales<br><strong>VHIR Vall d'Hebron</strong></p></div>
+            <div class="card"><h3>Fase 4</h3><p>Ensayos clínicos<br><strong>Bellvitge - Dra. Povedano</strong></p></div>
+        </div>
+    </div>
+
+    <div class="section" style="text-align:center;">
+        <h2>🔓 Acceso Abierto</h2>
+        <p>Todos los resultados se publicarán bajo licencia <strong>CC-BY 4.0</strong>.<br>Código y datos disponibles en GitHub.</p>
+        <a href="https://github.com/fredy30-Rojas/masive-als" class="cta">Ver en GitHub</a>
+    </div>
+
+</div>
+
+<footer>
+    <p>MASIVE-ALS · Investigador Principal: Fredy Rojas Gutiérrez · Rubí, Barcelona · 2026</p>
+    <p>"No busco publicar un artículo. Busco vivir."</p>
+</footer>
+
+</body>
+</html>

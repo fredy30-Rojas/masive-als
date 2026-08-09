@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MASIVE-ALS · Presentación</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', sans-serif; background: #111; color: #eee; overflow: hidden; }
+.slide { width: 100vw; height: 100vh; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 60px; text-align: center; }
+.slide.active { display: flex; }
+.slide h1 { font-size: 3.5em; margin-bottom: 20px; }
+.slide h2 { font-size: 2em; color: #6c5ce7; margin-bottom: 30px; }
+.slide p { font-size: 1.4em; max-width: 800px; line-height: 1.6; }
+.slide .big { font-size: 4em; color: #6c5ce7; font-weight: bold; }
+.nav { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 10px; }
+.nav button { background: #333; color: #fff; border: none; padding: 12px 24px; cursor: pointer; border-radius: 6px; font-size: 1.2em; }
+.nav button:hover { background: #6c5ce7; }
+.num { position: fixed; bottom: 20px; left: 20px; color: #666; font-size: 1em; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; max-width: 900px; }
+.card-s { background: #1a1a2e; padding: 25px; border-radius: 10px; text-align: center; }
+.card-s h3 { color: #a0c4ff; margin-bottom: 10px; font-size: 1.3em; }
+</style>
+</head>
+<body>
+
+<div class="slide active" id="s1">
+    <h1>MASIVE-ALS</h1>
+    <p style="font-size:1.6em; color:#a0c4ff">Cribado Molecular Masivo contra la ELA</p>
+    <p style="margin-top:30px">MareNostrum 5 · BSC-CNS · Barcelona</p>
+    <p>Investigador Principal: Fredy Rojas Gutiérrez</p>
+</div>
+
+<div class="slide" id="s2">
+    <h2>El Problema</h2>
+    <p>La ELA afecta a <strong>350,000 personas</strong> en el mundo.</p>
+    <p><strong>4,000 en España.</strong></p>
+    <p style="margin-top:20px">No existe cura. La esperanza de vida tras el diagnóstico es de 3 a 5 años.</p>
+    <p style="margin-top:20px; color:#6c5ce7">El 97% de los pacientes comparten un mecanismo: la proteína TDP-43 se acumula de forma tóxica.</p>
+</div>
+
+<div class="slide" id="s3">
+    <h2>Las 3 Dianas</h2>
+    <div class="grid-3">
+        <div class="card-s"><h3>TDP-43</h3><p>97% pacientes<br>Agregación tóxica</p></div>
+        <div class="card-s"><h3>SOD1</h3><p>20% ELA familiar<br>Estrés oxidativo</p></div>
+        <div class="card-s"><h3>FUS</h3><p>Transición de fase<br>Inclusiones sólidas</p></div>
+    </div>
+</div>
+
+<div class="slide" id="s4">
+    <h2>La Solución</h2>
+    <p>Simular <strong>10 millones de fármacos</strong> contra <strong>100,000 formas</strong> de estas 3 proteínas.</p>
+    <p style="margin-top:20px">En un PC normal: <strong>14 años.</strong></p>
+    <p style="font-size:2em; color:#6c5ce7; margin-top:10px">En MareNostrum 5: 6 meses.</p>
+</div>
+
+<div class="slide" id="s5">
+    <h2>Las Herramientas</h2>
+    <div class="grid-3">
+        <div class="card-s"><h3>AlphaFold</h3><p>Nobel Química 2024<br>Estructura 3D</p></div>
+        <div class="card-s"><h3>AutoDock-GPU</h3><p>400K docks/segundo<br>200 GPUs H100</p></div>
+        <div class="card-s"><h3>GROMACS</h3><p>1 µs MD<br>Validación final</p></div>
+    </div>
+</div>
+
+<div class="slide" id="s6">
+    <h2>Cronograma</h2>
+    <p><strong>Sept 2026:</strong> Registro y configuración</p>
+    <p><strong>Oct-Nov 2026:</strong> Cribado Fase 1 (5M compuestos)</p>
+    <p><strong>Dic 2026:</strong> Cribado Fase 2 (5M compuestos)</p>
+    <p><strong>Ene 2027:</strong> Validación MD (top 1,000 hits)</p>
+    <p><strong>Feb 2027:</strong> Resultados finales y publicación</p>
+</div>
+
+<div class="slide" id="s7">
+    <h2>De la Simulación al Paciente</h2>
+    <p>🧫 <strong>IRB Barcelona:</strong> validación in vitro</p>
+    <p>🐁 <strong>VHIR Vall d'Hebron:</strong> modelos animales</p>
+    <p>🏥 <strong>Bellvitge · Dra. Povedano:</strong> ensayos clínicos</p>
+    <p style="margin-top:30px; color:#6c5ce7">Todo en Barcelona. A menos de 30 km de casa.</p>
+</div>
+
+<div class="slide" id="s8">
+    <h2>¿Por qué yo?</h2>
+    <p style="font-size:1.6em">"Tengo ELA. Escribo con los ojos. No busco publicar un artículo. Busco vivir."</p>
+    <p style="margin-top:30px">Fredy Rojas Gutiérrez · 53 años · Rubí, Barcelona</p>
+</div>
+
+<div class="slide" id="s9">
+    <h2>Gracias</h2>
+    <p>github.com/fredy30-Rojas/masive-als</p>
+    <p>fredy_30@hotmail.com</p>
+    <p style="margin-top:40px; color:#6c5ce7; font-size:1.3em">MareNostrum 5 está en mi ciudad.<br>Mi historia también.<br>Solo necesito que me abran la puerta.</p>
+</div>
+
+<div class="nav">
+    <button onclick="prev()">← Anterior</button>
+    <button onclick="next()">Siguiente →</button>
+</div>
+<div class="num" id="num">1 / 9</div>
+
+<script>
+let current = 1;
+const total = 9;
+function show(n) {
+    document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+    document.getElementById('s'+n).classList.add('active');
+    document.getElementById('num').textContent = n + ' / ' + total;
+}
+function next() { if (current < total) { current++; show(current); } }
+function prev() { if (current > 1) { current--; show(current); } }
+document.addEventListener('keydown', e => { if (e.key === 'ArrowRight') next(); if (e.key === 'ArrowLeft') prev(); });
+</script>
+
+</body>
+</html>
