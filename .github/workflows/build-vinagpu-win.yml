@@ -57,7 +57,7 @@ jobs:
             'VINA_GPU_INC_PATH=-I$(WORK_DIR)/lib -I$(WORK_DIR)/OpenCL/inc' \
             'OPENCL_INC_PATH=-I/mingw64/include' \
             'LIB1=-lboost_program_options-mt -lboost_filesystem-mt -lboost_thread-mt -lOpenCL' \
-            'LIB2=-lstdc++' \
+            'LIB2=-lstdc++ -lstdc++fs' \
             'LIB3=-lm -lpthread' \
             'LIB_PATH=-L/mingw64/lib' \
             'SRC=./lib/*.cpp ./OpenCL/src/wrapcl.cpp' \
