@@ -40,10 +40,6 @@ jobs:
           sed -i 's|#include <boost/filesystem/convenience.hpp>|#include <boost/filesystem.hpp>|' main/main.cpp
           grep -n "boost/filesystem" main/main.cpp
 
-      - name: Listar librerias Boost
-        run: |
-          ls /mingw64/lib/libboost_program_options* /mingw64/lib/libboost_filesystem* /mingw64/lib/libboost_thread* 2>&1 | head -20 || true
-
       - name: Escribir Makefile y compilar
         run: |
           cd Vina-GPU-2.1/AutoDock-Vina-GPU-2.1
@@ -63,7 +59,7 @@ jobs:
             'SRC=./lib/*.cpp ./OpenCL/src/wrapcl.cpp' \
             'MACRO=$(OPENCL_VERSION) $(GPU_PLATFORM) $(DOCKING_BOX_SIZE) -DWINDOWS -DBOOST_TIMER_ENABLE_DEPRECATED' \
             'all:' \
-            '	g++ -o Vina-GPU-2.1-win.exe $(BOOST_INC_PATH) $(VINA_GPU_INC_PATH) $(OPENCL_INC_PATH) ./main/main.cpp -O3 $(SRC) $(LIB1) $(LIB2) $(LIB3) $(LIB_PATH) $(MACRO) -DNDEBUG -static -static-libgcc -static-libstdc++' \
+            '\tg++ -o Vina-GPU-2.1-win.exe $(BOOST_INC_PATH) $(VINA_GPU_INC_PATH) $(OPENCL_INC_PATH) ./main/main.cpp -O3 $(SRC) $(LIB1) $(LIB2) $(LIB3) $(LIB_PATH) $(MACRO) -DNDEBUG -static-libgcc -static-libstdc++' \
             > Makefile
           echo "=== Makefile ==="
           cat Makefile
@@ -72,9 +68,27 @@ jobs:
           echo "=== resultado ==="
           ls -la Vina-GPU-2.1-win.exe 2>&1 || echo "NO SE GENERO EL EXE"
 
-      - name: Subir exe como artefacto
+      - name: Empaquetar exe con sus DLLs
+        run: |
+          cd Vina-GPU-2.1/AutoDock-Vina-GPU-2.1
+          mkdir -p dist
+          cp Vina-GPU-2.1-win.exe dist/
+          # copiar todas las DLLs de /mingw64 de las que depende
+          ldd Vina-GPU-2.1-win.exe | grep -o '/mingw64/bin/[^ ]*\.dll' | sort -u | while read dll; do
+            cp "$dll" dist/ 2>/dev/null || true
+          done
+          # DLLs extra de boost que ldd a veces no lista por carga perezosa
+          for extra in libstdc++-6.dll libgcc_s_seh-1.dll libwinpthread-1.dll \
+                      libboost_program_options-mt.dll libboost_filesystem-mt.dll libboost_thread-mt.dll \
+                      libOpenCL.dll; do
+            [ -f "/mingw64/bin/$extra" ] && cp "/mingw64/bin/$extra" dist/ || true
+          done
+          echo "=== contenido dist ==="
+          ls -la dist/
+
+      - name: Subir exe+DLLs como artefacto
         uses: actions/upload-artifact@v4
         with:
           name: vinagpu-win
-          path: Vina-GPU-2.1/AutoDock-Vina-GPU-2.1/Vina-GPU-2.1-win.exe
+          path: Vina-GPU-2.1/AutoDock-Vina-GPU-2.1/dist
           if-no-files-found: warn
