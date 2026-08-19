@@ -51,7 +51,7 @@ Molecular docking is performed with AutoDock Vina 1.2.5 (Trott & Olson, 2010) an
 
 ### 2.4 Molecular Dynamics Validation (Planned)
 
-Top candidates will be subjected to all-atom molecular dynamics using GROMACS 2024.3 (Abraham et al., 2015) with the CHARMM36 force field, including energy minimization, NVT/NPT equilibration, and production runs up to 1 μs. Binding free energies will be estimated with the MM-GBSA method. This validation stage has not yet been performed and is planned for the scaling phase of the project.
+Top candidates will be subjected to all-atom molecular dynamics using GROMACS 2024.3 (Abraham et al., 2015) with the CHARMM36 force field, including energy minimization, NVT/NPT equilibration, and production runs up to 1 μs. Binding free energies will be estimated with the MM-GBSA method. This MD-based validation stage has not yet been performed and is planned for the scaling phase of the project; a preliminary single-trajectory MM-GBSA rescoring of the shortlisted candidates (docked poses, not MD trajectories) is reported in Section 3.3.
 
 An overview of the complete pipeline is shown in Figure 1.
 
@@ -111,6 +111,18 @@ Following the methodological review of 18 Aug 2026, the candidate funnel is now 
 
 **Figure 5. Distribution of predicted binding energies per target.** Dashed black line: -7 kcal/mol threshold; dotted red: best score per target.
 
+### 3.3 MM-GBSA rescoring of the shortlisted candidates
+
+Because the Vina score is treated as a triage filter rather than a ranker (Section 5.3), the shortlisted candidates are being re-scored with an orthogonal, physics-based method: single-trajectory MM-GBSA with an implicit solvent model (GBSA-OBC2, GAFF parameters), using the docked pose of each candidate as the starting structure. The current top-ranked candidate against SOD1 is **CHEMBL3311449 (ΔG = -15.79 kcal/mol)**, a pyrrolo[2,3-d]pyrimidine derivative bearing a phenyl substituent, an aniline linker and a pyrrolidine-1-carboxamide group (MW 398.5, TPSA 85.9 Å², cLogP 5.0, HBD 3, HBA 4). With TPSA ≤ 90 Å² and MW ≤ 450 it satisfies the CNS permeability criterion used in the funnel; its cLogP of 5.0, however, sits exactly at the upper Lipinski limit and will require medicinal-chemistry monitoring. These MM-GBSA estimates are preliminary: absolute values depend on the implicit-solvent model and the single-trajectory approximation, so they are used for *ordering* the shortlist rather than as absolute affinities.
+
+**Figure 6** shows the 2D structure and the lowest-energy 3D conformer of CHEMBL3311449.
+
+![Figure 6A — CHEMBL3311449 (2D structure)](figures/chembl3311449_2d.png)
+
+![Figure 6B — CHEMBL3311449 (3D conformer)](figures/chembl3311449_3d.png)
+
+**Figure 6. Structure of CHEMBL3311449, the current top MM-GBSA candidate against SOD1 (ΔG = -15.79 kcal/mol).** (A) 2D structure; (B) lowest-energy 3D conformer (ETKDGv3 embedding, MMFF94 optimization; rendered with RDKit). Atom colors: blue, nitrogen; red, oxygen; black, carbon.
+
 Following scale-up to 10 million compounds on supercomputing resources, we expect to rank the top 1,000 hits, retain 50-100 candidates with stable MD trajectories (RMSD < 2.0 Å), and advance 3-5 lead compounds with favorable ADME properties and blood-brain barrier permeability. The complete dataset will be deposited in Zenodo (CC-BY 4.0).
 
 ---
@@ -131,7 +143,7 @@ The best binding energies obtained in this screening (-9.5, -8.6 and -8.2 kcal/m
 
 ### 5.2 Limitations of rigid docking scoring
 
-AutoDock Vina, like most scoring functions based on rigid docking, shows limited correlation with experimental binding affinity and is known to produce a non-negligible rate of false positives and false negatives when used in isolation. The scoring function does not explicitly model conformational entropy, desolvation, or protein flexibility, which can bias the ranking toward certain chemotypes. In this work, Vina results were not validated by consensus methods (multi-engine docking) nor by independent re-scoring (e.g., MM-GBSA/MM-PBSA), which constitutes a limitation to be addressed in later phases of the project before recommending any compound for in vitro validation. Molecular dynamics-based free-energy estimates are recommended as a complementary validation route in future work.
+AutoDock Vina, like most scoring functions based on rigid docking, shows limited correlation with experimental binding affinity and is known to produce a non-negligible rate of false positives and false negatives when used in isolation. The scoring function does not explicitly model conformational entropy, desolvation, or protein flexibility, which can bias the ranking toward certain chemotypes. In this work, Vina results were not validated by consensus methods (multi-engine docking); a preliminary MM-GBSA rescoring of the shortlisted candidates is reported in Section 3.3, but a complete MM-GBSA/MM-PBSA validation of the full candidate set remains a limitation to be addressed in later phases of the project before recommending any compound for in vitro validation. Molecular dynamics-based free-energy estimates are recommended as a complementary validation route in future work.
 
 ### 5.3 Docking protocol validation and binding-site definition
 
