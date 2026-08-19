@@ -1,0 +1,23 @@
+VERIFICACION v4 (CNS-MPO) del embudo — Claude CLI, 18 ago 2026
+
+VEREDICTO: CORRECTA y VALIDADA con datos reales (resultados_z001.csv, 14.952 filas, 4.984 x 3 proteinas).
+
+CONFIRMADO EN PRUEBA:
+1. Nadie es eliminado en el paso CNS: 38 compuestos entran al paso 2b, 38 salen con score. El filtro duro desaparecio como se pidio.
+2. Columnas nuevas en la exportacion: cns_mpo_aprox, mw, tpsa. Rango verificado 0-6 (min 0.14, max 4.42, media 1.95). Ordenado descendente por score.
+3. Balance por proteina OK: 16 FUS / 12 TDP43 / 10 SOD1 (sin sesgo).
+4. Corregidos los menores de la v3: guard de resultado vacio en paso3 (si df.empty: no exporta y avisa) y el print del enrichment con el top_pct real.
+5. Todo lo de la v3 sigue intacto: columnas automaticas, union de SMILES (1.750 cubiertos de 4.984 unicos, 35%), dedup canonico por proteina, enrichment antes de filtros.
+
+NOTA CIENTIFICA IMPORTANTE (para paper y para uso):
+- El score es una APROXIMACION de 4 componentes (MW, TPSA, logP, HBD). El CNS-MPO canonico de Wager 2010 usa 6: clogP, clogD, MW, TPSA, HBD, pKa. Faltan clogD y pKa — y el pKa importa: las aminas basicas penetran mejor al SNC. Por eso: la escala 0-6 es correcta, pero los valores absolutos NO son comparables con el punto de corte de 4 de la literatura. Documentarlo asi en el paper. Si se quiere el canonico: anadir componente pKa (calculo externo, ej. Marvin/ChemAxon) y clogD = logP - log10(1+10^(pH-pKa)) a pH 7.4.
+- Dato observado: solo 1 compuesto alcanza >= 4.0 (CHEMBL9347, TDP43, 4.42). La libreria no fue seleccionada por CNS; si se prioriza por penetracion cerebral, la lista util sera muy corta. Decision para Fredy: aceptarlo, o enriquecer libreria con farmacos CNS conocidos.
+- El encabezado del script aun dice "v3": es la 4a iteracion. Renombrar a v4 al guardarlo como produccion.
+
+PENDIENTE PARA PRODUCCION:
+(a) Guardar la v4 como filtro_rescoring.py (reemplaza la v1 que sigue en disco).
+(b) Correr enriquecer_smiles.py sobre z001 con --top-pct 5 (cobertura actual 35%, faltan ~2.000 CHEMBL de la tanda).
+(c) Preparar CSV de controles positivos (ligandos conocidos por proteina) para el enrichment — la validacion decisiva pendiente.
+(d) Decidir el corte manual de cns_mpo_aprox mirando la lista completa (38 candidatos en _candidatos_v4.csv).
+
+ARCHIVOS DE PRUEBA (analysis/): _filtro_v4_verificar.py (v4 validada), _lib_consolidada.csv (libreria consolidada 56.772), _candidatos_v4.csv (38 candidatos con scores).

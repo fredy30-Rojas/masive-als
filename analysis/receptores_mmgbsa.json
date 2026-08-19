@@ -1,0 +1,10 @@
+{
+  "TDP43": "C:/Users/Fredy/masive-als/proteins/TDP43/PDB-6b1n.pdb",
+  "SOD1": "C:/Users/Fredy/masive-als/proteins/SOD1/PDB-1hl5.pdb",
+  "FUS": "C:/Users/Fredy/masive-als/proteins/FUS/PDB-6g99.pdb",
+  "_notas": {
+    "TDP43": "El receptor real del docking es el dominio RRM1 (TDP43_RRM1_clean.pdb -> gpu_dock/TDP43.pdbqt), NO el PDB completo 6b1n. Extraer el dominio RRM1 con la misma seleccion que genero TDP43.pdbqt para que la caja coincida.",
+    "SOD1": "La caja usada (46.5,80.0,73.3; 22) es anti-agregacion, no el sitio Cu/Zn. Usar el receptor que genero gpu_dock/SOD1.pdbqt (derivado de 1hl5).",
+    "FUS": "Se acoplo el modelo 1 del ensamble NMR 6g99. Usar solo el modelo 1."
+  }
+}

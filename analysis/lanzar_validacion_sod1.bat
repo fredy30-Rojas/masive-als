@@ -1,0 +1,2 @@
+@echo off
+start "" /min "C:\Users\Fredy\AppData\Local\Python\pythoncore-3.14-64\python.exe" "C:\Users\Fredy\masive-als\analysis\validar_senuelos.py" --activos "C:\Users\Fredy\masive-als\analysis\activos_sod1.csv" --libreria "C:\Users\Fredy\masive-als\analysis\libreria_combinada.smi" --target SOD1 --receptor "C:\Users\Fredy\masive-als\gpu_dock\SOD1.pdbqt" --centro 27.9,111.8,64.4 --decoys-por-activo 15 --exhaustividad 8 --cpu --salida "C:\Users\Fredy\masive-als\analysis\validacion_SOD1.csv"

@@ -1,0 +1,9 @@
+{
+  "uniprot": "P00441",
+  "gene": "SOD1",
+  "pdb_best": "1hl5",
+  "receptor_used": "SOD1.pdbqt (derivado de PDB-1hl5.pdb)",
+  "box": "center 46.5, 80.0, 73.3; size 22x22x22",
+  "box_rationale": "Decision deliberada ANTI-AGREGACION: la caja cubre la region de agregacion de SOD1 (residuos 1-33, 96-112 y parcialmente 131-153), NO el sitio catalitico Cu/Zn. Validada con decoys: ROC-AUC 0.815, EF5% 4.0 (vs 0.548 de la caja original).",
+  "description": "Superoxide dismutase [Cu-Zn]"
+}

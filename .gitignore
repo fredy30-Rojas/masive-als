@@ -1,2 +1,14 @@
 __pycache__/
 *.pyc
+# Binarios y artefactos de compilación
+*.exe
+*.bin
+*.dll
+*.tar.gz
+*.zip
+# Logs y archivos temporales de depuración
+*.log
+*_err.txt
+# Datos masivos de docking (265k archivos PDBQT; se regeneran con los scripts)
+compounds/
+gpu_dock/

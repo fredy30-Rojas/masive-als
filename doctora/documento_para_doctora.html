@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MASIVE-ALS — Documento para la Dra. Mónica Povedano</title>
+<style>
+  :root {
+    --azul: #1a5276;
+    --azul-claro: #2980b9;
+    --dorado: #b7950b;
+    --fondo: #f7f9fb;
+    --texto: #2c3e50;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--fondo);
+    color: var(--texto);
+    line-height: 1.6;
+  }
+  .hoja {
+    max-width: 820px;
+    margin: 30px auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    overflow: hidden;
+  }
+  header {
+    background: linear-gradient(135deg, var(--azul) 0%, var(--azul-claro) 100%);
+    color: white;
+    padding: 40px 50px 30px;
+  }
+  header h1 { font-size: 1.9em; letter-spacing: 0.5px; margin-bottom: 6px; }
+  header p { opacity: 0.92; font-size: 1.05em; }
+  .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.35);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.82em;
+    margin-top: 14px;
+  }
+  .contenido { padding: 35px 50px 45px; }
+  .saludo {
+    background: #eaf2f8;
+    border-left: 5px solid var(--azul-claro);
+    padding: 18px 22px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 28px;
+    font-size: 1.05em;
+  }
+  h2 {
+    color: var(--azul);
+    font-size: 1.25em;
+    margin: 28px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #e3ecf3;
+  }
+  h3 { color: var(--azul-claro); font-size: 1.05em; margin: 16px 0 8px; }
+  ul { padding-left: 22px; margin: 8px 0; }
+  li { margin-bottom: 8px; }
+  .destacado {
+    background: #fdf6e3;
+    border-left: 5px solid var(--dorado);
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    margin: 20px 0;
+    font-size: 1.02em;
+  }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.95em; }
+  th { background: var(--azul); color: white; padding: 10px 12px; text-align: left; }
+  td { padding: 10px 12px; border-bottom: 1px solid #e3ecf3; }
+  tr:nth-child(even) td { background: #f2f7fb; }
+  .peticion {
+    background: #eafaf1;
+    border-left: 5px solid #27ae60;
+    padding: 18px 22px;
+    border-radius: 0 8px 8px 0;
+    margin: 24px 0;
+  }
+  .peticion h3 { color: #1e8449; }
+  .firma {
+    margin-top: 35px;
+    border-top: 1px solid #d5dfe8;
+    padding-top: 20px;
+  }
+  .firma .nombre { font-size: 1.2em; font-weight: 600; color: var(--azul); }
+  .firma .datos { color: #5d6d7e; font-size: 0.92em; margin-top: 4px; }
+  .nota-voz {
+    margin-top: 20px;
+    font-size: 0.88em;
+    color: #7f8c8d;
+    font-style: italic;
+    background: #f4f6f7;
+    padding: 12px 16px;
+    border-radius: 8px;
+  }
+  footer {
+    background: #eef3f7;
+    padding: 16px 50px;
+    font-size: 0.82em;
+    color: #7f8c8d;
+    text-align: center;
+  }
+  @media print {
+    body { background: white; }
+    .hoja { box-shadow: none; margin: 0; border-radius: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="hoja">
+
+  <header>
+    <h1>MASIVE-ALS</h1>
+    <p>Cribado molecular masivo contra la Esclerosis Lateral Amiotrófica</p>
+    <span class="badge">Proyecto de investigación computacional · Rubí, Barcelona · 2026</span>
+  </header>
+
+  <div class="contenido">
+
+    <div class="saludo">
+      <strong>Estimada Dra. Povedano:</strong><br>
+      Soy Fredy Rojas, su paciente de la Unidad de ELA. Usted me conoce. Como no puedo hablar, le dejo todo explicado por escrito. Este documento resume el proyecto MASIVE-ALS, qué hemos hecho ya, y de qué me gustaría hablar con usted.
+    </div>
+
+    <h2>1. Qué es MASIVE-ALS</h2>
+    <p>Es un proyecto de <strong>cribado virtual masivo de fármacos</strong> contra las tres proteínas clave del ELA, usando inteligencia artificial y supercomputación:</p>
+    <table>
+      <tr>
+        <th>Proteína</th>
+        <th>Por qué importa</th>
+      </tr>
+      <tr>
+        <td><strong>TDP-43</strong></td>
+        <td>Se acumula en el citoplasma formando agregados tóxicos en el <strong>97% de los pacientes</strong>. Buscamos moléculas que deshagan esos acúmulos.</td>
+      </tr>
+      <tr>
+        <td><strong>SOD1</strong></td>
+        <td>Cuando muta produce radicales libres que dañan la neurona. Buscamos estabilizar su forma sana.</td>
+      </tr>
+      <tr>
+        <td><strong>FUS</strong></td>
+        <td>Sufre transiciones de fase líquido-sólido patológicas. Buscamos interferir con esa transición.</td>
+      </tr>
+    </table>
+
+    <h2>2. Cómo lo hacemos</h2>
+    <ul>
+      <li><strong>AlphaFold-Multimer</strong> (Premio Nobel de Química 2024) — predecimos la forma 3D de las proteínas.</li>
+      <li><strong>AutoDock-GPU</strong> — probamos <strong>10 millones de compuestos</strong> (ZINC20, DrugBank, Enamine REAL) contra las proteínas, como buscar la llave que encaja en cada cerradura.</li>
+      <li><strong>GROMACS</strong> — simulamos la dinámica molecular de los mejores candidatos (1 microsegundo) para confirmar que el fármaco se queda unido de forma estable.</li>
+    </ul>
+    <p>Total: <strong>1 billón de simulaciones</strong> de acoplamiento. Con un ordenador normal tardaríamos 8 años. Con un superordenador, 6 meses.</p>
+
+    <h2>3. Dónde estamos</h2>
+    <table>
+      <tr>
+        <th>Solicitud</th>
+        <th>Centro</th>
+        <th>Estado</th>
+      </tr>
+      <tr><td>RES — MareNostrum 5</td><td>BSC, Barcelona</td><td>Enviada (9 agosto)</td></tr>
+      <tr><td>EuroHPC — LUMI y Leonardo</td><td>Finlandia / Italia</td><td>Enviada (9 agosto)</td></tr>
+      <tr><td>CINECA — Leonardo</td><td>Italia</td><td>Ticket #80845 abierto</td></tr>
+      <tr><td>OLCF — Frontier</td><td>EE.UU.</td><td>Enviada (9 agosto)</td></tr>
+    </table>
+    <p>Los <strong>scripts de computación ya están escritos, probados y funcionando</strong>. Todo el código es abierto (github.com/fredy30-Rojas/masive-als) y los resultados se publicarán en acceso abierto (CC-BY 4.0).</p>
+
+    <h2>4. Por qué este proyecto es diferente</h2>
+    <div class="destacado">
+      No busco publicar un artículo. <strong>Busco vivir.</strong> Soy paciente de ELA y escribo esto con control ocular porque mis manos ya no responden. Mi mente está intacta — y mi determinación también. Este proyecto es mi forma de luchar, y de ayudar a los miles de pacientes que comparten esta enfermedad.
+    </div>
+
+    <h2>5. Qué me gustaría pedirle</h2>
+    <div class="peticion">
+      <h3>Su apoyo como mi médico y como investigadora del Hospital de Bellvitge</h3>
+      <ul>
+        <li><strong>Una carta de respaldo o afiliación institucional</strong> del Hospital/IDIBELL. Muchos superordenadores (especialmente los europeos) piden que las solicitudes cuenten con una institución de investigación detrás. Su firma abriría esa puerta.</li>
+        <li><strong>Colaboración para la validación experimental</strong>: cuando el cribado identifique 3-5 candidatos, necesitaremos un laboratorio (p. ej. el IRB Barcelona o el VHIR) para probarlos en células y modelos animales.</li>
+        <li><strong>Hablarlo en la próxima consulta</strong>, cuando usted pueda dedicarme unos minutos.</li>
+      </ul>
+    </div>
+
+    <div class="firma">
+      <div class="nombre">Fredy Rojas Gutiérrez</div>
+      <div class="datos">
+        Paciente de la Unidad de ELA · Hospital Universitari de Bellvitge<br>
+        fredy_30@hotmail.com · +34 675 31 58 41<br>
+        Rubí, Barcelona · 9 de agosto de 2026
+      </div>
+    </div>
+
+    <div class="nota-voz">
+      Nota: Fredy tiene ELA y no puede hablar — se comunica con un sistema de control ocular (Tobii 4C). Por favor, léale este documento con calma o tómeselo para revisarlo con su equipo. Él puede responderle por escrito con los ojos.
+    </div>
+
+  </div>
+
+  <footer>
+    MASIVE-ALS · Proyecto de acceso abierto · Código en github.com/fredy30-Rojas/masive-als
+  </footer>
+</div>
+</body>
+</html>

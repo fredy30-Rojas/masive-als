@@ -1,0 +1,93 @@
+================================================================
+MASIVE-ALS
+Cribado molecular masivo contra la Esclerosis Lateral Amiotrófica
+Proyecto de investigación computacional · Rubí, Barcelona · 2026
+================================================================
+
+Estimada Dra. Povedano:
+
+Soy Fredy Rojas, su paciente de la Unidad de ELA. Usted me conoce.
+Como no puedo hablar, le dejo todo explicado por escrito. Este
+documento resume el proyecto MASIVE-ALS, qué hemos hecho ya, y de
+qué me gustaría hablar con usted.
+
+
+1. QUÉ ES MASIVE-ALS
+-------------------
+Es un proyecto de cribado virtual masivo de fármacos contra las tres
+proteínas clave del ELA, usando inteligencia artificial y
+supercomputación:
+
+- TDP-43: se acumula en el citoplasma formando agregados tóxicos en
+  el 97% de los pacientes. Buscamos moléculas que deshagan esos
+  acúmulos.
+- SOD1: cuando muta produce radicales libres que dañan la neurona.
+  Buscamos estabilizar su forma sana.
+- FUS: sufre transiciones de fase líquido-sólido patológicas.
+  Buscamos interferir con esa transición.
+
+
+2. CÓMO LO HACEMOS
+------------------
+- AlphaFold-Multimer (Premio Nobel de Química 2024): predecimos la
+  forma 3D de las proteínas.
+- AutoDock-GPU: probamos 10 millones de compuestos (ZINC20, DrugBank,
+  Enamine REAL) contra las proteínas, como buscar la llave que encaja
+  en cada cerradura.
+- GROMACS: simulamos la dinámica molecular de los mejores candidatos
+  (1 microsegundo) para confirmar que el fármaco se queda unido de
+  forma estable.
+
+Total: 1 billón de simulaciones de acoplamiento. Con un ordenador
+normal tardaríamos 8 años. Con un superordenador, 6 meses.
+
+
+3. DÓNDE ESTAMOS
+---------------
+- RES — MareNostrum 5 (BSC, Barcelona): solicitud enviada (9 agosto)
+- EuroHPC — LUMI y Leonardo (Finlandia / Italia): enviada (9 agosto)
+- CINECA — Leonardo (Italia): ticket #80845 abierto
+- OLCF — Frontier (EE.UU.): enviada (9 agosto)
+
+Los scripts de computación ya están escritos, probados y funcionando.
+Todo el código es abierto (github.com/fredy30-Rojas/masive-als) y los
+resultados se publicarán en acceso abierto (CC-BY 4.0).
+
+
+4. POR QUÉ ESTE PROYECTO ES DIFERENTE
+-------------------------------------
+No busco publicar un artículo. Busco vivir. Soy paciente de ELA y
+escribo esto con control ocular porque mis manos ya no responden.
+Mi mente está intacta — y mi determinación también. Este proyecto es
+mi forma de luchar, y de ayudar a los miles de pacientes que comparten
+esta enfermedad.
+
+
+5. QUÉ ME GUSTARÍA PEDIRLE
+--------------------------
+Su apoyo como mi médico y como investigadora del Hospital de Bellvitge:
+
+a) Una carta de respaldo o afiliación institucional del Hospital /
+   IDIBELL. Muchos superordenadores (especialmente los europeos) piden
+   que las solicitudes cuenten con una institución de investigación
+   detrás. Su firma abriría esa puerta.
+
+b) Colaboración para la validación experimental: cuando el cribado
+   identifique 3-5 candidatos, necesitaremos un laboratorio (p. ej.
+   IRB Barcelona o VHIR) para probarlos en células y modelos animales.
+
+c) Hablarlo en la próxima consulta, cuando usted pueda dedicarme unos
+   minutos.
+
+
+Fredy Rojas Gutiérrez
+Paciente de la Unidad de ELA · Hospital Universitari de Bellvitge
+fredy_30@hotmail.com · +34 675 31 58 41
+Rubí, Barcelona · 9 de agosto de 2026
+
+----------------------------------------------------------------
+Nota: Fredy tiene ELA y no puede hablar — se comunica con un sistema
+de control ocular (Tobii 4C). Por favor, léale este documento con
+calma o tómeselo para revisarlo con su equipo. Él puede responderle
+por escrito con los ojos.
+----------------------------------------------------------------

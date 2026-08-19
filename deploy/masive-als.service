@@ -1,0 +1,17 @@
+[Unit]
+Description=MASIVE-ALS Pipeline 24/7
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/masive-als
+ExecStart=/opt/masive-als/venv/bin/python /opt/masive-als/deploy/oracle_pipeline.py
+Restart=always
+RestartSec=60
+StandardOutput=append:/opt/masive-als/results/oracle_run/pipeline.log
+StandardError=append:/opt/masive-als/results/oracle_run/pipeline.log
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,73 @@
+REMARK  Name = 
+REMARK  9 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_3  and  N_19
+REMARK    2  A    between atoms: C_6  and  C_7
+REMARK    3  A    between atoms: N_9  and  CA_10
+REMARK    4  A    between atoms: CA_10  and  CB_11
+REMARK    5  A    between atoms: CA_10  and  C_16
+REMARK    6  A    between atoms: CB_11  and  CG_12
+REMARK    7  A    between atoms: CG_12  and  CD_13
+REMARK    8  A    between atoms: CD_13  and  OE2_15
+REMARK    9  A    between atoms: C_16  and  OXT_18
+REMARK                            x       y       z     vdW  Elec       q    Type
+REMARK                         _______ _______ _______ _____ _____    ______ ____
+ROOT
+ATOM      1  C   UNK A   0       0.948   0.017  -0.084  0.00  0.00    +0.000 A 
+ATOM      2  C   UNK A   0       0.228   0.263  -1.306  0.00  0.00    +0.000 A 
+ATOM      3  C   UNK A   0       0.948   0.509  -2.529  0.00  0.00    +0.000 A 
+ATOM      4  C   UNK A   0       0.228   0.755  -3.752  0.00  0.00    +0.000 A 
+ATOM      5  C   UNK A   0       0.948   1.001  -4.975  0.00  0.00    +0.000 A 
+ATOM      6  C   UNK A   0       0.228  -0.228   1.139  0.00  0.00    +0.000 A 
+ENDROOT
+BRANCH   3   7
+ATOM      7  N   UNK A   0       2.418   0.509  -2.529  0.00  0.00    +0.000 N 
+ATOM      8  C   UNK A   0       3.153   0.258  -1.281  0.00  0.00    +0.000 A 
+ATOM      9  N   UNK A   0       2.457   0.020  -0.099  0.00  0.00    +0.000 NA
+ATOM     10  C   UNK A   0       3.153  -0.217   1.084  0.00  0.00    +0.000 A 
+ATOM     11  O   UNK A   0       4.424  -0.217   1.084  0.00  0.00    +0.000 OA
+ATOM     12  C   UNK A   0       2.433  -0.463   2.307  0.00  0.00    +0.000 A 
+ATOM     13  C   UNK A   0       3.153  -0.709   3.529  0.00  0.00    +0.000 A 
+ATOM     14  N   UNK A   0       4.546   0.258  -1.281  0.00  0.00    +0.000 N 
+ATOM     15  N   UNK A   0       2.457  -0.947   4.712  0.00  0.00    +0.000 NA
+ATOM     16  C   UNK A   0       3.153  -1.185   5.895  0.00  0.00    +0.000 A 
+ATOM     17  N   UNK A   0       4.546  -1.185   5.895  0.00  0.00    +0.000 NA
+ATOM     18  C   UNK A   0       0.993  -0.463   2.307  0.00  0.00    +0.000 A 
+ATOM     19  N   UNK A   0       0.258  -0.212   1.059  0.00  0.00    +0.000 N 
+ATOM     20  H   UNK A   0       2.928   0.683  -3.395  0.00  0.00    +0.000 HD
+ATOM     21  H   UNK A   0       5.056   0.432  -2.147  0.00  0.00    +0.000 HD
+ATOM     22  H   UNK A   0       0.768  -0.038   0.193  0.00  0.00    +0.000 HD
+ATOM     23  H   UNK A   0      -0.762  -0.212   1.059  0.00  0.00    +0.000 HD
+ENDBRANCH   3   7
+BRANCH   6  24
+ATOM     24  C   UNK A   0       0.988  -0.488   2.430  0.00  0.00    +0.000 C 
+ATOM     25  O   UNK A   0       2.259  -0.488   2.430  0.00  0.00    +0.000 OA
+ATOM     26  N   GLU A   1       0.253  -0.739   3.678  0.00  0.00    +0.000 N 
+ATOM     27  H   GLU A   1       0.763  -0.913   4.544  0.00  0.00    +0.000 HD
+BRANCH  26  28
+ATOM     28  CA  GLU A   1      -1.217  -0.739   3.678  0.00  0.00    +0.000 C 
+BRANCH  28  29
+ATOM     29  C   GLU A   1      -1.724   0.337   4.625  0.00  0.00    +0.000 C 
+ATOM     30  O   GLU A   1      -2.454   1.279   4.184  0.00  0.00    +0.000 OA
+BRANCH  29  31
+ATOM     31  OXT GLU A   1      -1.381   0.289   6.002  0.00  0.00    +0.000 OA
+ATOM     32  HXT GLU A   1      -1.714   0.996   6.625  0.00  0.00    +0.000 HD
+ENDBRANCH  29  31
+ENDBRANCH  28  29
+BRANCH  28  33
+ATOM     33  CB  GLU A   1      -1.724  -2.097   4.136  0.00  0.00    +0.000 C 
+BRANCH  33  34
+ATOM     34  CG  GLU A   1      -1.217  -2.379   5.540  0.00  0.00    +0.000 C 
+BRANCH  34  35
+ATOM     35  CD  GLU A   1      -1.724  -1.304   6.488  0.00  0.00    +0.000 C 
+ATOM     36  OE1 GLU A   1      -2.454  -1.622   7.478  0.00  0.00    +0.000 OA
+BRANCH  35  37
+ATOM     37  OE2 GLU A   1      -1.381   0.056   6.266  0.00  0.00    +0.000 OA
+ATOM     38  HE2 GLU A   1      -1.714   0.764   6.889  0.00  0.00    +0.000 HD
+ENDBRANCH  35  37
+ENDBRANCH  34  35
+ENDBRANCH  33  34
+ENDBRANCH  28  33
+ENDBRANCH  26  28
+ENDBRANCH   6  24
+TORSDOF 9
