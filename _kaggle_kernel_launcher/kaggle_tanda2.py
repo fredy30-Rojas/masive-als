@@ -46,9 +46,9 @@ WORK = '/kaggle/working/masive_als'
 for sub in ['receptores', 'ligandos', 'resultados', 'checkpoint']:
     os.makedirs(WORK + '/' + sub, exist_ok=True)
 
-TANDA2_URL = 'https://raw.githubusercontent.com/fredy30-Rojas/masive-als-data/main/ligandos_tanda2.tar.gz'
+TANDA2_URL = 'https://raw.githubusercontent.com/fredy30-Rojas/masive-als/master/_kaggle_kernel/ligandos_tanda2_clean.tar.gz'
 pkg2 = '/tmp/ligandos_tanda2.tar.gz'
-print('Descargando ligandos_tanda2.tar.gz ...')
+print('Descargando ligandos_tanda2_clean.tar.gz ...')
 urllib.request.urlretrieve(TANDA2_URL, pkg2)
 with tarfile.open(pkg2) as t:
     t.extractall(WORK)
