@@ -6,6 +6,10 @@ ligandos con el método único arreglado (v5) terminó en Oracle sin ningún err
 La revisión de mediodía con los números provisionales queda resumida en §0 y sus
 tablas se conservan en el histórico del repositorio.
 
+**Adenda de la tarde (18:15):** verificado con tres filas repetidas que la preparación
+semillada del receptor (v6) elimina el ruido de PDBFixer — la tanda de los 90 ya es
+reproducible bit a bit (§0.2). No hace falta repetir la tanda.
+
 **Scripts:** `analysis/preparar_mmgbsa_estratos.py`, `analysis/mmgbsa_runner_estratos.py`
 (en Oracle), `analysis/rescoring_estrategia_estratos.py`,
 `analysis/rescoring_mmgbsa_robusto.py` (v5) · **Datos:**
@@ -29,14 +33,22 @@ tamaño, **¿el rescoring físico MM-GBSA ordena mejor, y le queda el mismo vici
    **−4,95** con la nueva. La repetición completa de los 90 con la v5 terminó hoy a las
    12:21 UTC (90 ok, 0 errores). El CSV viejo se conserva como
    `mmgbsa_estratos/resultado_oracle_v4_v5_mixto.csv`.
-2. **El cálculo no es repetible al kcal, y el ruido real es mayor de lo que se estimó
-   al mediodía.** Comparaciones del mismo ligando entre corridas idénticas del mismo
-   método v5: `DECM_CHEMBL4435214` **−28,02 / −33,73**; `ACT_isoproterenol`
-   **−13,52 / −4,95** (esta segunda pareja procede de una preparación intermedia del
-   receptor cuya energía absoluta difiere en cientos de kcal; aun descartándola queda la
-   primera, 5,7 kcal). La causa está localizada: **PDBFixer coloca los átomos que faltan
-   con azar** y cada proceso prepara su propio receptor. **Consecuencia: en esta tabla,
-   diferencias por debajo de ~2 kcal/mol no son señal, son ruido.**
+2. **El ruido entre preparaciones del receptor está localizado, sembrado y VERIFICADO.**
+   El origen medido paso a paso: `addMissingAtoms` con semilla ya era determinista
+   (0,000 Å), pero **`addMissingHydrogens` coloca los hidrógenos con el generador
+   aleatorio de Python** (302 de 875 átomos se movían >0,01 Å) y cada proceso preparaba
+   su propio receptor: `DECM_CHEMBL4435214` dio **−28,02 / −33,73** y `ACT_isoproterenol`
+   **−15,65 / −13,52 / −7,69** entre corridas de las versiones sin sembrar (v4/v5
+   temprana). El arreglo (script v6): semilla fija `SEMILLA_RECEPTOR=20260922` en
+   `addMissingAtoms`, `random` y `numpy.random` sembrados antes de
+   `addMissingHydrogens`, y un solo hilo de OpenMM (con varios, la suma de fuerzas de
+   la CPU lleva otro orden cada vez). **Verificación del 22 sep por la tarde:** tres
+   filas repetidas fuera de la tanda (`ACT_adrenalina`, `DECM_CHEMBL9250`,
+   `DECM_CHEMBL4435214` — este último, el campeón histórico del ruido) reproducen el
+   dG **y las tres componentes de energía al mismo decimal** de `resultado_oracle.csv`.
+   La tanda de los 90 corrió ya con la preparación fijada: repetirla daría lo mismo.
+   **Consecuencia: dentro de esta tabla, los números son reproducibles bit a bit; el
+   ruido de ±1–6 kcal solo aplica al comparar con las tandas viejas sin sembrar.**
 3. **El "MM-GBSA" no lleva cargas en el ligando.** El script las pone a cero a propósito
    (se salta AM1-BCC para que la tanda cupiera en el tiempo). Un informe intermedio dijo
    "GAFF 2.11 + AM1-BCC": **era falso**, queda corregido. El dG se parece mucho a una
@@ -56,7 +68,7 @@ intentados, 90 dan número y ninguno error.**
 | Poses | las del acoplado original (`validacion_SOD1_v5/out`), **no** se volvieron a acoplar |
 | Positivos | los **11 de unión medida** de `verdad_de_referencia.csv` |
 | Fondo | **79 señuelos**: 66 emparejados por tamaño (±2 átomos pesados con un positivo) + 13 repartidos por cuantiles de tamaño |
-| Método | `rescoring_mmgbsa_robusto.py` v5: GAFF 2.11 **con cargas del ligando a cero**, openmm, OBC2, una pose por ligando, minimización local de 200 pasos |
+| Método | `rescoring_mmgbsa_robusto.py` v6: GAFF 2.11 **con cargas del ligando a cero**, openmm, OBC2, una pose por ligando, minimización local de 200 pasos, **preparación del receptor semillada** (`SEMILLA_RECEPTOR=20260922`, un hilo de OpenMM por cálculo) |
 | Máquina | Oracle, 4 núcleos, 3 procesos en paralelo (~38 s por ligando de media; los 90 en 57,2 min) |
 
 **Cobertura: 11 positivos + 79 señuelos, 90 de 90.** Cada positivo tiene entre 10 y 21
@@ -142,9 +154,9 @@ arrastra**, y la pregunta emparejada por tamaño sigue siendo la única que da s
 3. **El MM-GBSA tiene el vicio de tamaño más fuerte de todas** (§3), y **es un MM-GBSA
    de un punto** —una pose por ligando, sin muestreo— **y sin cargas en el ligando**
    (§0.3). No es el protocolo de referencia; los dG no se comparan con la literatura.
-4. **El ruido es del orden del efecto o mayor** (§0.2): ±1 a 6 kcal/mol entre corridas
-   idénticas. Cualquier conclusión que dependa de menos de ~2 kcal/mol de esta tabla no
-   está sostenida.
+4. **Determinista no significa exacto** (§0.2): la tabla ya es reproducible bit a bit,
+   pero sigue siendo un MM-GBSA de una pose y sin cargas en el ligando; su error frente
+   a la realidad no lo mide la reproducibilidad.
 5. **El EF5 % no es defendible con 90 ligandos** (§2).
 6. **La comparación MM-GBSA v5 tiene dos limitaciones añadidas que hay que nombrar:**
    la preparación del receptor varía entre procesos (mismo script, receptor distinto),
@@ -163,9 +175,9 @@ arrastra**, y la pregunta emparejada por tamaño sigue siendo la única que da s
   borde del azar en crudo (0,435–0,463) y todas pasan en la pregunta emparejada.
   El problema del proyecto no es "qué función se usa", es **cómo se pregunta**.
 - **Siguiente paso concreto, en orden:**
-  1. **Fijar la semilla/preparación del receptor** (prepararlo una vez, guardarlo y
-     reutilizarlo) para que el ruido del §0.2 deje de ser del tamaño del efecto. Es el
-     cambio más barato y desbloquea las demás comparaciones.
+  1. ~~Fijar la semilla/preparación del receptor~~ **HECHO y verificado el 22 sep**
+     (§0.2): la preparación va semillada, un hilo, y tres filas repetidas reprodujeron
+     la tanda a plena precisión. El ruido de preparación ya no ensucia las comparaciones.
   2. **Probar el MM-GBSA con cargas AM1-BCC de verdad** sobre los mismos ligandos: si el
      término de tamaño baja, parte del sesgo era del atajo; si no baja, es de la medida.
   3. Solo después de eso, **repetir la validación en TDP-43** con los 7 positivos de
