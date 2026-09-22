@@ -10,6 +10,10 @@ tablas se conservan en el histórico del repositorio.
 semillada del receptor (v6) elimina el ruido de PDBFixer — la tanda de los 90 ya es
 reproducible bit a bit (§0.2). No hace falta repetir la tanda.
 
+**Adenda 2 (17:45):** el experimento "MM-GBSA con cargas AM1-BCC de verdad" ya estaba
+hecho sin saberlo: el generador GAFF las calcula siempre y la tabla de los 90 las lleva
+(§0.3). El sesgo de tamaño es de la medida, no del atajo. No hay que repetir nada.
+
 **Scripts:** `analysis/preparar_mmgbsa_estratos.py`, `analysis/mmgbsa_runner_estratos.py`
 (en Oracle), `analysis/rescoring_estrategia_estratos.py`,
 `analysis/rescoring_mmgbsa_robusto.py` (v5) · **Datos:**
@@ -49,12 +53,22 @@ tamaño, **¿el rescoring físico MM-GBSA ordena mejor, y le queda el mismo vici
    La tanda de los 90 corrió ya con la preparación fijada: repetirla daría lo mismo.
    **Consecuencia: dentro de esta tabla, los números son reproducibles bit a bit; el
    ruido de ±1–6 kcal solo aplica al comparar con las tandas viejas sin sembrar.**
-3. **El "MM-GBSA" no lleva cargas en el ligando.** El script las pone a cero a propósito
-   (se salta AM1-BCC para que la tanda cupiera en el tiempo). Un informe intermedio dijo
-   "GAFF 2.11 + AM1-BCC": **era falso**, queda corregido. El dG se parece mucho a una
-   energía de van der Waals más superficie, lo que explica (§3) que su pendiente con el
-   tamaño sea la mayor de las cuatro funciones. Un MM-GBSA con cargas de verdad es el
-   escalón siguiente, no un detalle.
+3. **CORRECCIÓN de la noche: el ligando SÍ lleva cargas AM1-BCC reales.** El script pone
+   las cargas a cero creyendo saltarse el AM1-BCC ("Set zero charges to skip slow
+   AM1-BCC calculation"), pero **`GAFFTemplateGenerator` siempre calcula AM1-BCC al
+   construir la plantilla** (openmmforcefields 0.16.0, `template_generators.py` línea
+   594: `assign_partial_charges(partial_charge_method="am1bcc", normalize=True)`) y
+   sobrescribe lo que el script hubiera puesto. Verificado por dos caminos: (a) el
+   `NonbondedForce` del sistema montado con "cargas a cero" tiene la misma carga máxima
+   (0,827 e) que el montado con AM1-BCC explícito; (b) una variante del script con
+   AM1-BCC explícito (`rescoring_mmgbsa_bcc.py`, vía `AmberToolsToolkitWrapper`)
+   reproduce **bit a bit** tres filas de la tanda (`ACT_adrenalina` −10,65,
+   `ACT_naftalenoaminoalcohol_946` −23,63, `DECM_CHEMBL9250` −18,12, incluidas las tres
+   componentes de energía). Un informe intermedio leyó esto al revés dos veces: primero
+   dijo "GAFF + AM1-BCC" (falso en la intención del script, cierto en la física), luego
+   dijo "cargas a cero, el dG es casi van der Waals" (falso en la física). Lo segundo
+   era la conclusión equivocada: **la electrostática del ligando estuvo dentro desde el
+   principio, y el atajo nunca ahorró el tiempo que decía ahorrar.**
 
 Los 8 fallos de la víspera siguen arreglados y verificados (4 de mapa de átomos,
 2 de bytes NUL en la pose, 2 de residuo THR aislado tras el recorte). **De los 90
@@ -68,7 +82,7 @@ intentados, 90 dan número y ninguno error.**
 | Poses | las del acoplado original (`validacion_SOD1_v5/out`), **no** se volvieron a acoplar |
 | Positivos | los **11 de unión medida** de `verdad_de_referencia.csv` |
 | Fondo | **79 señuelos**: 66 emparejados por tamaño (±2 átomos pesados con un positivo) + 13 repartidos por cuantiles de tamaño |
-| Método | `rescoring_mmgbsa_robusto.py` v6: GAFF 2.11 **con cargas del ligando a cero**, openmm, OBC2, una pose por ligando, minimización local de 200 pasos, **preparación del receptor semillada** (`SEMILLA_RECEPTOR=20260922`, un hilo de OpenMM por cálculo) |
+| Método | `rescoring_mmgbsa_robusto.py` v6: GAFF 2.11 **con cargas AM1-BCC reales del ligando** (las pone `GAFFTemplateGenerator`, ver §0.3), openmm, OBC2, una pose por ligando, minimización local de 200 pasos, **preparación del receptor semillada** (`SEMILLA_RECEPTOR=20260922`, un hilo de OpenMM por cálculo) |
 | Máquina | Oracle, 4 núcleos, 3 procesos en paralelo (~38 s por ligando de media; los 90 en 57,2 min) |
 
 **Cobertura: 11 positivos + 79 señuelos, 90 de 90.** Cada positivo tiene entre 10 y 21
@@ -112,11 +126,12 @@ Dentro del fondo de la muestra, en kcal/mol por átomo pesado:
 - **MM-GBSA: −0,498.**
 
 El MM-GBSA conserva **el término de tamaño más fuerte de las cuatro funciones**, cinco
-veces el de Vinardo en kcal/mol por carbono. Y con el ligando sin cargas (§0.3) ese
-−0,498 por carbono es casi lo que se espera de una energía de van der Waals: parte del
-vicio de tamaño es consecuencia del atajo. La mejora de mediodía (0,541/0,608) se
-desinfló al quitar la mezcla de métodos: **el "ordenaba mejor" era en parte el método
-viejo inflando a los positivos, no virtud del MM-GBSA.**
+veces el de Vinardo en kcal/mol por carbono. La hipótesis cómoda —que ese vicio viniera
+del atajo de las cargas— **cayó con la corrección del §0.3**: las cargas AM1-BCC
+estuvieron dentro desde el principio, así que la pendiente es del propio OBC2/GAFF con
+cargas, de la medida y no del atajo. La mejora de mediodía (0,541/0,608) se desinfló al
+quitar la mezcla de métodos: **el "ordenaba mejor" era en parte el método viejo
+inflando a los positivos, no virtud del MM-GBSA.**
 
 ## 4. El veredicto (cambia respecto al informe provisional)
 
@@ -152,8 +167,8 @@ arrastra**, y la pregunta emparejada por tamaño sigue siendo la única que da s
    por tamaño de estrato, pero el orden dentro de los chicos es anécdota (el "1,000" del
    23–27 es **un** positivo).
 3. **El MM-GBSA tiene el vicio de tamaño más fuerte de todas** (§3), y **es un MM-GBSA
-   de un punto** —una pose por ligando, sin muestreo— **y sin cargas en el ligando**
-   (§0.3). No es el protocolo de referencia; los dG no se comparan con la literatura.
+   de un punto** —una pose por ligando, sin muestreo—. No es el protocolo de
+   referencia; los dG no se comparan con la literatura.
 4. **Determinista no significa exacto** (§0.2): la tabla ya es reproducible bit a bit,
    pero sigue siendo un MM-GBSA de una pose y sin cargas en el ligando; su error frente
    a la realidad no lo mide la reproducibilidad.
@@ -178,8 +193,11 @@ arrastra**, y la pregunta emparejada por tamaño sigue siendo la única que da s
   1. ~~Fijar la semilla/preparación del receptor~~ **HECHO y verificado el 22 sep**
      (§0.2): la preparación va semillada, un hilo, y tres filas repetidas reprodujeron
      la tanda a plena precisión. El ruido de preparación ya no ensucia las comparaciones.
-  2. **Probar el MM-GBSA con cargas AM1-BCC de verdad** sobre los mismos ligandos: si el
-     término de tamaño baja, parte del sesgo era del atajo; si no baja, es de la medida.
+  2. ~~Probar el MM-GBSA con cargas AM1-BCC de verdad~~ **RESUELTO la noche del 22 sep
+     (§0.3)**: ya las llevaba — el generador GAFF las calcula siempre. Respuesta a la
+     pregunta: la pendiente de tamaño no baja (los números son idénticos bit a bit con
+     AM1-BCC explícito), así que **el sesgo es de la medida, no del atajo**. No hay
+     ninguna variante "con cargas" pendiente: esta tabla ya es ese experimento.
   3. Solo después de eso, **repetir la validación en TDP-43** con los 7 positivos de
      unión medida y el fondo duro de R-BIND 2.0 (`validar_diana_limpia.py` ya está
      preparado), con Vinardo como desempate por estratos.
