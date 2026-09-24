@@ -77,10 +77,20 @@ TDP43 = [
     ("exh 32 (CPU)", os.path.join(BASE, "_barrido_TDP43", "validar_exh32.csv")),
     ("GPU (search_depth 20)", os.path.join(BASE, "_control_gpu_TDP43", "validar_gpu.csv")),
 ]
-SOD1 = [("exh 8 (CPU)", os.path.join(BASE, "validar_sod1_limpia.csv"))]
+# SOD1 sale DOS veces a proposito: su validacion puntua un fondo de 482 en el que van
+# pegados los señuelos emparejados y los duros (quelantes y redox). Leerlo entero y
+# leerlo por bloques da cosas distintas, y la regla decide sobre el fondo duro, asi que
+# hay que verlo separado (lo parte `separar_fondos_sod1.py`, por el prefijo DECH_).
+_sod1_sep = os.path.join(BASE, "regla_decision", "sod1_fondos_separados.csv")
+SOD1 = [("exh 8 (CPU), fondo mezclado", os.path.join(BASE, "validar_sod1_limpia.csv")),
+        ("exh 8 (CPU), fondo separado", _sod1_sep)]
 
+# El nombre del segundo bloque es generico a proposito: el duro es "el segundo fondo
+# del montaje", que en TDP-43 son los unidores de ARN de R-BIND 2.0 y en SOD1 los
+# quelantes de metales y redox-activos (DECH_). Clavarle el nombre de R-BIND aqui
+# haria que SOD1 saliera etiquetado con el fondo de otra diana.
 BLOQUES = [("blando", "fondo", "señuelos emparejados por tamaño"),
-           ("duro", "fondo2", "unidores de ARN de R-BIND 2.0"),
+           ("duro", "fondo2", "el fondo duro (segundo fondo del montaje)"),
            ("juntos", ("fondo", "fondo2"), "los dos fondos juntos")]
 
 
@@ -342,11 +352,15 @@ def main():
     log("   (b) IC fondo+positivos = mide ademas el muestreo de los positivos")
     log("   PASA si el limite INFERIOR de (a) y de (b) supera %s." % UMBRAL)
 
+    if not args.corridas and not os.path.exists(_sod1_sep):
+        # El fondo de SOD1 hay que partirlo antes de puntuarlo por bloques.
+        import separar_fondos_sod1
+        separar_fondos_sod1.main()
     if args.corridas:
         pares = []
         for c in args.corridas:
             etiqueta, ruta = c.split("=", 1) if "=" in c else (c, c)
-            pares.append((etiqueta, ruta))
+            pares.append((etiqueta.strip(), ruta.strip()))
         filas = comparar(args.nombre, pares)
     else:
         filas = comparar("TDP-43", TDP43) + comparar("SOD1", SOD1)

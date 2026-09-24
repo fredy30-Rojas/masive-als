@@ -1,5 +1,10 @@
 # SOD1 contra el receptor limpio: el embudo reconoce química, pero no ordena por energía
 
+> **Matizado el 24 de septiembre de 2026:** con la regla nueva (intervalo bootstrap sobre
+> el AUC por átomo pesado) **SOD1 queda sin evidencia**, y el hallazgo que se sostiene es
+> otro: ordena mejor que el azar contra el fondo duro de quelantes y redox, y **no** contra
+> los señuelos de su mismo tamaño. Ver la corrección al principio de este informe.
+
 **21 de septiembre de 2026.**
 **Script:** `analysis/validar_sod1_limpia.py` · **Datos:** `validar_sod1_limpia.csv`,
 `validar_sod1_limpia_resumen.csv`, `validar_sod1_limpia.log`
@@ -7,6 +12,64 @@
 Es la validación que el criterio exigía antes de reportar nada: receptor corregido,
 positivos de **unión medida** de verdad, series colapsadas y el criterio fijado por
 adelantado. Y da un resultado partido, que es más útil que un número redondo.
+
+---
+
+## Corrección del 24 de septiembre de 2026 (regla nueva)
+
+Este informe daba **PASA** apoyándose en la medida emparejada por tamaño (5 de 8
+quimiotipos, §4). Esa medida **ya no vale como veredicto**: es la misma familia de
+criterios que en TDP-43 dio 1, 2 o 3 quimias con el mismo conjunto, solo por cambiar el
+motor o el esfuerzo (`INFORME_BARRIDO_EXHAUSTIVIDAD_TDP43_2026-09-24.md`). El sustituto es
+el **AUC por átomo pesado con intervalo del 95 % por bootstrap**, exigiendo que el límite
+inferior pase de 0,5 al remuestrear solo el fondo y al remuestrear fondo y positivos, y
+que el veredicto no dependa de la corrida (`REGLA_DECISION_2026-09-24.md`).
+
+**Con la regla nueva, SOD1 queda SIN EVIDENCIA, y no en un bloque: en todos.** Además, el
+fondo de 482 no es un fondo, son tres pegados: al partirlos por el prefijo del fichero
+(`separar_fondos_sod1.py`; `DEC_` y `DECM_` emparejados, `DECH_` duros) se ve qué pregunta
+tenía respuesta y cuál no.
+
+| Bloque | AUC/átomo | IC 95 % solo fondo | IC 95 % fondo + positivos | Residual | Veredicto |
+|---|---|---|---|---|---|
+| fondo entero (482, como en §2) | 0,563 | [0,540; 0,586] | [0,369; 0,749] | 0,478 | SIN EVIDENCIA |
+| señuelos emparejados (339) | **0,530** | [0,501; 0,558] | [0,342; 0,720] | 0,454 | SIN EVIDENCIA |
+| **fondo duro (143)** | **0,643** | [0,608; 0,676] | [0,435; 0,837] | **0,567** | SIN EVIDENCIA |
+
+### Qué se puede reportar de SOD1, y qué no
+
+**Sí se puede decir, con su error:**
+
+- **La lista ordenada por energía no sirve.** AUC crudo 0,439, y su intervalo
+  [0,419; 0,461] queda **entero por debajo de 0,5**. Antes se decía el número; ahora se
+  puede decir con el error.
+- **Contra el fondo duro (quelantes de metales y redox) el embudo ordena mejor que el
+  azar**: 0,643, con el intervalo solo-fondo [0,608; 0,676] entero por encima de 0,5. Es
+  el tercer mejor bloque de los 16 medidos, detrás de las cuatro corridas de TDP-43 sobre
+  su fondo duro. Y es el **único de los 16** donde el AUC **residual** también supera el
+  umbral con ese intervalo (0,567; [0,510; 0,616]).
+- **Contra los señuelos emparejados por tamaño, no**: 0,530, al borde (límite inferior
+  0,501, el mínimo de los 16 bloques). Ahí el embudo no distingue — y era justo el bloque
+  que decidía el veredicto viejo.
+- **El confusor de tamaño sigue medido**, y no depende de ningún criterio: −0,10 kcal/mol
+  por átomo pesado contra los emparejados y −0,14 contra los duros, correlación −0,72, y
+  la cabeza de la lista sigue siendo grande (§2).
+
+**Ya NO se puede decir:**
+
+- *"El embudo reconoce química cuando se le pregunta en igualdad de tamaño, y es
+  reportable"* (§5). Lo que hay es **el número de un bloque, sin intervalo que lo cierre**:
+  con 11 positivos, para que el límite inferior tocara el umbral habría que llegar a
+  **~22 positivos** contra el fondo duro, **~99** contra el fondo entero y **~444** contra
+  los emparejados. El cuello de botella son los positivos, no la exhaustividad.
+- El **veredicto PASA** de §4. Queda como lo que fue: un criterio permisivo que se cumplía
+  con 5 de 8 quimias y que no aguanta el cambio de condiciones.
+
+**Lo que no cambia:** la lista de candidatos de SOD1 sigue sin publicarse, y el defecto
+localizado —el término de tamaño de la función de puntuación— sigue siendo el mismo y
+sigue siendo lo que hay que atacar. Lo que cambia es que SOD1 **no tiene ninguna
+afirmación demostrada**: tiene una prometedora (el fondo duro, 0,643) que pide once
+positivos más para poder decirse.
 
 ---
 
@@ -85,7 +148,9 @@ los pequeños, lo que ordena es el tamaño.
 | catecolamina | isoproterenol (15) | 0,244 | no |
 
 **VEREDICTO: PASA — 5 quimiotipos distintos de 8** baten a los señuelos de su mismo
-tamaño (aminoalcohol naftalénico, benzisoxazol-piperidina, catecolamina, anilina y
+tamaño *(superado el 24 de septiembre de 2026: este criterio ya no vale como veredicto y,
+con la regla nueva, SOD1 queda SIN EVIDENCIA — ver la corrección al principio del
+informe)* (aminoalcohol naftalénico, benzisoxazol-piperidina, catecolamina, anilina y
 fenantridinona). El criterio pedía dos; se cumplen cinco, y con once positivos de ocho
 quimias la exigencia no se puede acusar de tramposa.
 
@@ -110,11 +175,15 @@ quimias la exigencia no se puede acusar de tramposa.
 
 ## 5. Qué significa para el proyecto
 
-- **La diana no está muerta, y el sitio tampoco.** El embudo reconoce química cuando se
-  le pregunta en igualdad de tamaño. Eso es un resultado positivo y es reportable.
-- **El defecto que queda es de ordenación, no de reconocimiento**, y está localizado en
-  una sola cosa: el término de tamaño de la función de puntuación. Es lo que hay que
-  atacar ahora, y hay dos vías concretas:
+- **La diana no está muerta, y el sitio tampoco.** *(Corregido el 24 sep 2026.)* Lo que
+  se sostiene hoy es más estrecho y está medido con intervalo: el embudo ordena mejor que
+  el azar contra el **fondo duro** (0,643; IC [0,608; 0,676]) y **no** contra los
+  señuelos de su mismo tamaño (0,530; IC [0,501; 0,558]). Decir que "reconoce química"
+  era apoyarse en el criterio emparejado, que ya no decide.
+- **El defecto de ordenación es el que está localizado** —el término de tamaño de la
+  función de puntuación—, y es lo que hay que atacar ahora. *(Corrección del 24 sep 2026:
+  el reconocimiento, además, **no está demostrado** — ver la corrección.)* Hay dos vías
+  concretas:
   1. **Rescoring MM-GBSA dentro de estratos de tamaño**, que es donde el tamaño ya no
      confunde; o
   2. una normalización no lineal (la recta no basta: el residual baja a 0,477).

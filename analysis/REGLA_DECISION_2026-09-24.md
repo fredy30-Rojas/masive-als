@@ -64,9 +64,11 @@ intervalo dos milesimas, y el veredicto no se mueve. El corte al que sustituye d
 o 3 con estas mismas cuatro corridas.
 
 Y hay algo que refuerza el resultado: **el limite inferior del intervalo solo-fondo supera
-0,5 en los 13 bloques medidos** (los 12 de TDP-43 y el de SOD1), con minimo 0,5405. Es
-decir, ordenar por energia por atomo pesado bate al azar **siempre**, en cualquier motor
-y cualquier esfuerzo. Lo que cambia entre veredictos no es eso: es si el numero de
+0,5 en los 16 bloques medidos** (los 12 de TDP-43, el de SOD1 con el fondo entero y los 3
+de SOD1 con el fondo partido), con minimo **0,501** — y ese minimo es, justamente, el
+bloque de señuelos emparejados de SOD1 (§6). Es decir, ordenar por energia por atomo
+pesado bate al azar **siempre**, en cualquier motor y cualquier esfuerzo; en el peor
+caso, por una milesima. Lo que cambia entre veredictos no es eso: es si el numero de
 positivos permite demostrarlo.
 
 ---
@@ -95,7 +97,7 @@ positivos permite demostrarlo.
 
 ## 4. Las dos medidas que quedan fuera, medidas y no supuestas
 
-| Medida | Punto (13 bloques) | Limite inferior del IC solo fondo | Veredicto |
+| Medida | Punto (16 bloques) | Limite inferior del IC solo fondo | Veredicto |
 |---|---|---|---|
 | AUC crudo | 0,246–0,440 | por debajo de 0,5 en todos | inservible para decidir |
 | AUC residual | 0,264–0,478 | **maximo 0,446** | inservible para decidir |
@@ -107,7 +109,7 @@ TDP-43 su limite inferior no llega a 0,5 en ningun bloque, ni siquiera con el in
 mas estrecho. Dividir por los atomos pesados quita el sesgo de tamaño mejor que restar
 una recta, medido: la recta tiene pendiente pequeña (-0,015 a -0,045 kcal/mol por atomo
 en TDP-43) y no da cuenta de la curvatura. Y el AUC crudo esta **por debajo del azar en
-los 13 bloques**: la lista ordenada por energia sin mas no solo no ordena, ordena al
+los 16 bloques**: la lista ordenada por energia sin mas no solo no ordena, ordena al
 reves, porque premia al ligando grande.
 
 ---
@@ -121,38 +123,58 @@ n. Con los numeros medidos se puede decir que falta con concrecion:
 |---|---|---|---|
 | TDP-43, fondo duro | 7 | 0,73 | **ya basta** (PASA) |
 | TDP-43, señuelos emparejados | 7 | 0,67–0,69 | **~10–13** |
-| SOD1, fondo limpio | 11 | 0,56 | **~99** |
+| SOD1, fondo duro (143 quelantes y redox) | 11 | 0,64 | **~22** |
+| SOD1, fondo entero (482) | 11 | 0,56 | ~99 |
+| SOD1, señuelos emparejados (339) | 11 | 0,53 | ~444 |
 
 Es una estimacion, no una promesa: supone que el embudo conserva el mismo orden al añadir
 positivos, y eso no se sabe hasta tenerlos. Pero dice lo importante: en TDP-43 **el cuello
-de botella son tres o seis positivos de union medida mas**, y no mas exhaustividad ni otra
-GPU. Subir el esfuerzo mueve el criterio sin acercarlo a la verdad.
+de botella son tres o seis positivos de union medida mas**, en SOD1 serian once, y no mas
+exhaustividad ni otra GPU. Subir el esfuerzo mueve el criterio sin acercarlo a la verdad.
 
 ---
 
-## 6. La consecuencia incomoda: SOD1
-
-Aplicada al mismo bloque que el proyecto usa para SOD1 (11 positivos contra 482 señuelos
-emparejados, exhaustividad 8):
-
-| Medida | Punto | IC solo fondo | IC todo | Veredicto |
-|---|---|---|---|---|
-| AUC crudo | 0,439 | [0,419; 0,461] | [0,246; 0,664] | — |
-| AUC/atomo | 0,563 | [0,540; 0,586] | [0,369; 0,749] | **SIN EVIDENCIA** |
-| AUC residual | 0,478 | [0,446; 0,511] | [0,359; 0,613] | — |
+## 6. La consecuencia incomoda: SOD1, y su fondo partido
 
 La validacion de SOD1 se reporto como **PASA** con el criterio de quimiotipos (5 de 8
-quimias por delante de los señuelos de su tamaño, `INFORME_VALIDACION_SOD1_LIMPIA_2026-09-21.md`).
-Con esta regla **no pasa: queda sin evidencia**. No es que el trabajo de SOD1 estuviera
-mal —el AUC por atomo pesado si esta por encima del azar, 0,563— es que esta **tres
-centesimas por encima** y con 11 positivos el intervalo no cierra: harian falta unos 99.
-El criterio viejo lo daba por bueno porque su corte es permisivo, no porque hubiera
-evidencia.
+quimias por delante de los señuelos de su tamaño,
+`INFORME_VALIDACION_SOD1_LIMPIA_2026-09-21.md`). Con esta regla **no pasa: queda sin
+evidencia en todos sus bloques** (11 positivos, exhaustividad 8).
 
-Lo dejo escrito sin adornos porque cambia lo que se puede afirmar: **hoy ningun resultado
-del proyecto pasa esta regla en su bloque blando**, y la unica afirmacion nueva que si se
-sostiene es que en TDP-43 el embudo reconoce quimia de tamaño correcto contra el fondo
-duro.
+Pero ese fondo de 482 son tres cosas pegadas —199 emparejados antiguos (`DEC_`), 140
+emparejados nuevos (`DECM_`) y **143 duros**, quelantes de metales y redox-activos
+(`DECH_`)—, y como la regla decide sobre el fondo duro, hay que leerlos por separado
+(`separar_fondos_sod1.py`, que usa el prefijo que pone el propio preparador). Y ahi sale
+algo que el fondo entero tapaba:
+
+| Bloque de SOD1 | AUC/atomo | IC solo fondo | IC todo | Residual | Veredicto |
+|---|---|---|---|---|---|
+| fondo entero (482) | 0,563 | [0,540; 0,586] | [0,369; 0,749] | 0,478 | SIN EVIDENCIA |
+| señuelos emparejados (339) | **0,530** | [0,501; 0,558] | [0,342; 0,720] | 0,454 | SIN EVIDENCIA |
+| **fondo duro (143)** | **0,643** | [0,608; 0,676] | [0,435; 0,837] | **0,567** | SIN EVIDENCIA |
+
+- Contra los **señuelos emparejados por tamaño**, SOD1 esta **en el azar**: 0,530, y su
+  limite inferior (0,501) es el minimo de los 16 bloques. Ahi el embudo no distingue.
+- Contra el **fondo duro** (quelantes y redox, que es el fondo dificil de una
+  metaloenzima) sube a **0,643**, que es el tercer mejor bloque de todo el ejercicio
+  despues de los dos que TDP-43 tiene por encima de 0,73. La pregunta bien hecha a SOD1
+  **si tiene respuesta positiva**; lo que no hay son positivos para demostrarla: con 11
+  harian falta ~22.
+- Y es el **unico bloque de los 16** donde el AUC **residual** supera el umbral por el
+  intervalo solo-fondo (0,567; [0,510; 0,616]). No cambia la decision —el que decide es
+  el de atomos pesados— pero queda escrito, porque dice que el sesgo de tamaño de SOD1
+  (pendiente -0,10 a -0,14 kcal/mol por atomo, la mas fuerte de las dos dianas) no es
+  igual de dominante en el fondo duro que en los emparejados.
+
+Lo dejo sin adornos porque cambia lo que se puede afirmar: **hoy ningun bloque de ningun
+resultado del proyecto pasa esta regla salvo el fondo duro de TDP-43**, y esa es la unica
+afirmacion nueva que se sostiene: que en TDP-43 el embudo reconoce quimia de tamaño
+correcto contra un fondo de verdaderos unidores de ARN. En SOD1 la afirmacion que se
+sostiene es mas debil y distinta: **ordena mejor que el azar contra el fondo duro, y no
+contra los señuelos de su tamaño**, sin llegar a demostrarlo.
+
+Esto obliga a corregir el informe de SOD1 del 21 de septiembre, y asi queda hecho: su
+veredicto pasa de PASA a **sin evidencia**, y sus numeros se leen por bloques.
 
 ---
 
@@ -196,3 +218,8 @@ python regla_decision_bootstrap.py --nombre FUS "exh 8=_barrido/validar_exh8.csv
   `_barrido_TDP43/validar_exh32.csv`, `_control_gpu_TDP43/validar_gpu.csv`) y el de SOD1
   (`validar_sod1_limpia.csv`). No se recalcula ninguna afinidad: la regla se aplica al
   mismo numero que ya estaba en los informes.
+- El fondo de SOD1 se parte antes de puntuarlo, con `separar_fondos_sod1.py` (que el
+  propio script llama si hace falta). No toca afinidades: solo reescribe la columna
+  `papel` segun el prefijo del fichero, y deja el CSV derivado en
+  `regla_decision/sod1_fondos_separados.csv`. Salen 16 filas en total: 12 de TDP-43 y 4
+  de SOD1 (el fondo entero y sus tres bloques).
