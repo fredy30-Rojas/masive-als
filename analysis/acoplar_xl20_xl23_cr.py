@@ -10,12 +10,22 @@ QUE HACE
    XL20 de `controles_tdp43_xl20.csv`, XL23 de `suplementario_tdp43_xl21_27.csv`.
 2. Los acopla con Vina en **cada modelo** del conjunto de RMN del CR que eligio
    `construir_receptor_cr.py` (2N2C, 6 modelos, caja de 22 A sobre el anillo del
-   Trp334 de cada modelo). Mismos parametros que el resto del proyecto:
-   exhaustividad 8, 9 modos, semilla 42.
+   Trp334 de cada modelo). Mismos parametros que el resto del proyecto: exhaustividad
+   8, 9 modos, y **varias semillas** (42, 2026, 777: las que usa el proyecto).
 3. Mide, para cada pose, **cuantos atomos del receptor tiene a menos de 4 A** y
    cuantos de sus propios atomos estan en contacto, ademas de si toca el Trp334 y a
    que distancia esta del anillo. Sin eso no se puede distinguir una pose apoyada en
    la proteina de otra flotando en el hueco de la caja, que Vina tambien puntua bien.
+
+POR QUE VARIAS SEMILLAS, Y NO UNA
+---------------------------------
+Vina es estocastico y el proyecto ya se comio esa leccion: los controles de redocking
+se corren con 42/2026/777 porque con una sola semilla un mismo sistema cambia de
+resultado. Aqui la comparacion de la pareja se apoya en diferencias de decimas de
+kcal/mol, que es justo el orden del ruido, asi que una sola semilla no permitiria
+decir ni «XL23 puntua mejor» ni lo contrario. Con las tres, el resumen dice cuantas
+combinaciones de modelo y semilla gana cada uno, y si saliera repartido habria que
+decir que en este sitio no hay nada que separar.
 
 LO QUE NO HACE
 --------------
@@ -26,10 +36,12 @@ lo que no (que XL23 no se una: eso no esta medido, y un acoplamiento no lo mide)
 
 Uso:
     python analysis/acoplar_xl20_xl23_cr.py [--exhaustividad 8] [--lado 22]
+                                            [--semillas 42,2026,777]
 
 Salida en analysis/_cr_receptor/:
     ligands/XL20.pdbqt, ligands/XL23.pdbqt
-    out/XL20_modelo1.pdbqt ...            poses por ligando y modelo
+    out/XL20_modelo1_s42.pdbqt ...        poses por ligando, modelo y semilla
+                                          (una por cada valor de --semillas)
     acoplamiento_cr.csv                   una fila por pose
     acoplamiento_cr.txt                   el resumen legible
 """
@@ -120,12 +132,24 @@ def poses_del_pdbqt(ruta):
     return poses
 
 
+def acoplar(ligando, receptor, cx, cy, cz, lado, exh, semilla, out):
+    cmd = [R.VINA, "--receptor", receptor, "--ligand", ligando,
+           "--center_x", "%.3f" % cx, "--center_y", "%.3f" % cy,
+           "--center_z", "%.3f" % cz,
+           "--size_x", str(lado), "--size_y", str(lado), "--size_z", str(lado),
+           "--exhaustiveness", str(exh), "--num_modes", "9",
+           "--seed", str(semilla), "--out", out]
+    return subprocess.run(cmd, capture_output=True, text=True, timeout=3600)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--exhaustividad", type=int, default=8)
-    ap.add_argument("--semilla", type=int, default=42)
+    ap.add_argument("--semillas", default="42,2026,777",
+                    help="semillas de Vina (el proyecto usa 42/2026/777)")
     ap.add_argument("--lado", type=int, default=22)
     args = ap.parse_args()
+    semillas = [int(s) for s in args.semillas.split(",") if s.strip()]
 
     os.makedirs(LIGANDS, exist_ok=True)
     os.makedirs(OUT, exist_ok=True)
@@ -134,6 +158,8 @@ def main():
 
     log("Receptor: %s (%s) | caja de %d A sobre el anillo del Trp334 de cada modelo"
         % (caja["pdb"], caja["residuos"], args.lado))
+    log("exhaustividad %d, 9 modos, semillas %s | contactos a %.1f A"
+        % (args.exhaustividad, ", ".join(str(s) for s in semillas), CORTE))
     log("")
 
     # --- ligandos: la receta canonica, con su comprobacion de pseudo-atomos ---
@@ -148,67 +174,61 @@ def main():
         log("  %-5s %-46s %s" % (nombre, smi, evidencia))
     log("")
 
+    modelos = sorted(caja["modelos"], key=int)
     filas = []
     for nombre, ligando in pdbqt_ligando.items():
-        for clave in sorted(caja["modelos"], key=int):
+        for clave in modelos:
             info = caja["modelos"][clave]
             receptor = os.path.join(BASE, info["pdbqt"])
             receptor_pdb = os.path.join(MODELOS, "cr_modelo%s.pdb" % clave)
-            out = os.path.join(OUT, "%s_modelo%s.pdbqt" % (nombre, clave))
             cx, cy, cz = info["centro"]
-            cmd = [R.VINA, "--receptor", receptor, "--ligand", ligando,
-                   "--center_x", "%.3f" % cx, "--center_y", "%.3f" % cy,
-                   "--center_z", "%.3f" % cz,
-                   "--size_x", str(args.lado), "--size_y", str(args.lado),
-                   "--size_z", str(args.lado),
-                   "--exhaustiveness", str(args.exhaustividad),
-                   "--num_modes", "9", "--seed", str(args.semilla), "--out", out]
-            if not (os.path.exists(out) and os.path.getsize(out) > 100):
-                r = subprocess.run(cmd, capture_output=True, text=True, timeout=3600)
-                if not (os.path.exists(out) and os.path.getsize(out) > 100):
-                    log("  %s modelo %s: FALLO Vina: %s"
-                        % (nombre, clave, (r.stderr or r.stdout)[-200:]))
-                    continue
-
             rec = atomos(receptor_pdb)
             anillo = np.array([xyz for (res, nom, el, xyz) in rec
                                if res == TRP and nom in ANILLO_TRP])
             centro_anillo = anillo.mean(axis=0) if len(anillo) else None
             rec_xyz = np.array([a[3] for a in rec])
-            for modo, afinidad, lig in poses_del_pdbqt(out):
-                L = np.array([a[1] for a in lig])
-                d = np.sqrt(((L[:, None, :] - rec_xyz[None, :, :]) ** 2).sum(-1))
-                cerca = d.min(axis=0) < CORTE
-                residuos = sorted({rec[i][0] for i in np.nonzero(cerca)[0]})
-                en_contacto = int((d.min(axis=1) < CORTE).sum())
-                toca_trp = TRP in residuos
-                # ojo con np.linalg.norm sin eje: sobre una matriz devuelve la norma
-                # de Frobenius (un solo numero), no la distancia de cada atomo.
-                dist_centro = dist_anillo_atomo = None
-                if centro_anillo is not None:
-                    dist_centro = float(np.linalg.norm(L - centro_anillo, axis=1).min())
-                    dist_anillo_atomo = float(np.linalg.norm(
-                        L[:, None, :] - anillo[None, :, :], axis=-1).min())
-                del_cr = [r for r in residuos if CR[0] <= r <= CR[1]]
-                filas.append({
-                    "ligando": nombre, "modelo": clave, "modo": modo,
-                    "afinidad": afinidad,
-                    "contactos": len(residuos),
-                    "atomos_del_ligando_en_contacto": en_contacto,
-                    "fraccion_ligando_en_contacto": round(en_contacto / float(len(L)), 2),
-                    "residuos": " ".join(str(r) for r in residuos),
-                    "toca_trp334": toca_trp,
-                    "dist_min_al_anillo_trp334": (round(dist_centro, 2)
-                                                  if dist_centro is not None else None),
-                    "dist_min_a_un_atomo_del_anillo": (
-                        round(dist_anillo_atomo, 2)
-                        if dist_anillo_atomo is not None else None),
-                    "residuos_del_cr": " ".join(str(r) for r in del_cr),
-                })
-            log("  %-5s modelo %s: %d poses acopladas" % (nombre, clave, len(
-                [f for f in filas if f["ligando"] == nombre and f["modelo"] == clave])))
+            for semilla in semillas:
+                out = os.path.join(OUT, "%s_modelo%s_s%d.pdbqt"
+                                   % (nombre, clave, semilla))
+                if not (os.path.exists(out) and os.path.getsize(out) > 100):
+                    r = acoplar(ligando, receptor, cx, cy, cz, args.lado,
+                                args.exhaustividad, semilla, out)
+                    if not (os.path.exists(out) and os.path.getsize(out) > 100):
+                        log("  %s modelo %s semilla %d: FALLO Vina: %s"
+                            % (nombre, clave, semilla, (r.stderr or r.stdout)[-200:]))
+                        continue
+                for modo, afinidad, lig in poses_del_pdbqt(out):
+                    L = np.array([a[1] for a in lig])
+                    d = np.sqrt(((L[:, None, :] - rec_xyz[None, :, :]) ** 2).sum(-1))
+                    cerca = d.min(axis=0) < CORTE
+                    residuos = sorted({rec[i][0] for i in np.nonzero(cerca)[0]})
+                    en_contacto = int((d.min(axis=1) < CORTE).sum())
+                    # ojo con np.linalg.norm sin eje: sobre una matriz devuelve la
+                    # norma de Frobenius (un solo numero), no la distancia de cada atomo.
+                    dist_centro = dist_anillo_atomo = None
+                    if centro_anillo is not None:
+                        dist_centro = float(np.linalg.norm(L - centro_anillo, axis=1).min())
+                        dist_anillo_atomo = float(np.linalg.norm(
+                            L[:, None, :] - anillo[None, :, :], axis=-1).min())
+                    del_cr = [r for r in residuos if CR[0] <= r <= CR[1]]
+                    filas.append({
+                        "ligando": nombre, "modelo": clave, "semilla": semilla,
+                        "modo": modo, "afinidad": afinidad,
+                        "contactos": len(residuos),
+                        "atomos_del_ligando_en_contacto": en_contacto,
+                        "fraccion_ligando_en_contacto": round(en_contacto / float(len(L)), 2),
+                        "residuos": " ".join(str(r) for r in residuos),
+                        "toca_trp334": TRP in residuos,
+                        "dist_min_al_anillo_trp334": (round(dist_centro, 2)
+                                                      if dist_centro is not None else None),
+                        "dist_min_a_un_atomo_del_anillo": (
+                            round(dist_anillo_atomo, 2)
+                            if dist_anillo_atomo is not None else None),
+                        "residuos_del_cr": " ".join(str(r) for r in del_cr),
+                    })
+                log("  %-5s modelo %-2s semilla %-5d ok" % (nombre, clave, semilla))
 
-    campos = ["ligando", "modelo", "modo", "afinidad", "contactos",
+    campos = ["ligando", "modelo", "semilla", "modo", "afinidad", "contactos",
               "atomos_del_ligando_en_contacto", "fraccion_ligando_en_contacto",
               "residuos", "toca_trp334", "dist_min_al_anillo_trp334",
               "dist_min_a_un_atomo_del_anillo", "residuos_del_cr"]
@@ -222,29 +242,40 @@ def main():
     lineas.append("XL20 y XL23 acoplados en el CR del C-terminal de TDP-43")
     lineas.append("receptor %s (%s), 6 modelos de RMN, caja de %d A sobre el anillo"
                   " del Trp334" % (caja["pdb"], caja["residuos"], args.lado))
-    lineas.append("exhaustividad %d, 9 modos, semilla %d | contactos a %.1f A"
-                  % (args.exhaustividad, args.semilla, CORTE))
+    lineas.append("exhaustividad %d, 9 modos, semillas %s | contactos a %.1f A"
+                  % (args.exhaustividad, ", ".join(str(s) for s in semillas), CORTE))
     lineas.append("")
-    lineas.append("  %-5s %-6s %-7s %-9s %-9s %-8s %-8s %-8s %s"
-                  % ("lig", "modelo", "afin", "contactos", "at.lig", "Trp334",
-                     "d.aneo", "d.atomo", "residuos"))
-    for fila in filas:
-        lineas.append("  %-5s %-6s %-7.2f %-9d %-9d %-8s %-8s %-8s %s"
-                      % (fila["ligando"], fila["modelo"], fila["afinidad"],
-                         fila["contactos"], fila["atomos_del_ligando_en_contacto"],
-                         fila["toca_trp334"], fila["dist_min_al_anillo_trp334"],
-                         fila["dist_min_a_un_atomo_del_anillo"], fila["residuos"]))
 
-    # --- resumen: la comparacion que se ha venido a hacer ---
+    def mejor_pose(lig, modelo, semilla):
+        suyas = [f for f in filas if f["ligando"] == lig and f["modelo"] == modelo
+                 and str(f["semilla"]) == str(semilla) and f["afinidad"] is not None]
+        return min(suyas, key=lambda f: f["afinidad"]) if suyas else None
+
+    lineas.append("  MEJOR POSE de cada (ligando, modelo, semilla)")
+    lineas.append("  %-5s %-6s %-7s %-9s %-9s %-8s %-8s %s"
+                  % ("lig", "modelo", "sem", "afin", "contactos", "Trp334",
+                     "d.aneo", "residuos"))
+    for nombre in pdbqt_ligando:
+        for clave in modelos:
+            for semilla in semillas:
+                f = mejor_pose(nombre, clave, semilla)
+                if f is None:
+                    continue
+                lineas.append("  %-5s %-6s %-7d %-9.2f %-9d %-8s %-8s %s"
+                              % (nombre, clave, semilla, f["afinidad"], f["contactos"],
+                                 "si" if f["toca_trp334"] else "NO",
+                                 f["dist_min_a_un_atomo_del_anillo"], f["residuos"]))
+
+    # --- resumen de la comparacion ---
     # Una pose cuenta como «apoyada en el Trp334» si el ligando tiene atomos a menos
     # de 4 A de un atomo del anillo indol. Todo lo demas es posarse en otro sitio de
     # la helice, que con una caja de 22 A sobre un peptido de 43 residuos es posible.
     lineas.append("")
     lineas.append("  RESUMEN (pose apoyada en el Trp334 = algun atomo a menos de %.1f A"
                   " de un atomo del anillo)" % CORTE)
-    lineas.append("  %-5s %-7s %-9s %-11s %-9s %s"
-                  % ("lig", "mejor", "mejor_Trp", "sobre_Trp334", "n_poses",
-                     "residuos que toca la mejor pose"))
+    lineas.append("  %-5s %-8s %-11s %-9s %s"
+                  % ("lig", "mejor", "sobre_Trp334", "n_poses",
+                     "residuos que toca su mejor pose"))
     resumen = {}
     for nombre in pdbqt_ligando:
         suyas = [f for f in filas if f["ligando"] == nombre and f["afinidad"] is not None]
@@ -253,50 +284,80 @@ def main():
         sobre = [f for f in suyas
                  if (f["dist_min_a_un_atomo_del_anillo"] or 99) < CORTE]
         mejor = min(suyas, key=lambda f: f["afinidad"])
-        mejor_trp = min(sobre, key=lambda f: f["afinidad"]) if sobre else None
-        pesados = len(atomos(pdbqt_ligando[nombre]))
         # Eficiencia de ligando: la afinidad repartida por atomo pesado. Es lo que
         # permite comparar un compuesto de 26 atomos con otro de 34 sin que el
         # segundo gane solo por ser mas grande, que es lo que hace Vina.
+        pesados = len(atomos(pdbqt_ligando[nombre]))
         resumen[nombre] = {"mejor": float(mejor["afinidad"]), "pesados": pesados,
-                           "le": float(mejor["afinidad"]) / pesados, "sobre": len(sobre),
-                           "n": len(suyas)}
-        lineas.append("  %-5s %-7.2f %-9s %-11s %-9s %s"
+                           "le": float(mejor["afinidad"]) / pesados,
+                           "sobre": len(sobre), "n": len(suyas)}
+        lineas.append("  %-5s %-8.2f %-11s %-9s %s"
                       % (nombre, mejor["afinidad"],
-                         "%.2f" % mejor_trp["afinidad"] if mejor_trp else "-",
-                         "%d de %d" % (len(sobre), len(suyas)),
-                         len(suyas), mejor["residuos"]))
+                         "%d de %d" % (len(sobre), len(suyas)), len(suyas),
+                         mejor["residuos"]))
+
     lineas.append("")
-    lineas.append("  POR MODELO: mejor afinidad de cada uno en cada modelo de la RMN")
-    lineas.append("  (el CR desordenado no es una foto: si el orden cambiara de un modelo a otro,"
-                  " no habria nada que decir)")
-    lineas.append("  %-8s %-9s %-9s %-9s %s"
-                  % ("modelo", "XL20", "XL23", "diferencia", "gana"))
-    modelos = sorted({f["modelo"] for f in filas}, key=int)
+    lineas.append("  POR (MODELO, SEMILLA): mejor afinidad de cada uno, y quien gana")
+    lineas.append("  (el CR desordenado no es una foto: si el orden cambiara de un modelo")
+    lineas.append("   a otro, no habria nada que decir; y con una sola semilla tampoco)")
+    lineas.append("  %-8s %-7s %-9s %-9s %-11s %s"
+                  % ("modelo", "sem", "XL20", "XL23", "diferencia", "gana"))
     gana = {n: 0 for n in pdbqt_ligando}
-    for mod in modelos:
-        valores = {}
-        for nombre in pdbqt_ligando:
-            suyas = [f for f in filas if f["ligando"] == nombre
-                     and f["modelo"] == mod and f["afinidad"] is not None]
-            if suyas:
-                valores[nombre] = min(float(f["afinidad"]) for f in suyas)
-        if len(valores) < 2:
-            continue
-        mejor_modelo = min(valores, key=lambda n: valores[n])
-        gana[mejor_modelo] += 1
-        lineas.append("  %-8s %-9.2f %-9.2f %-9.2f %s"
-                      % (mod, valores["XL20"], valores["XL23"],
-                         valores["XL23"] - valores["XL20"], mejor_modelo))
+    combos = 0
+    for clave in modelos:
+        for semilla in semillas:
+            valores = {}
+            for nombre in pdbqt_ligando:
+                f = mejor_pose(nombre, clave, semilla)
+                if f is not None:
+                    valores[nombre] = float(f["afinidad"])
+            if len(valores) < 2:
+                continue
+            mejor_combo = min(valores, key=lambda n: valores[n])
+            gana[mejor_combo] += 1
+            combos += 1
+            lineas.append("  %-8s %-7d %-9.2f %-9.2f %-11.2f %s"
+                          % (clave, semilla, valores["XL20"], valores["XL23"],
+                             valores["XL23"] - valores["XL20"], mejor_combo))
     lineas.append("")
     lineas.append("  eficiencia de ligando (afinidad por atomo pesado) de la mejor pose:")
-    for nombre in sorted(resumen, key=lambda n: -resumen[n]["mejor"]):
+    for nombre in sorted(resumen, key=lambda n: resumen[n]["mejor"]):
         r = resumen[nombre]
         lineas.append("    %-5s %d atomos pesados | mejor %.2f kcal/mol | %.3f kcal/mol por atomo"
                       % (nombre, r["pesados"], r["mejor"], r["le"]))
-    lineas.append("    ganados por modelo: %s"
-                  % ", ".join("%s %d de %d" % (n, gana[n], len(modelos))
+    lineas.append("    ganados por (modelo, semilla): %s"
+                  % ", ".join("%s %d de %d" % (n, gana[n], combos)
                               for n in sorted(gana)))
+    # Y el partea por atomo pesado, que es lo que quita el efecto del tamano: no se
+    # compara la mejor pose suelta (esa sale de un modelo concreto y es la mas
+    # generosa con cada uno) sino TODAS las combinaciones de modelo y semilla.
+    for nombre in resumen:
+        valores = []
+        for clave in modelos:
+            for semilla in semillas:
+                f = mejor_pose(nombre, clave, semilla)
+                if f is not None:
+                    valores.append(float(f["afinidad"]) / resumen[nombre]["pesados"])
+        if valores:
+            valores.sort()
+            resumen[nombre]["le_mediana"] = valores[len(valores) // 2]
+    if all("le_mediana" in r for r in resumen.values()):
+        nombres = sorted(resumen, key=lambda n: resumen[n]["le_mediana"])
+        lineas.append("    eficiencia mediana de las %d combinaciones: %s"
+                      % (combos, " | ".join("%-5s %.3f kcal/mol por atomo"
+                                            % (n, resumen[n]["le_mediana"])
+                                            for n in nombres)))
+        ganados_le = 0
+        for clave in modelos:
+            for semilla in semillas:
+                a, b = mejor_pose("XL20", clave, semilla), mejor_pose("XL23", clave, semilla)
+                if a is None or b is None:
+                    continue
+                if (float(a["afinidad"]) / resumen["XL20"]["pesados"]
+                        < float(b["afinidad"]) / resumen["XL23"]["pesados"]):
+                    ganados_le += 1
+        lineas.append("    ganados por eficiencia (modelo, semilla): XL20 %d de %d, XL23 %d de %d"
+                      % (ganados_le, combos, combos - ganados_le, combos))
     texto = "\n".join(lineas)
     with open(os.path.join(SALIDA, "acoplamiento_cr.txt"), "w", encoding="utf-8") as f:
         f.write(texto + "\n")

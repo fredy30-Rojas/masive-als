@@ -254,6 +254,26 @@ def centro_anillo(lineas):
     return np.mean(np.array(pts), axis=0), pts
 
 
+def helicidad(lineas, primero, ultimo):
+    """Distancia CA(i)-CA(i+4) dentro del CR: es la medida de si aquello es helice.
+
+    Se mide en vez de darlo por supuesto porque la construccion se eligio justo por
+    ser corta, y una construccion corta puede no plegarse como la region entera.
+    Una alpha-helice da 5,4-6,5 A; un tramo extendido, mucho mas.
+    """
+    ca = {}
+    for l in lineas:
+        if l.startswith("ATOM") and l[12:16].strip() == "CA" and l[21] == "A":
+            res = int(l[22:26])
+            if primero - 6 <= res <= ultimo + 6:
+                ca[res] = np.array([float(l[30:38]), float(l[38:46]), float(l[46:54])])
+    d = [float(np.linalg.norm(ca[r] - ca[r + 4]))
+         for r in range(primero, ultimo - 3) if r in ca and r + 4 in ca]
+    if not d:
+        return 0, None, None, None
+    return len(d), float(np.mean(d)), float(min(d)), float(max(d))
+
+
 def main():
     os.makedirs(MODELOS, exist_ok=True)
     referencia = uniprot_seq()
@@ -303,6 +323,7 @@ def main():
         % (len(modelos), os.path.basename(pdb)))
 
     cajas = {}
+    helices = []
     for n, lineas in modelos:
         crudo = os.path.join(MODELOS, "cr_modelo%d.pdb" % n)
         base = os.path.join(MODELOS, "cr_modelo%d" % n)
@@ -327,21 +348,50 @@ def main():
                           np.array([float(l[30:38]), float(l[38:46]), float(l[46:54])]))
                          for l in lineas if l.startswith("ATOM") and l[21] == "A"]
                         if float(np.linalg.norm(xyz - centro)) <= TAMANO_CAJA / 2.0})
+        n_helices, hel_media, hel_min, hel_max = helicidad(lineas, CR[0], CR[1])
+        helices.append(hel_media)
         cajas[str(n)] = {"centro": [round(float(x), 3) for x in centro],
                          "tamano": TAMANO_CAJA,
                          "pdbqt": os.path.relpath(pdbqt, BASE).replace("\\", "/"),
                          "residuos_dentro_de_la_caja": len(vista),
                          "primero": vista[0] if vista else None,
-                         "ultimo": vista[-1] if vista else None}
+                         "ultimo": vista[-1] if vista else None,
+                         "helice_ca_i_a_i4_media": (round(hel_media, 2)
+                                                    if hel_media is not None else None)}
         log("  modelo %d: %d atomos de proteina -> %d atomos en el receptor | caja en"
             " (%.1f, %.1f, %.1f) ve %d residuos (%s-%s)"
             % (n, n_atomos, pesados, centro[0], centro[1], centro[2], len(vista),
                vista[0] if vista else "-", vista[-1] if vista else "-"))
+        log("    helice del CR: CA(i)-CA(i+4) media %.2f A (de %.1f a %.1f, %d medidas)"
+            % (hel_media, hel_min, hel_max, n_helices))
+
+    # --- medidas de conjunto que cita el informe, para que salgan de un script ---
+    centros = np.array([c["centro"] for c in cajas.values()])
+    if len(centros) > 1:
+        pares = np.sqrt(((centros[:, None, :] - centros[None, :, :]) ** 2).sum(-1))
+        separacion = float(pares.max())
+    else:
+        separacion = 0.0
+    log("")
+    log("%d de las %d estructuras del CR cumplen los requisitos (cubren 320-340 entero,"
+        " con el anillo del Trp334 resuelto)." % (len(aptas), len(filas)))
+    log("El centro del anillo del Trp334 se separa hasta %.2f A entre modelos, asi que cada"
+        " modelo lleva su caja." % separacion)
+    if helices:
+        log("Helice del CR en los %d modelos: CA(i)-CA(i+4) media %.2f A (de %.2f a %.2f)."
+            % (len(helices), float(np.mean(helices)), float(np.min(helices)),
+               float(np.max(helices))))
 
     with open(os.path.join(SALIDA, "caja.json"), "w", encoding="utf-8") as f:
         json.dump({"receptor": os.path.basename(pdb), "pdb": elegida["pdb"],
                    "residuos": elegida["residuos"], "trp334": TRP334,
-                   "anillo": list(ANILLO_TRP), "modelos": cajas}, f, indent=2)
+                   "anillo": list(ANILLO_TRP),
+                   "candidatas_que_cumplen": len(aptas),
+                   "candidatas_probadas": len(filas),
+                   "separacion_maxima_del_centro_entre_modelos": round(separacion, 2),
+                   "helice_ca_i_a_i4_media": round(float(np.mean(helices)), 2)
+                   if helices else None,
+                   "modelos": cajas}, f, indent=2)
     log("")
     log("cajas y receptores anotados en analysis/_cr_receptor/caja.json")
     with open(os.path.join(SALIDA, "receptor_cr.txt"), "w", encoding="utf-8") as f:
