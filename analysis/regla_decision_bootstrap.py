@@ -291,12 +291,19 @@ def comparar(nombre, corridas):
     log("=" * 78)
     log("   %-34s %-9s %-9s %-9s %-9s %s"
         % ("corrida (bloque)", "AUC/at.", "IC f. inf", "IC t. inf", "residual", "veredicto"))
-    filas, veredictos = [], {}
+    filas, veredictos, conjuntos = [], {}, {}
     for etiqueta, ruta in corridas:
         if not os.path.exists(ruta):
             log("   %-24s FALTA %s" % (etiqueta, ruta))
             continue
         positivos, scores, pesados, bloques = leer_corrida(ruta)
+        # Los positivos de cada corrida, para poder comprobar que son LOS MISMOS. Una
+        # corrida a la que le falta un positivo no es comparable con las demas: el AUC es
+        # un promedio sobre los positivos. Paso el 25 de septiembre de 2026 en TDP-43: una
+        # corrida perdio los tres fragmentos de Nshogoza y su bloque duro cayo de 0,734
+        # (PASA) a 0,595 (SIN EVIDENCIA), y eso no era un fallo de la regla, era que se
+        # estaban comparando conjuntos distintos.
+        conjuntos[etiqueta] = tuple(sorted(positivos))
         for nombre_bloque, fondo in bloques.items():
             r = evaluar_bloque(positivos, fondo, scores, pesados)
             v = veredicto(r)
@@ -321,6 +328,17 @@ def comparar(nombre, corridas):
                    r["ic_fondo"]["atomo"][0], r["ic_todo"]["atomo"][0],
                    r["auc_residual"], v))
             pintar(etiqueta, nombre_bloque, r)
+    if len(set(conjuntos.values())) > 1:
+        log("")
+        log("!" * 78)
+        log("ATENCION: las corridas NO traen los mismos positivos. Un veredicto igual NO")
+        log("prueba la regla si los conjuntos son distintos: la prueba es aguantar el")
+        log("cambio de motor y de esfuerzo, no el cambio de ligandos.")
+        for etiqueta, conjunto in conjuntos.items():
+            log("   %-28s %d positivos: %s"
+                % (etiqueta, len(conjunto), ", ".join(conjunto) or "(ninguno)"))
+        log("! Hay que arreglar de donde salen los positivos antes de leer esto.")
+        log("!" * 78)
     if veredictos:
         unicos = set(veredictos.values())
         log("")
