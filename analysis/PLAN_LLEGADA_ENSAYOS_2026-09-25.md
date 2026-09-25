@@ -83,19 +83,37 @@ python analysis/regla_decision_bootstrap.py
 
 > **Aviso del 25 sep 2026, antes de re-puntuar TDP-43.** Al montar el fondo de
 > inactividad se corrió el validador de TDP-43 para comprobar que no se rompía nada, y
-> salieron dos cosas que hay que tener delante el día del re-run. Primera: los ligandos
-> preparados de `rTRD01` y `nTRD22` **ya no están** en la carpeta del fondo
-> (`analysis/_validacion_TDP43/ligands` está a medias en disco), así que la comprobación
-> previa los da por sospechosos y **los re-acopla**: con la receta de hoy salen −6,624 y
-> −8,228 en vez de los −6,621 y −8,026 publicados. Las poses re-acopladas **no se han
-> dejado en el repositorio** (se restauraron las de la corrida que produjo el CSV)
-> precisamente para no mover la tabla de §3.4 del paper por la puerta de atrás: antes de
-> dar por buenos unos números nuevos, decidir si se re-acoplan esos dos positivos o se
-> recuperan sus ficheros. Segunda: los tres fragmentos de Nshogoza siguen **sin SMILES** en
-> `verdad_de_referencia.csv` (dice "pendiente: hay que dibujarlo"), y eso **rompía la
-> corrida entera** con un `KeyError` al calcular el AUC por átomo; ya no rompe (su número
-> de átomos pesados se lee del fichero preparado y coincide con los publicados: 13, 11 y
-> 15), pero el SMILES sigue pendiente.
+> salió un fallo de verdad, ya arreglado, más una decisión que sigue abierta.
+>
+> **El fallo, medido y arreglado.** La comprobación previa buscaba el fichero preparado y
+> la pose de cada positivo **solo** en la carpeta del fondo (`_validacion_TDP43/`), y los
+> de los tres fragmentos de Nshogoza están en `validar_tdp43_limpia/` (donde los dejó la
+> corrida del 23 sep). Como además no tienen SMILES en `verdad_de_referencia.csv` (dice
+> "pendiente: hay que dibujarlo"), no se podían re-preparar y **se caían los tres de la
+> corrida**: 4 positivos en vez de 7, y el bloque duro pasó de **0,734 (PASA) a 0,595 (SIN
+> EVIDENCIA)**. O sea que el PASA de TDP-43 que está publicado depende de que esos tres
+> entren, y hasta hoy eso dependía de dónde se les buscara. Arreglado en
+> `validar_sod1_limpia.py`: `localiza_positivo()` busca fichero y pose también en
+> `validar_tdp43_limpia/` y, si el SMILES no está, **los reutiliza comprobandolos entre
+> sí** (fichero = pose) en vez de tirar el compuesto; y si aun así un positivo se queda
+> fuera, la corrida lo grita antes de los resultados, porque un positivo menos no es
+> comparable con lo publicado. Comprobado después del arreglo: la corrida vuelve a dar 7
+> positivos, 0,686 / **0,734** / 0,713 (PASA en los tres bloques), el CSV queda idéntico
+> salvo la columna nueva vacía `puesto_fondo3`, y `regla_decision.csv` sigue **idéntico
+> byte a byte** al congelado. El SMILES de los tres fragmentos sigue pendiente: hoy se
+> suple con el número de átomos pesados leído del fichero preparado (13, 11 y 15, que
+> coinciden con los publicados), que es lo que decidía el `KeyError` que rompía la
+> corrida entera.
+>
+> **La decisión que sigue abierta.** Los ligandos preparados de `rTRD01` y `nTRD22` no
+> están en la carpeta del fondo (los `D` del `git status` en `_validacion_TDP43/` son las
+> versiones viejas de la receta, que el rescate del 21 sep dejó solo en git: **no se
+> restauran**, porque volver a ponerlas metería 71 señuelos de más y el fondo pasaría de
+> 122 a 193, que es el número que sí está publicado). Con el arreglo de arriba se reutilizan las poses publicadas de
+> `validar_tdp43_limpia/out`, así que la corrida reproduce −6,621 y −8,026 y §3.4 no se
+> mueve. La decisión es si se quiere **re-acoplar** esos dos con la receta de hoy (salen
+> −6,624 y −8,228, como el 23 sep con el mismo caso) y actualizar la tabla, o dejarlo como
+> está. Ya no es una cosa que pase sola: ahora hace falta decirlo.
 
 **El orden importa, y por eso está numerado.** El validador es el que prepara y acopla el
 positivo nuevo, y lo deja en `validar_tdp43_limpia/ligands`; el barrido de exhaustividad y

@@ -199,6 +199,40 @@ def pesados_del_fichero(nombre, *dirs):
     return None, None
 
 
+def localiza_positivo(nombre, dirs_ligs, dirs_poses):
+    """(fichero preparado, pose) de un positivo, en el primer sitio donde esten.
+
+    Se busca en varios sitios a proposito. El fichero y la pose de un positivo pueden
+    estar en la carpeta del fondo o en la salida de una corrida anterior, y buscarlos
+    solo en un sitio tira el compuesto: quitar un positivo MUEVE el AUC, porque la
+    medida es un promedio sobre los positivos. Paso el 25 de septiembre de 2026 con los
+    tres fragmentos de Nshogoza en TDP-43: sus ficheros y sus poses estaban en
+    `validar_tdp43_limpia/`, la comprobacion previa miraba solo en `_validacion_TDP43/`,
+    los tres se quedaron fuera y el veredicto paso de 0,734 (PASA) a 0,595 (SIN
+    EVIDENCIA) sin que nada lo dijera. El nombre va con el prefijo `ACT_` ya puesto.
+    """
+    def primero(dirs, sufijo):
+        for d in dirs:
+            if not d:
+                continue
+            p = os.path.join(d, nombre + sufijo)
+            if os.path.exists(p):
+                return p
+        return None
+
+    return primero(dirs_ligs, ".pdbqt"), primero(dirs_poses, "_out.pdbqt")
+
+
+def pesados_de_pose(ruta):
+    """Atomos pesados de la PRIMERA pose de un fichero de poses (None si no esta)."""
+    if not ruta or not os.path.exists(ruta):
+        return None
+    txt = open(ruta, encoding="utf-8", errors="ignore").read()
+    if "ENDMDL" in txt:
+        txt = txt.split("ENDMDL")[0]
+    return contar_atomos(txt)[0]
+
+
 def _dock(t):
     vina, rec, lig, out, cx, cy, cz, tam, exh = t
     subprocess.run([vina, "--receptor", rec, "--ligand", lig,
@@ -547,23 +581,35 @@ def main():
     log("=" * 78)
     log("COMPROBACION PREVIA: fichero = pose = SMILES (atomos pesados)")
     log("=" * 78)
+    # Donde se busca el fichero preparado y la pose de un positivo: primero el sitio de
+    # siempre (la carpeta del fondo, que es de donde salieron los numeros publicados) y
+    # despues la salida de esta misma corrida, que es donde quedan los re-acoplados.
+    dirs_ligs_pos = [LIGS_FONDO, ligdir]
+    dirs_poses_pos = [POSES_FONDO, outdir]
+
     sospechosos = []
     for r in filas:
         nombre = "ACT_" + r["ligand"]
-        lig = os.path.join(POSES_FONDO.replace("out", "ligands"), nombre + ".pdbqt")
-        pose = os.path.join(POSES_FONDO, nombre + "_out.pdbqt")
+        lig, pose = localiza_positivo(nombre, dirs_ligs_pos, dirs_poses_pos)
         n_smi = pesados_smiles(r["smiles"])
-        n_lig = contar_atomos(open(lig, encoding="utf-8").read())[0] if os.path.exists(lig) else None
-        n_pose = None
-        if os.path.exists(pose):
-            txt = open(pose, encoding="utf-8", errors="ignore").read()
-            # solo la primera pose
-            if "ENDMDL" in txt:
-                txt = txt.split("ENDMDL")[0]
-            n_pose = contar_atomos(txt)[0]
-        ok = n_smi is not None and n_lig == n_smi and n_pose == n_smi
+        n_lig = contar_atomos(open(lig, encoding="utf-8").read())[0] if lig else None
+        n_pose = pesados_de_pose(pose)
+        if n_smi is None:
+            # Sin SMILES en la tabla, el fichero preparado y su pose son el unico dato
+            # que hay, y se comprueban el uno contra el otro. Antes este caso se daba
+            # por no valido y el compuesto se tiraba: con los tres fragmentos de
+            # Nshogoza eso movia el veredicto de TDP-43 (0,734 -> 0,595).
+            ok = n_lig is not None and n_lig == n_pose
+            if ok:
+                log("   %-28s sin SMILES en la tabla: se reutiliza el fichero y la pose"
+                    " que ya estan (%s) y se cuentan sus atomos" % (r["ligand"], n_lig))
+        else:
+            ok = n_lig == n_smi and n_pose == n_smi
         log("   %-28s SMILES %s | fichero %s | pose %s   %s"
             % (r["ligand"], n_smi, n_lig, n_pose, "OK" if ok else "REVISAR"))
+        if ok and os.path.dirname(pose or "") == outdir:
+            log("      (fichero y pose de la salida de esta corrida: no se vuelven a"
+                " acoplar)")
         if not ok:
             sospechosos.append(r)
     if sospechosos:
@@ -575,6 +621,10 @@ def main():
             p = escribir("ACT_" + r["ligand"], r["smiles"], ligdir,
                          forzar=True, quitar_sales=True)
             if p is None:
+                # Sin SMILES no hay forma de prepararlo. Es un positivo menos y eso
+                # mueve el AUC, asi que se dice aqui y otra vez al final.
+                log("   !! %s: sin SMILES y sin fichero que cuadre, no se puede"
+                    " preparar" % r["ligand"])
                 continue
             out = os.path.join(outdir, "ACT_%s_out.pdbqt" % r["ligand"])
             if os.path.exists(out):
@@ -588,18 +638,24 @@ def main():
 
     # -------------------------------------------------------------------- puntuacion
     scores, pesados, papel = {}, {}, {}
+    nombres_sospechosos = ["ACT_" + s["ligand"] for s in sospechosos]
+    faltan = []
     for r in filas:
         nombre = "ACT_" + r["ligand"]
-        pose = os.path.join(POSES_FONDO, nombre + "_out.pdbqt")
-        if nombre in [f"ACT_{s['ligand']}" for s in sospechosos]:
+        # La pose de un re-acoplado se lee de la salida de ESTA corrida; la de los
+        # demas, de donde este (primero la carpeta del fondo, que es la publicada).
+        if nombre in nombres_sospechosos:
             pose = os.path.join(outdir, nombre + "_out.pdbqt")
-        aff = afinidad(pose) if os.path.exists(pose) else None
+        else:
+            pose = localiza_positivo(nombre, dirs_ligs_pos, dirs_poses_pos)[1]
+        aff = afinidad(pose) if pose and os.path.exists(pose) else None
         if aff is None:
             log("   !! sin pose para %s: queda fuera" % r["ligand"])
+            faltan.append(r["ligand"])
             continue
         n_pesados = pesados_smiles(r["smiles"])
         if n_pesados is None:
-            n_pesados, de_donde = pesados_del_fichero(nombre, ligdir, LIGS_FONDO)
+            n_pesados, de_donde = pesados_del_fichero(nombre, *dirs_ligs_pos)
             if n_pesados is not None:
                 log("   %s: SMILES sin leer en verdad_de_referencia; %d atomos pesados"
                     " del fichero preparado (%s)" % (r["ligand"], n_pesados, de_donde))
@@ -609,6 +665,7 @@ def main():
             # la corrida con un KeyError como hacia antes).
             log("   !! sin atomos pesados legibles para %s (ni SMILES ni fichero):"
                 " queda fuera de la corrida" % r["ligand"])
+            faltan.append(r["ligand"])
             continue
         scores[nombre] = aff
         pesados[nombre] = n_pesados
@@ -650,6 +707,20 @@ def main():
 
     positivos = [k for k in scores if papel[k] == "positivo"]
     log("positivos con pose: %d de %d" % (len(positivos), len(filas)))
+    if faltan:
+        # Una corrida a la que le falta un positivo NO se puede comparar con la
+        # publicada: el AUC es un promedio sobre los positivos y se mueve en las dos
+        # direcciones. Se dice con todas las letras y antes de los resultados, para que
+        # nadie lea el veredicto de abajo como si fuera el de siempre.
+        log("")
+        log("!" * 78)
+        log("ATENCION: %d de %d positivos NO entran en esta corrida -> %s"
+            % (len(faltan), len(filas), ", ".join(faltan)))
+        log("El AUC de abajo NO es comparable con el publicado: con menos positivos la")
+        log("medida se mueve, y en TDP-43 este mismo caso (los tres fragmentos de")
+        log("Nshogoza fuera) bajo el fondo duro de 0,734 (PASA) a 0,595 (SIN EVIDENCIA).")
+        log("Hay que arreglar de donde se leen esos positivos antes de leer el veredicto.")
+        log("!" * 78)
 
     # ---------------------------------------------------------------- los bloques
     resultados = [evaluar(positivos, fondo1, scores, pesados, quimias,
