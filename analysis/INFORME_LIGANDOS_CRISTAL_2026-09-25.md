@@ -150,6 +150,34 @@ estas dos lecturas, no en un registro. La procedencia completa está en
 —recorte original a la izquierda, dibujo de RDKit a la derecha— en
 `_xl20_fig/XL20_comparacion.png`.
 
+### 3.4 Los otros siete hits del mismo cribado, guardados y con lo que son
+
+Los siete compañeros de tabla (XL21–XL27) ya estaban leídos por el mismo OCR, así que
+quedan guardados con su procedencia en `analysis/suplementario_tdp43_xl21_27.csv`:
+código de Asinex (leído en **dos pasadas coincidentes** de la tabla), SMILES comprobado en
+RDKit, fórmula, esqueleto de Murcko, quimiotipo y **la evidencia funcional que el artículo
+da de cada uno**.
+
+| | Asinex | Fórmula | Quimiotipo | Lo que hay de él |
+|---|---|---|---|---|
+| XL21 | BDE32163394 | C14H20N4O5 | uracilo-carboxamida | inhibe la agregación del LCD in vitro a 100 µM |
+| XL22 | BDE32165749 | C13H18N4O5 | uracilo-carboxamida | nada reportado |
+| **XL23** | **LAS51502065** | **C21H21F3N8O2** | **adenina-aminociclohexanol (como XL20)** | **inhibe la agregación in vitro a 100 µM** |
+| XL24 | BDE31265220 | C12H18N4O4 | uracilo-carboxamida | **empeora** la muerte neuronal |
+| XL25 | BDF33572449 | C18H20N4O6S | quinazolinadiona-sulfonamida | nada reportado |
+| XL26 | BDE32053214 | C14H15N5O3 | uracilo-carboxamida | nada reportado |
+| XL27 | BDE32081987 | C15H17N5O3 | uracilo-carboxamida | neuroprotege, pero solo a 100 µM (XL20 ya a 6,25) |
+
+Y el detalle que sí importa para la línea del C-terminal: **XL23 comparte el quimiotipo de
+XL20** —adenina unida a un aminociclohexanol, cinco anillos— y además tiene actividad
+funcional. Es decir, el único compuesto con unión medida de todo el artículo **tiene un
+hermano de quimiotipo en la misma tabla**, con el que se puede mirar relación
+estructura-actividad dentro de la familia sin salir de la fuente.
+
+Estos siete **no entran en `verdad_de_referencia.csv`**: esa verdad es de unión medida y
+aquí no hay ninguna. Se guardan para no volver a leerlos y para que nadie los cuente de
+memoria como si fueran candidatos.
+
 ## 4. Qué significa para el plan
 
 1. **Los positivos que faltan no van a salir del PDB.** Ya está barrido entero para las
@@ -180,6 +208,9 @@ ocsr_env/Scripts/python.exe analysis/leer_figura_xl20.py analysis/_xl20_fig/supp
 
 # segunda lectura con el modelo de vision local (hace falta `ollama serve`)
 python analysis/verificar_xl20_vision.py
+
+# registro de los otros siete hits del mismo cribado (XL21 a XL27)
+python analysis/registrar_suplementario_xl.py
 ```
 
 - Salidas del barrido: `analysis/ligandos_cristal/{sod1,tdp43,fus}.csv` y `resumen.txt`.
