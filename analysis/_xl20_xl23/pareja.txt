@@ -1,0 +1,43 @@
+XL20 frente a XL23 (misma familia: adenina-aminociclohexanol)
+
+  XL20 = CN(Cc1ccccc1)[C@H]1CCC[C@H](n2cnc3c(N)ncnc32)[C@H]1O
+  XL23 = Nc1ncnc2c1ncn2[C@H]1CCC[C@H](NC(=O)Cn2c(C(F)(F)F)nc3ccccc32)[C@@H]1O
+
+  propiedad                          XL20                         XL23
+  formula                            C19H24N6O                    C21H21F3N8O2
+  masa                               352.4                        474.4
+  atomos_pesados                     26                           34
+  logp                               1.99                         2.05
+  tpsa                               93.1                         136.8
+  donantes_h                         2                            3
+  aceptores_h                        6                            7
+  rotables                           4                            4
+  anillos                            4                            5
+  anillos_aromaticos                 3                            4
+  centroesteros_definidos            3                            3
+  heteroatomos                       7                            13
+
+  parecido 2D (Tanimoto):
+    ecfp4                          0.444
+    ecfp4_con_estereo              0.500
+    maccs                          0.700
+
+  esqueleto de Murcko igual: False
+  nucleo comun: 19 atomos, 21 enlaces
+     [#6&!R]-&!@[#7&!R]-&!@[#6]1-&@[#6]-&@[#6]-&@[#6]-&@[#6](-&@[#6]-&@1-&!@[#8&!R])-&!@[#7]1:&@[#6]:&@[#7]:&@[#6]2:&@[#6]:&@1:&@[#7]:&@[#6]:&@[#7]:&@[#6]:&@2-&!@[#7&!R]
+  el nucleo comun contiene la adenina: True
+
+  lo que pone de su parte cada uno (fuera del nucleo comun):
+    XL20: 7 atomos: [1*]Cc1ccccc1 (7 atomos pesados)
+    XL23: 15 atomos: *Cn1c(C(F)(F)F)nc2ccccc21 (14 atomos pesados); *=O (1 atomos pesados)
+
+  comprobaciones de subestructura:
+    esqueleto_murcko_igual                     False
+    adenina_en_XL20                            True
+    adenina_en_XL23                            True
+    esqueleto_de_XL20_dentro_de_XL23           False
+    esqueleto_de_XL23_dentro_de_XL20           False
+    nucleo_en_los_dos                          True
+    nucleo_contiene_la_adenina                 True
+
+  dibujo con el nucleo comun resaltado: XL20_XL23_comparacion.png

@@ -1,0 +1,30 @@
+medida,XL20,XL23
+propiedad:formula,C19H24N6O,C21H21F3N8O2
+propiedad:masa,352.4,474.4
+propiedad:atomos_pesados,26,34
+propiedad:logp,1.99,2.05
+propiedad:tpsa,93.1,136.8
+propiedad:donantes_h,2,3
+propiedad:aceptores_h,6,7
+propiedad:rotables,4,4
+propiedad:anillos,4,5
+propiedad:anillos_aromaticos,3,4
+propiedad:centroesteros,3,3
+propiedad:centroesteros_definidos,3,3
+propiedad:heteroatomos,7,13
+tanimoto:ecfp4,0.444,
+tanimoto:ecfp4_con_estereo,0.500,
+tanimoto:maccs,0.700,
+esqueleto_murcko_XL20,c1ccc(CNC2CCCC(n3cnc4cncnc43)C2)cc1,
+esqueleto_murcko_XL23,O=C(Cn1cnc2ccccc21)NC1CCCC(n2cnc3cncnc32)C1,
+nucleo_comun_smarts,[#6&!R]-&!@[#7&!R]-&!@[#6]1-&@[#6]-&@[#6]-&@[#6]-&@[#6](-&@[#6]-&@1-&!@[#8&!R])-&!@[#7]1:&@[#6]:&@[#7]:&@[#6]2:&@[#6]:&@1:&@[#7]:&@[#6]:&@[#7]:&@[#6]:&@2-&!@[#7&!R],
+nucleo_comun_tamano,"19 atomos, 21 enlaces",
+fuera_del_nucleo_XL20,7 atomos: [1*]Cc1ccccc1 (7 atomos pesados),
+fuera_del_nucleo_XL23,15 atomos: *Cn1c(C(F)(F)F)nc2ccccc21 (14 atomos pesados); *=O (1 atomos pesados),
+esqueleto_murcko_igual,False,
+adenina_en_XL20,True,
+adenina_en_XL23,True,
+esqueleto_de_XL20_dentro_de_XL23,False,
+esqueleto_de_XL23_dentro_de_XL20,False,
+nucleo_en_los_dos,True,
+nucleo_contiene_la_adenina,True,

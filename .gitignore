@@ -16,6 +16,14 @@ gpu_dock/
 # Cache de coordenadas del barrido del PDB (se vuelven a descargar)
 analysis/ligandos_cristal/_pdb/
 
+# Receptor del CR: la cache pesada se regenera con construir_receptor_cr.py; lo que
+# se guarda en git son los receptores ya preparados (modelos/*.pdbqt) y los resumenes
+analysis/_cr_receptor/pdb/
+analysis/_cr_receptor/modelos/*.pdb
+analysis/_cr_receptor/modelos/*.json
+analysis/_cr_receptor/ligands/
+analysis/_cr_receptor/out/
+
 # Descargas pesadas del suplementario (se bajan con el comando del informe)
 analysis/_xl20_fig/supp.zip
 analysis/_xl20_fig/*.pdf

@@ -1,0 +1,38 @@
+TDP-43 humana (UniProt Q13148): 414 residuos | residuo 334 = W
+CR del articulo = 320-340: PAMMAAAQAALQSSWGMMGML
+
+Barrido de estructuras del CR (analysis/_cr_receptor/candidatos_cr.csv):
+  pdb    residuos   nres  mods   indol  cr_compl  nota
+  2N2C   307-349    43    6      True   True      
+  2N3X   311-360    50    10     True   True      
+  2N4G   311-360    50    10     True   True      
+  2N4H   311-360    50    10     True   True      
+  6N37   311-360    50    1      True   True      
+  6N3A   311-360    50    1      True   True      
+  6N3B   311-360    50    1      True   True      
+  6N3C   -          -     -      -      -         la secuencia no lleva el ancla MNFGAFSINP
+  7KWZ   267-414    148   1      True   True      
+  7PY2   1-414      414   1      True   True      
+  7Q3U   279-360    82    1      True   True      
+  8CG3   1-414      414   1      True   True      
+  8CGG   1-414      414   1      True   True      
+  8CGH   1-414      414   1      True   True      
+  8QX9   1-414      414   1      True   True      
+  8QXA   1-414      414   1      True   True      
+  8QXB   1-414      414   1      True   True      
+  9FOF   282-345    64    1      True   True      
+  9FOR   284-345    62    1      True   True      
+
+ELEGIDA: 2N2C (43 residuos, 307-349). Criterio: cubre 320-340 entero, con el anillo
+del Trp334 resuelto, y es la construccion MAS CORTA que lo hace: cuanto menos
+haya fuera del CR, menos se le puede atribuir a otra cosa lo que toque el ligando.
+
+6 modelos en 2n2c.pdb (RMN: el CR es una ensenada de conformaciones, no una foto).
+  modelo 1: 582 atomos de proteina -> 363 atomos en el receptor | caja en (39.2, 49.2, 10.8) ve 13 residuos (327-339)
+  modelo 2: 582 atomos de proteina -> 363 atomos en el receptor | caja en (40.3, 47.4, 12.6) ve 14 residuos (326-339)
+  modelo 3: 582 atomos de proteina -> 363 atomos en el receptor | caja en (41.3, 47.1, 11.9) ve 13 residuos (326-338)
+  modelo 4: 582 atomos de proteina -> 363 atomos en el receptor | caja en (38.2, 48.4, 11.8) ve 13 residuos (327-339)
+  modelo 5: 582 atomos de proteina -> 363 atomos en el receptor | caja en (37.3, 48.3, 11.8) ve 14 residuos (327-349)
+  modelo 6: 582 atomos de proteina -> 363 atomos en el receptor | caja en (40.8, 49.2, 12.0) ve 13 residuos (326-338)
+
+cajas y receptores anotados en analysis/_cr_receptor/caja.json

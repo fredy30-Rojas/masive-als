@@ -255,6 +255,10 @@ def positivos_tdp43(smis):
         # del dominio de baja complejidad (320-340), NO al bolsillo de RRM que acoplamos.
         # Por eso entra con la cita pero no apto: no puede contar como positivo de la
         # validacion de RRM sin mentir sobre el sitio. Sirve para la linea de agregacion.
+        # El mismo dia se construyo el receptor del CR (analysis/_cr_receptor/, informe
+        # INFORME_CR_XL20_XL23_2026-09-25.md) y se acoplo ahi con XL23: sigue sin ser
+        # apto para RRM, y en el CR no hay control de redocking posible porque no existe
+        # ningun ligando co-cristalizado con TDP-43 en todo el PDB.
         ("XL20", "adenina-aminociclohexanol",
          "CR del C-terminal (320-340, Trp334)",
          "union_directa (SPR micromolar aparente + CETSA)", NO_APTO,
