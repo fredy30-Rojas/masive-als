@@ -260,14 +260,69 @@ ni por ocupación del sitio. Si algún día se quiere priorizar análogos con es
 antes habrá que tener el dato que falta —unión medida de más de uno de ellos— y no al
 revés.
 
-## 6. Qué sigue
+## 6. Con el Trp334 flexible: el sitio sigue sin distinguirlos
+
+Quedaba una explicación razonable de la ausencia de señal: **el receptor estaba
+rígido de más**. La cara de la hélice se calcula con el anillo del Trp334 clavado, y el
+propio artículo dice que ese residuo importa (mutarlo baja la unión). Si el indol puede
+girar para acomodar al ligando, puede aparecer la diferencia que con el receptor quieto
+no se ve.
+
+`analysis/acoplar_familia_cr_flexible.py` (nuevo) lo prueba: **exactamente lo mismo**
+(mismo receptor, misma caja, mismas tres semillas, mismos parámetros) con **una sola
+cosa cambiada** — la cadena lateral del Trp334 suelta (`meeko -f A:334`, el mismo
+esquema que usó el proyecto para el control de receptor flexible del Trp32 de SOD1 en
+`redocking_trp32/redock_flexible.py`). Las afinidades del rígido se leen de
+`familia_cr.csv`, no se recalculan. Los contactos se miden **contra la posición movida
+del indol**, que es la que Vina devuelve en cada modo: si el residuo se mueve, la
+distancia a su anillo no se puede seguir calculando con la estructura de partida.
+
+| Compuesto | Mediana rígido | Mediana flexible | Cambio | Poses sobre Trp334 (rígido → flexible) |
+|---|---|---|---|---|
+| XL20 (unión medida) | −4,99 | −5,30 | −0,31 | 85 % → 95 % |
+| XL21 (inhibe) | −4,93 | −5,18 | −0,24 | 44 % → 82 % |
+| XL23 (inhibe) | −5,64 | −6,25 | −0,60 | 87 % → 99 % |
+| XL22 (nada) | −4,84 | −5,07 | −0,23 | 51 % → 77 % |
+| XL25 (nada) | −5,78 | −6,19 | −0,41 | 66 % → 96 % |
+| XL26 (nada) | −5,30 | −5,67 | −0,36 | 64 % → 90 % |
+| XL24 (empeora) | −4,47 | −4,69 | −0,22 | 36 % → 78 % |
+| XL27 (neuroprotege) | −4,98 | −5,32 | −0,34 | 43 % → 91 % |
+
+**La respuesta es no.** Los grupos siguen solapándose: en rígido el peor de los
+inhibidores es −4,32 y el mejor de los que no tienen nada reportado −6,55; en flexible,
+−4,65 y −6,97. Y el orden por residuo tras quitar el tamaño es **idéntico en las dos
+versiones** (XL26, XL25, XL27 arriba). Soltar la cadena sube todas las afinidades un
+poco (−0,22 a −0,60 kcal/mol, mucho menos que las diferencias entre compuestos) y no
+cambia ni un puesto de la tabla.
+
+Lo que sí cambia, y es informativo, es **dónde se sientan**: con el indol libre, casi
+todas las poses acaban apoyadas en el Trp334 en los ocho compuestos (del 77 % al 99 %),
+cuando con el receptor rígido iban del 36 % al 87 %. O sea que **el indol rígido estaba
+estorbando dentro de su propia grieta**: media docena de compuestos solo se apoyaban en
+su cara en la mitad de las poses porque el anillo no les dejaba sitio. Al soltarlo, el
+sitio los admite a todos. Y eso termina de quitar valor al otro criterio: si el 77-99 %
+de las poses van al mismo sitio en todos, la fracción de poses en el Trp334 deja de
+distinguir nada.
+
+Así que la conclusión de §5 se sostiene con las dos versiones del receptor: **esta
+hélice no está codificando la química que separa a estos ocho compuestos** — ni por
+afinidad, ni por ocupación del sitio, ni con la cadena lateral quieta, ni con ella
+suelta. Lo único que cambia con la flexibilidad es cuánto abulta la grieta, que es otra
+cosa.
+
+*(Nota de método, porque costó un susto: al leer afinidades desde un CSV llegan como
+texto, y el `min` de Python sobre textos compara letras, no números —entre `-3.901` y
+`-4.865` elige `-4.865`. El contraste salía con números malos hasta que se convirtió a
+número en un solo sitio: la función `afinidad()` de `acoplar_familia_cr.py`.)*
+
+## 7. Qué sigue
 
 1. **La pareja solo se convierte en relación estructura-actividad cuando haya unión
    medida de XL23** (SPR o CETSA, como XL20). Mientras eso no exista, la pareja es una
    cabeza común con dos colas y nada más; y el dato que falta es un experimento, no
-   más acoplamiento. Con los ocho de la tabla (§5) la conclusión es aún más clara: este
-   receptor no ordena ninguno de los dos criterios, así que por esta vía no se puede
-   elegir a quién mandar a medir.
+   más acoplamiento. Con los ocho de la tabla (§5 y §6) la conclusión es aún más clara:
+   con el Trp334 quieto o suelto, este receptor no ordena ninguno de los dos criterios,
+   así que por esta vía no se puede elegir a quién mandar a medir.
 2. **No se relanza nada por esta vía.** El CR no entra en la validación del bolsillo
    de RRM (XL20 sigue en `verdad_de_referencia.csv` como unido de otro sitio, marcado
    como no apto) y no hay GPU autorizada para una diana nueva sin criterio previo
@@ -277,13 +332,14 @@ revés.
    serie de análogos sintéticos?) y con qué fondo de señuelos se compararía. Eso es una
    decisión de proyecto, no un script.
 
-## 7. Cómo se reproduce
+## 8. Cómo se reproduce
 
 ```
-python C:/Users/Fredy/masive-als/analysis/comparar_xl20_xl23.py     # la pareja
-python C:/Users/Fredy/masive-als/analysis/construir_receptor_cr.py  # elige el CR y arma el receptor
-python C:/Users/Fredy/masive-als/analysis/acoplar_xl20_xl23_cr.py   # prepara y acopla la pareja, y lee contactos
-python C:/Users/Fredy/masive-als/analysis/acoplar_familia_cr.py     # los ocho de la tabla, por grupos
+python C:/Users/Fredy/masive-als/analysis/comparar_xl20_xl23.py            # la pareja
+python C:/Users/Fredy/masive-als/analysis/construir_receptor_cr.py         # elige el CR y arma el receptor
+python C:/Users/Fredy/masive-als/analysis/acoplar_xl20_xl23_cr.py          # prepara y acopla la pareja
+python C:/Users/Fredy/masive-als/analysis/acoplar_familia_cr.py            # los ocho, por grupos
+python C:/Users/Fredy/masive-als/analysis/acoplar_familia_cr_flexible.py   # los ocho con el Trp334 suelto
 ```
 
 - Pareja: `analysis/_xl20_xl23/pareja.csv`, `pareja.txt` y `XL20_XL23_comparacion.png`
@@ -301,6 +357,11 @@ exhaustividad está el `--semillas 42,2026,777` y el `--exhaustividad` del scrip
   su grupo de evidencia) y `familia_cr.txt` (el resumen legible: la tabla por compuesto,
   la comparación por grupos, el residuo tras quitar el tamaño y el ruido del método).
   Comparte la carpeta de poses con la pareja, así que no repite trabajo.
+- Los ocho con el Trp334 flexible (§6): `analysis/_cr_receptor/familia_cr_flexible.csv`
+  y `familia_cr_flexible.txt`, que lleva al final el contraste rígido frente a flexible
+  (el rígido se lee de `familia_cr.csv`, no se recalcula). Los receptores por modelo
+  quedan en `modelos/flex334_modelo<n>_rigid.pdbqt` y `_flex.pdbqt`, y las poses en
+  `out/<ligando>_modelo<n>_s<semilla>_flex334.pdbqt`, todo regenerable con el script.
 - El reparto de trabajo con las herramientas que ya existían: la preparación de
   ligandos es `preparar_ligando.py` (la única copia de la receta) y la de receptores y
   el propio Vina son los de `redocking_trp32/redock_trp32.py`; aquí no se reimplementa

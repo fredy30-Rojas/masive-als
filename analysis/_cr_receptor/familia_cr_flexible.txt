@@ -1,0 +1,72 @@
+Los ocho compuestos de la tabla del CR, acoplados con el Trp334 FLEXIBLE
+receptor 2N2C (307-349), 6 modelos de RMN, caja de 22 A; cadena lateral del Trp334 suelta (meeko -f)
+exhaustividad 8, 9 modos, semillas 42, 2026, 777 | contactos a 4.0 A medidos contra la posicion MOVIDA del indol
+
+  lig   evidencia funcional             at.  mejor    mediana  peor     kcal/at. sobre Trp334
+  XL20  union medida                    26   -6.11    -5.30    -4.91    -0.204   154 de 162 poses
+  XL21  inhibe la agregacion            23   -5.71    -5.18    -4.65    -0.225   132 de 161 poses
+  XL23  inhibe la agregacion            34   -7.18    -6.25    -5.73    -0.184   159 de 160 poses
+  XL22  sin nada reportado              22   -5.68    -5.07    -4.29    -0.230   125 de 162 poses
+  XL25  sin nada reportado              29   -6.97    -6.19    -5.32    -0.213   156 de 162 poses
+  XL26  sin nada reportado              22   -6.38    -5.67    -4.99    -0.258   146 de 162 poses
+  XL24  empeora                         20   -5.24    -4.69    -4.01    -0.235   126 de 161 poses
+  XL27  neuroprotege solo a 100 uM      23   -6.09    -5.32    -4.67    -0.231   147 de 162 poses
+
+  POR GRUPOS (mejor y mediana de las 18 combinaciones de modelo y semilla de cada compuesto)
+    union medida                     n=1 | de -6.11 a -4.91 | mediana -5.30
+    inhibe la agregacion (100 uM)    n=2 | de -7.18 a -4.65 | mediana -5.72
+    sin nada reportado               n=3 | de -6.97 a -4.29 | mediana -5.65
+    otros                            n=2 | de -6.09 a -4.01 | mediana -5.07
+
+  SE SOLAPAN O ESTAN SEPARADAS (lo que de verdad se puede leer):
+    inhibidores (XL21, XL23) frente a sin nada reportado (XL22, XL25, XL26):
+      peor de los inhibidores: -4.65 | mejor de los otros: -6.97
+      -> SE SOLAPAN: el sitio no los separa
+      (XL20, el unico con union medida: de -6.11 a -4.91; XL24, que empeora la muerte neuronal: de -5.24 a -4.01)
+
+
+  QUITANDO EL EFECTO DEL TAMANO (recta de afinidad mediana frente a atomos pesados:
+  -0.101 kcal/mol por atomo). El residuo es lo que le sobra o le falta a cada
+  uno respecto a lo que su tamano predice; negativo = mejor de lo que le toca.
+  lig   evidencia funcional             at.  residuo   lectura
+  XL26  sin nada reportado              22   -0.500    mejor de lo que le toca
+  XL25  sin nada reportado              29   -0.314    mejor de lo que le toca
+  XL27  neuroprotege solo a 100 uM      23   -0.054    mejor de lo que le toca
+  XL21  inhibe la agregacion            23   0.090     peor de lo que le toca
+  XL22  sin nada reportado              22   0.097     peor de lo que le toca
+  XL23  inhibe la agregacion            34   0.135     peor de lo que le toca
+  XL20  union medida                    26   0.273     peor de lo que le toca
+  XL24  empeora                         20   0.273     peor de lo que le toca
+    los tres mejores por residuo: XL26, XL25, XL27
+    los tres peores por residuo:  XL23, XL20, XL24
+    (de cuanto: el reparto de un mismo compuesto entre modelos y semillas tiene 0.39 kcal/mol
+     de desviacion tipica; el residuo va de -0.50 a 0.27, del mismo orden)
+
+  LO QUE ESTO NO PUEDE DECIR:
+    Dos compuestos que inhiben y tres sin nada reportado no son un test
+    estadistico: los grupos son de dos y de tres, y el ruido del propio
+    metodo (el reparto de un mismo compuesto entre modelos y semillas)
+    es de decimas de kcal/mol, igual que las diferencias que se ven.
+    Y no hay fondo de señuelos en el CR: aqui solo cuenta la comparacion
+    entre estos ocho, nunca una afinidad absoluta.
+
+  RIGIDO FRENTE A FLEXIBLE (mediana de las 18 combinaciones de cada compuesto)
+  lig   rigido    flexible  cambio   Trp334 rigido Trp334 flexible
+  XL20  -4.99     -5.30     -0.31    137 de 161    154 de 162   
+  XL21  -4.93     -5.18     -0.24    71 de 162     132 de 161   
+  XL23  -5.64     -6.25     -0.60    140 de 161    159 de 160   
+  XL22  -4.84     -5.07     -0.23    80 de 158     125 de 162   
+  XL25  -5.78     -6.19     -0.41    106 de 161    156 de 162   
+  XL26  -5.30     -5.67     -0.36    104 de 162    146 de 162   
+  XL24  -4.47     -4.69     -0.22    58 de 162     126 de 161   
+  XL27  -4.98     -5.32     -0.34    69 de 162     147 de 162   
+
+  LO QUE CAMBIA CON LA CADENA SUELTA:
+    solape rigido:   SI, se solapan (peor inhibidor -4.32, mejor sin nada -6.55)
+    solape flexible: SI, se solapan (peor inhibidor -4.65, mejor sin nada -6.97)
+    por residuo (tras quitar el tamano) -- los tres mejores:
+       rigido:   XL26, XL25, XL27
+       flexible: XL26, XL25, XL27
+    (hay que leerlo con esto en la mano: soltar la cadena sube TODAS las
+     afinidades, asi que lo que se compara es la forma de la tabla, no los
+     numeros uno a uno; y el Trp334 sigue siendo un residuo de esta helice)

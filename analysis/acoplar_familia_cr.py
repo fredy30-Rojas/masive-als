@@ -204,30 +204,86 @@ def main():
         w.writeheader()
         w.writerows(filas)
 
-    # --- resumen ---
-    def mejor(nombre, clave, semilla):
-        suyas = [f for f in filas if f["ligando"] == nombre and f["modelo"] == clave
-                 and str(f["semilla"]) == str(semilla) and f["afinidad"] is not None]
-        return min(suyas, key=lambda f: f["afinidad"]) if suyas else None
+    cabecera = [
+        "Los ocho compuestos de la tabla del CR, acoplados en el CR",
+        "receptor %s (%s), %d modelos de RMN, caja de %d A sobre el anillo del Trp334"
+        " de cada modelo" % (caja["pdb"], caja["residuos"], len(modelos),
+                             caja["modelos"][modelos[0]]["tamano"]),
+        "exhaustividad %d, 9 modos, semillas %s | contactos a %.1f A"
+        % (args.exhaustividad, ", ".join(str(s) for s in semillas), P.CORTE),
+        "",
+    ]
+    texto = informe(filas, modelos, semillas, pesados, cabecera)
+    with open(os.path.join(SALIDA, "familia_cr.txt"), "w", encoding="utf-8") as f:
+        f.write(texto + "\n")
+    log("")
+    log(texto)
+    return 0
 
-    def valores(nombre):
-        v = [float(mejor(nombre, c, s)["afinidad"])
-             for c in modelos for s in semillas if mejor(nombre, c, s) is not None]
-        return sorted(v)
 
-    lineas = []
-    lineas.append("Los ocho compuestos de la tabla del CR, acoplados en el CR")
-    lineas.append("receptor %s (%s), 6 modelos de RMN, caja de %d A sobre el anillo del"
-                  " Trp334 de cada modelo" % (caja["pdb"], caja["residuos"],
-                                              caja["modelos"][modelos[0]]["tamano"]))
-    lineas.append("exhaustividad %d, 9 modos, semillas %s | contactos a %.1f A"
-                  % (args.exhaustividad, ", ".join(str(s) for s in semillas), P.CORTE))
-    lineas.append("")
+def afinidad(f):
+    """La afinidad de una fila, como numero y no como texto.
+
+    OJO CON ESTO, que ya costo un susto: las filas que vienen de un CSV traen la
+    afinidad como TEXTO, y `min` sobre textos no compara numeros, compara letras: entre
+    "-3.901" y "-4.865" elige "-4.865" (porque '4' < '5'), o sea la PEOR. Con `filas`
+    hechas en memoria (float) el error no aparece, y por eso se cuela solo cuando el
+    mismo codigo se usa para leer resultados ya guardados. Aqui se convierte siempre.
+    """
+    try:
+        return float(f["afinidad"])
+    except (TypeError, ValueError):
+        return float("inf")
+
+
+def mediana_por_compuesto(filas, modelos, semillas):
+    """{compuesto: [afinidad de la mejor pose de cada (modelo, semilla)], ordenadas}."""
+    out = {}
+    for nombre in {f["ligando"] for f in filas}:
+        v = []
+        for clave in modelos:
+            for semilla in semillas:
+                suyas = [f for f in filas if f["ligando"] == nombre
+                         and f["modelo"] == clave and str(f["semilla"]) == str(semilla)
+                         and f["afinidad"] not in ("", None)]
+                if suyas:
+                    v.append(afinidad(min(suyas, key=afinidad)))
+        out[nombre] = sorted(v)
+    return out
+
+
+def solape(a, b):
+    """(se solapan, peor de a, mejor de b) de dos listas de afinidades."""
+    return (not (max(a) < min(b) or max(b) < min(a))), max(a), min(b)
+
+
+def residuos_de_tamano(medianas, pesados):
+    """(pendiente, {compuesto: residuo}) tras quitar el efecto del numero de atomos.
+
+    Vina premia los contactos, asi que parte de la afinidad es el tamano. Con ocho
+    compuestos esto es descriptivo y no un modelo; el informe lo dice asi.
+    """
+    xs = np.array([pesados[n] for n in medianas], dtype=float)
+    ys = np.array([medianas[n] for n in medianas])
+    pendiente, corte = np.polyfit(xs, ys, 1)
+    return float(pendiente), {n: float(ys[i] - (pendiente * xs[i] + corte))
+                              for i, n in enumerate(medianas)}
+
+
+def informe(filas, modelos, semillas, pesados, cabecera):
+    """El analisis de la familia, en UN solo sitio: lo usan el rigido y el flexible.
+
+    `cabecera` son las lineas de arriba (que receptor, con que caja, cuantos modelos y
+    que semillas), que el script del receptor flexible cambia por las suyas para que el
+    informe diga de donde sale cada numero.
+    """
+    lineas = list(cabecera)
+    valores = mediana_por_compuesto(filas, modelos, semillas)
     lineas.append("  %-5s %-31s %-4s %-8s %-8s %-8s %-8s %-10s"
                   % ("lig", "evidencia funcional", "at.", "mejor", "mediana", "peor",
                      "kcal/at.", "sobre Trp334"))
     for nombre in FUENTES:
-        v = valores(nombre)
+        v = valores[nombre]
         sobre = sum(1 for f in filas if f["ligando"] == nombre
                     and (f["dist_min_a_un_atomo_del_anillo"] or 99) < P.CORTE)
         total = sum(1 for f in filas if f["ligando"] == nombre)
@@ -242,7 +298,7 @@ def main():
                   " semilla de cada compuesto)" % (len(modelos) * len(semillas)))
     grupos = {}
     for etiqueta, miembros in GRUPOS.items():
-        todos = [x for n in miembros for x in valores(n)]
+        todos = [x for n in miembros for x in valores[n]]
         grupos[etiqueta] = todos
         lineas.append("    %-32s n=%d | de %.2f a %.2f | mediana %.2f"
                       % (etiqueta, len(miembros), min(todos), max(todos),
@@ -251,27 +307,24 @@ def main():
     lineas.append("  SE SOLAPAN O ESTAN SEPARADAS (lo que de verdad se puede leer):")
     a = grupos["inhibe la agregacion (100 uM)"]
     b = grupos["sin nada reportado"]
-    solapan = not (max(a) < min(b) or max(b) < min(a))
+    solapan, peor_a, mejor_b = solape(a, b)
     lineas.append("    inhibidores (XL21, XL23) frente a sin nada reportado (XL22, XL25, XL26):")
     lineas.append("      peor de los inhibidores: %.2f | mejor de los otros: %.2f"
-                  % (max(a), min(b)))
+                  % (peor_a, mejor_b))
     lineas.append("      -> %s" % ("SE SOLAPAN: el sitio no los separa"
                                    if solapan else "sin solape: el sitio los separa"))
     lineas.append("      (XL20, el unico con union medida: de %.2f a %.2f; XL24, que empeora la"
                   " muerte neuronal: de %.2f a %.2f)"
-                  % (min(valores("XL20")), max(valores("XL20")),
-                     min(valores("XL24")), max(valores("XL24"))))
+                  % (min(valores["XL20"]), max(valores["XL20"]),
+                     min(valores["XL24"]), max(valores["XL24"])))
     lineas.append("")
     # --- el tamano, apartado: quien queda mejor de lo que le toca por tamano ---
     # Vina premia los contactos, asi que parte de la afinidad es el numero de atomos.
     # Se ajusta una recta (afinidad mediana frente a atomos pesados) con los ocho y se
     # miran los residuos: quien esta por debajo de la recta se coloca mejor de lo que su
     # tamano predice. Con ocho compuestos esto es descriptivo, no un modelo, y asi se dice.
-    xs = np.array([pesados[n] for n in FUENTES], dtype=float)
-    ys = np.array([statistics.median(valores(n)) for n in FUENTES])
-    pendiente, corte = np.polyfit(xs, ys, 1)
-    residuos = {n: float(ys[i] - (pendiente * xs[i] + corte))
-                for i, n in enumerate(FUENTES)}
+    pendiente, residuos = residuos_de_tamano(
+        {n: statistics.median(valores[n]) for n in valores}, pesados)
     lineas.append("")
     lineas.append("  QUITANDO EL EFECTO DEL TAMANO (recta de afinidad mediana frente a"
                   " atomos pesados:")
@@ -293,8 +346,8 @@ def main():
     # entre modelos y semillas. Es contra esto contra lo que hay que comparar cualquier
     # diferencia de la tabla de arriba, no contra cero.
     desviaciones = []
-    for n in FUENTES:
-        v = valores(n)
+    for n in valores:
+        v = valores[n]
         if len(v) > 1:
             desviaciones.append(statistics.stdev(v))
     ruido = statistics.median(desviaciones)
@@ -311,12 +364,7 @@ def main():
     lineas.append("    Y no hay fondo de señuelos en el CR: aqui solo cuenta la comparacion")
     lineas.append("    entre estos ocho, nunca una afinidad absoluta.")
 
-    texto = "\n".join(lineas)
-    with open(os.path.join(SALIDA, "familia_cr.txt"), "w", encoding="utf-8") as f:
-        f.write(texto + "\n")
-    log("")
-    log(texto)
-    return 0
+    return "\n".join(lineas)
 
 
 if __name__ == "__main__":
