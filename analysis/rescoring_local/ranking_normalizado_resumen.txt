@@ -1,0 +1,118 @@
+REORDENAMIENTO POR TAMANO - MASIVE-ALS
+Fecha: 2026-09-13   |   filas con dG y pose: 2731   (sin pose: 0)
+Metrica: residual = dG - (a + b*atomos_pesados), ajustado por diana.
+Residual negativo = mejor de lo que su tamano predice.
+
+========================================================================
+FUS   n=493
+  VALIDACION: sin controles con pose - NO evaluable, NO usar para ordenar
+  recta ajustada: dG = -41.07 + -0.341 * atomos_pesados   (n usado 489)
+  atomos pesados: media 32.1  (min 21, max 39)
+  Spearman dG vs tamano = -0.069  <- cuanto premia el tamano
+  Spearman dG bruto vs residual = +0.997
+  Candidatos mejores que su tamano por mas del ruido (1.5): 212
+  Solapamiento del top-100 bruto con el top-100 por residual: 96 de 100
+
+  --- TOP 15 por RESIDUAL (mejor de lo que su tamano predice) ---
+  ligando                      dG atomos   residual  puesto_dG     sube
+  CHEMBL4568499            -104.8    29     -53.84          1        0
+  CHEMBL27387               -98.3    30     -46.98          3        1
+  CHEMBL4638885             -99.0    36     -45.66          2       -1
+  CHEMBL4566549             -94.2    31     -42.58          4        0
+  CHEMBL28751               -88.8    27     -38.58          6        1
+  CHEMBL20196               -91.4    35     -38.38          5       -1
+  CHEMBL1208600             -86.9    27     -36.63          8        1
+  CHEMBL21594               -87.6    32     -35.61          7       -1
+  CHEMBL4582732             -86.2    34     -33.56         10        1
+  CHEMBL21250               -85.7    33     -33.40         11        1
+  CHEMBL1207227             -82.9    27     -32.60         14        3
+  CHEMBL28202               -83.7    30     -32.44         13        1
+  CHEMBL499624              -86.2    39     -31.90          9       -4
+  CHEMBL4637973             -84.8    37     -31.15         12       -2
+  CHEMBL4548513             -81.6    30     -30.29         15        0
+
+  --- TOP 5 bruto (para comparar: los que el dG bruto ponia arriba) ---
+  ligando                      dG atomos   residual puesto_res
+  CHEMBL4568499            -104.8    29     -53.84          1
+  CHEMBL4638885             -99.0    36     -45.66          3
+  CHEMBL27387               -98.3    30     -46.98          2
+  CHEMBL4566549             -94.2    31     -42.58          4
+  CHEMBL20196               -91.4    35     -38.38          6
+
+========================================================================
+SOD1   n=1073
+  VALIDACION: senal moderada (AUC residual 0.754) - reordenamiento utilizable
+  recta ajustada: dG = 1.84 + -2.110 * atomos_pesados   (n usado 1063)
+  atomos pesados: media 30.6  (min 20, max 39)
+  Spearman dG vs tamano = -0.403  <- cuanto premia el tamano
+  Spearman dG bruto vs residual = +0.904
+  Candidatos mejores que su tamano por mas del ruido (1.5): 456
+  Solapamiento del top-100 bruto con el top-100 por residual: 88 de 100
+
+  --- TOP 15 por RESIDUAL (mejor de lo que su tamano predice) ---
+  ligando                      dG atomos   residual  puesto_dG     sube
+  CHEMBL11533              -137.7    36     -63.61          1        0
+  CHEMBL514067             -126.5    33     -58.68          3        1
+  CHEMBL19179              -111.6    27     -56.47         17       14
+  CHEMBL519939             -115.0    29     -55.64         12        8
+  CHEMBL521548             -129.4    37     -53.21          2       -3
+  CHEMBL17787              -114.6    30     -53.17         13        7
+  CHEMBL4567879            -112.5    29     -53.16         15        8
+  CHEMBL9363               -117.3    32     -51.65         10        2
+  CHEMBL520254             -124.7    36     -50.54          4       -5
+  CHEMBL4534391            -117.9    33     -50.13          8       -2
+  CHEMBL500921             -119.4    34     -49.52          7       -4
+  CHEMBL561610             -121.3    35     -49.26          6       -6
+  CHEMBL499618             -115.9    33     -48.14         11       -2
+  CHEMBL4573275            -110.6    31     -46.98         20        6
+  CHEMBL4580964            -110.1    31     -46.53         22        7
+
+  --- TOP 5 bruto (para comparar: los que el dG bruto ponia arriba) ---
+  ligando                      dG atomos   residual puesto_res
+  CHEMBL11533              -137.7    36     -63.61          1
+  CHEMBL521548             -129.4    37     -53.21          5
+  CHEMBL514067             -126.5    33     -58.68          2
+  CHEMBL520254             -124.7    36     -50.54          9
+  CHEMBL563536             -121.3    37     -45.05         21
+
+========================================================================
+TDP43_v2   n=1165
+  VALIDACION: NEGATIVO FIRME (AUC residual 0.073) - NO usar para ordenar
+  recta ajustada: dG = -6.18 + -2.022 * atomos_pesados   (n usado 1156)
+  atomos pesados: media 29.5  (min 17, max 40)
+  Spearman dG vs tamano = -0.571  <- cuanto premia el tamano
+  Spearman dG bruto vs residual = +0.813
+  Candidatos mejores que su tamano por mas del ruido (1.5): 508
+  Solapamiento del top-100 bruto con el top-100 por residual: 71 de 100
+
+  --- TOP 15 por RESIDUAL (mejor de lo que su tamano predice) ---
+  ligando                      dG atomos   residual  puesto_dG     sube
+  CHEMBL12225              -131.8    30     -64.94          1        0
+  CHEMBL498704             -128.7    34     -53.72          2        0
+  CHEMBL511752             -123.9    34     -48.96          4        1
+  CHEMBL4581829            -121.3    33     -48.37          5        1
+  CHEMBL4581271            -105.8    26     -47.09         11        6
+  CHEMBL521548             -127.0    37     -46.01          3       -3
+  CHEMBL4572044            -111.2    31     -42.33          6       -1
+  CHEMBL4636994             -97.9    26     -39.17         33       25
+  CHEMBL4571844            -110.2    34     -35.29          7       -2
+  CHEMBL515831              -93.9    26     -35.16         47       37
+  CHEMBL519419              -87.8    23     -35.08        104       93
+  CHEMBL565988             -104.7    32     -33.84         12        0
+  CHEMBL4583548             -98.2    29     -33.33         32       19
+  ESTRONE SULFURIC ACID     -89.9    25     -33.16         86       72
+  CHEMBL18816              -106.0    33     -33.12         10       -5
+
+  --- TOP 5 bruto (para comparar: los que el dG bruto ponia arriba) ---
+  ligando                      dG atomos   residual puesto_res
+  CHEMBL12225              -131.8    30     -64.94          1
+  CHEMBL498704             -128.7    34     -53.72          2
+  CHEMBL521548             -127.0    37     -46.01          6
+  CHEMBL511752             -123.9    34     -48.96          3
+  CHEMBL4581829            -121.3    33     -48.37          4
+
+CSV: C:\Users\Fredy\masive-als\analysis\rescoring_local\rescoring_ranking_normalizado.csv  (2731 filas)
+
+RECORDATORIO CIENTIFICO: solo en SOD1 el residual tiene senal medida.
+En TDP43_v2 y FUS el rescoring esta descartado; su reordenamiento NO
+debe usarse para decidir candidatos. Y todo esto son ±1,5 kcal/mol de ruido.

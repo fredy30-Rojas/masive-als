@@ -1,0 +1,36 @@
+Buscando SMILES en C:\Users\Fredy\masive-als ...
+ligandos con SMILES conocido: 64762
+  FUS          107608 poses
+  SOD1         107608 poses
+  TDP43        107608 poses
+  TDP43_v2     107616 poses
+
+==========================================================================
+poses revisadas      : 430440
+  coinciden          : 60750
+  NO COINCIDEN       : 38
+  sin SMILES conocido: 369652
+==========================================================================
+
+TIPOS DE DESAJUSTE:
+  pose degenerada (casi vacia)                   20
+  MOLECULA DISTINTA                              14
+  pose fragmentada (le falta medio ligando)       4
+
+MOLECULA DISTINTA (la pose es de otro compuesto de tamano parecido): 14
+  FUS          CHEMBL15632              SMILES[B1 C30 Cl1 F3 N4 O4]  pose[C31 Cl1 F3 N4 O4]
+  FUS          CHEMBL157117             SMILES[B1 C26 N9 O6]  pose[C27 N9 O6]
+  FUS          CHEMBL4553125            SMILES[B2 C28 N3 O7]  pose[C30 N3 O7]
+  SOD1         CHEMBL15632              SMILES[B1 C30 Cl1 F3 N4 O4]  pose[C31 Cl1 F3 N4 O4]
+  SOD1         CHEMBL157117             SMILES[B1 C26 N9 O6]  pose[C27 N9 O6]
+  SOD1         CHEMBL4553125            SMILES[B2 C28 N3 O7]  pose[C30 N3 O7]
+  TDP43        CHEMBL15632              SMILES[B1 C30 Cl1 F3 N4 O4]  pose[C31 Cl1 F3 N4 O4]
+  TDP43        CHEMBL157117             SMILES[B1 C26 N9 O6]  pose[C27 N9 O6]
+  TDP43        CHEMBL4553125            SMILES[B2 C28 N3 O7]  pose[C30 N3 O7]
+  TDP43_v2     CHEMBL15632              SMILES[B1 C30 Cl1 F3 N4 O4]  pose[C31 Cl1 F3 N4 O4]
+  TDP43_v2     CHEMBL157117             SMILES[B1 C26 N9 O6]  pose[C27 N9 O6]
+  TDP43_v2     CHEMBL4553125            SMILES[B2 C28 N3 O7]  pose[C30 N3 O7]
+  TDP43_v2     cepharanthine_limpio     SMILES[C37 N2 O6]  pose[C39 N2 O6]
+  TDP43_v2     cepharanthine            SMILES[C37 N2 O6]  pose[C39 N2 O6]
+
+detalle escrito en poses_sospechosas.csv

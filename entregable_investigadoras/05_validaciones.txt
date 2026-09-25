@@ -1,0 +1,274 @@
+============================================================
+ VALIDACIONES CIENTÍFICAS — PROYECTO MASIVE-ALS
+ Versión corregida: 20 de septiembre de 2026 (tarde)
+ (sustituye a la del 1 de septiembre y a la del 20 sep de la mañana)
+============================================================
+
+Todas las cajas de unión se validaron contra compuestos conocidos con
+apoyo experimental y señuelos con propiedades físicas equivalentes
+(peso molecular ±30, logP ±1,0, enlaces rotables ±2, similitud < 0,35).
+HERRAMIENTA: curvas ROC; métrica principal AUC; enriquecimiento EF5%.
+A partir de esta versión se añade además un FONDO DURO (compuestos del
+mismo tipo químico que el sitio) y una lectura del AUC sin el tamaño.
+
+----------------------------------------------------------------------------
+ TABLA DE VALIDACIÓN
+----------------------------------------------------------------------------
+Objetivo                  Activos  Señuelos  ROC-AUC  Nota
+----------------------------------------------------------------------------
+SOD1 — caja inicial       20       199       0,548    posición incorrecta
+SOD1 — sitio Trp32        20       199       0,815    † ver corrección
+SOD1 — Trp32, sin la serie 2       199       0,601    † la medida honesta
+SOD1 — canal Cu/Zn        20       199       0,717    †
+SOD1 — interfaz dímero    20       199       0,809    †
+SOD1 — Trp32, limpio      7       482       0,515    ‡ (0,671 sin tamaño)
+TDP43 — RRM1 (caja 25 Å)  5        73        0,515    insuficiente
+TDP43 — RRM1 (caja 4IUF)  5        193       0,612    +
+      + reposición del ligando nativo → RMSD 1,75 Å → protocolo válido
+      EN ESTE BOLSILLO (no se hereda a otros; ver corrección 1c)
+FUS — modelo 1 (caja 25)  2        87        0,609    sin controles
+TDP43 v2 — interfaz       9        122       0,517*   *ver nota
+      RRM1-RRM2 (26 Å)
+
+† CORRECCIÓN DEL 20 DE SEPTIEMBRE DE 2026 — LOS POSITIVOS DE SOD1
+
+  Los 20 activos de SOD1 NO son veinte compuestos independientes: son
+  16 del mismo esqueleto de pirazolona (núcleo Murcko repetido) y 18
+  tienen otro activo a similitud ≥ 0,5. Sus identificadores van
+  seguidos (CHEMBL2165601…CHEMBL2165614), o sea que vienen del mismo
+  trabajo de química medicinal.
+
+  Separando por química:
+      los 20 activos juntos ........ 0,815
+      sólo la serie pirazolona ..... 0,839
+      sólo los independientes ...... 0,601  (n = 2)
+
+  Es decir: recuperar una serie sembrada y no encontrar al ligando de
+  referencia independiente es una propiedad de la serie, no una prueba
+  de que el método ordene ligandos de SOD1 en general.
+
+  Esto es un modo de fallo documentado en la literatura: cuando los
+  activos son análogos entre sí, el enriquecimiento mide la recuperación
+  de la química sembrada, no la discriminación de ligandos (Chen et al.,
+  2019, sobre el sesgo de análogos y señuelos en DUD-E).
+
+  LO QUE EL 0,815 SÍ DEMUESTRA: que la CAJA está bien colocada. La misma
+  lista de ligandos da 0,548 en la caja mal puesta y 0,815 en Trp32.
+
+†† CORRECCIÓN DEL 20 DE SEPTIEMBRE DE 2026 — EL RE-ACOPLAMIENTO
+
+  Se hizo por fin el control mínimo del acoplamiento: volver a acoplar
+  los ligandos cuya pose está resuelta por cristalografía en el propio
+  bolsillo Trp32 (5-fluorouridina 4A7S, isoproterenol 4A7T, adrenalina
+  4A7U, dopamina 4A7V) y medir el RMSD frente a la pose experimental
+  (criterio habitual: ≤ 2,0 Å; tres semillas 42/2026/777).
+
+  RESULTADO (RMSD corregido, simetría tenida en cuenta):
+
+      isoproterenol ......... 0,48 a 1,28 Å   PASA (todos los protocolos)
+      adrenalina ............ 0,66 a 0,75 Å   PASA (todos los protocolos)
+      dopamina .............. 2,9 a 3,2 Å     no pasa
+      5-fluorouridina ....... 5,4 a 11,3 Å    no pasa (ver nota)
+
+  La adrenalina y el isoproterenol redockean bien con ligando flexible o
+  rígido, con vina o vinardo, con caja de 18 o 24 Å y con exhaustividad
+  8 o 32: la caja del proyecto está donde debe y el protocolo devuelve a
+  su sitio a los DOS LIGANDOS QUE DEFINEN EL BOLSILLO.
+
+  La dopamina es un fallo real, y es de puntuación, no de búsqueda: la
+  pose cristalina SÍ se genera (la mejor de los nueve modos queda a
+  0,74-1,10 Å) pero la función de puntuación prefiere otra a 3,1 Å por
+  ~1,2 kcal/mol. Medido aparte: en este bolsillo la función resuelve
+  medio ángstrom con ~1,5 kcal/mol, así que diferencias de 1-2 kcal/mol
+  no son interpretables. Es el límite del método, no un fallo de ajuste.
+
+  NOTA SOBRE LA 5-FLUOROURIDINA: su pose depositada no es un mínimo de
+  la función de puntuación. En 4A7S (1,06 Å de resolución) el ligando
+  tiene un contacto F···N de 2,07 Å y un O···O de 2,34 Å, y puntúa
+  +0,04 kcal/mol; desplazarla 2 Å la lleva a +14,8 kcal/mol. No sirve
+  como patrón de RMSD; el artículo original ya describe su ribosa como
+  expuesta al disolvente y con ocupación baja. Se EXCLUYE como patrón,
+  no se cuenta como fallo del protocolo.
+
+  NOTA DE PROCEDENCIA: la primera versión de esta sección dio
+  1,87-2,54 Å (isoproterenol), 3,77-3,79 Å (adrenalina), 4,04-4,06 Å
+  (dopamina) y 10,89-11,20 Å (5-fluorouridina), y concluyó en falso que
+  el protocolo fallaba en todo. Esos números estaban INFLADOS por un
+  error de programación nuestro en la rutina que empareja los átomos
+  (los índices de la pose y del cristal estaban intercambiados, lo que
+  infla precisamente las poses buenas). Se corrigió y se comprobó contra
+  la implementación de RMSD de RDKit, con coincidencia exacta en las 36
+  poses. El error fue nuestro.
+
+  Informes:
+    analysis/redocking_trp32/INFORME_CONTROLES_CORREGIDOS_2026-09-20.md
+    analysis/redocking_trp32/INFORME_REDOCKING_TRP32_2026-09-20.md
+
+††† CORRECCIÓN DEL 20 DE SEPTIEMBRE DE 2026 — LA VALIDACIÓN REHECHA
+     (conjunto limpio, dos fondos y el tamaño descontado)
+
+  Se rehizo toda la validación de SOD1 con el conjunto de controles
+  limpio, declarado por tipo de evidencia, y contra DOS fondos de
+  comparación. Script: analysis/validar_sod1_v3.py. Datos:
+  analysis/validacion_SOD1_v3/.
+
+  Grupos de control (sin contar series congénicas más de una vez):
+    - independientes (2): LCS-1 (piridazinona) y PRG-A01 (cumarina),
+      las dos únicas quimias independientes del conjunto.
+    - serie colapsada a un representante (1): CHEMBL2165613.
+    - co-cristalizados (4): isoproterenol, adrenalina, dopamina y
+      5-fluorouridina (PDB 4A7T, 4A7U, 4A7V, 4A7S). Su evidencia es
+      estructural directa: están en el bolsillo.
+
+  Fondos:
+    - emparejado nuevo (140): señuelos del mismo peso ±30, logP ±1,
+      rotables ±2, Tanimoto < 0,35.
+    - emparejado antiguo (199): los señuelos de la validación anterior,
+      ya acoplados en la misma caja.
+    - duro (143): compuestos de la librería con grupos que QUELAN
+      METALES o son REDOX-ACTIVOS (catecol, pirogalol, quinona,
+      o-aminofenol, hidroxamato, tiol, sulfonato, fosfonato, hidrazida,
+      tiosemicarbazona), es decir la química que de verdad se pegaría a
+      una metaloenzima.
+
+  EL SESGO DE TAMAÑO, MEDIDO. Ajustando afinidad frente a número de
+  átomos pesados SOLO con el fondo (N = 482):
+
+      afinidad = -3,42 - 0,096 * (átomos pesados)
+
+  Cada átomo pesado de más vale 0,096 kcal/mol en esta caja. Con eso se
+  define el «AUC sin tamaño»: el mismo cálculo sobre el residuo del
+  ajuste, que es la parte del score que no explica el tamaño. El ajuste
+  nunca usa los activos.
+
+  | Grupo             | Fondo              | AUC   | AUC sin tamaño |
+  |-------------------|--------------------|-------|----------------|
+  | independientes (2)| emparejado nuevo   | 0,671 | 0,486          |
+  | independientes (2)| emparejado antiguo | 0,628 | 0,566          |
+  | independientes (2)| duro               | 0,598 | 0,462          |
+  | independientes (2)| los tres juntos    | 0,632 | 0,509          |
+  | serie (1)         | los tres juntos    | 0,932 | 0,950          |
+  | co-cristalizados  | emparejado nuevo   | 0,425 | 0,661          |
+  | co-cristalizados  | emparejado antiguo | 0,328 | 0,746          |
+  | co-cristalizados  | duro               | 0,316 | 0,624          |
+  | co-cristalizados  | los tres juntos    | 0,353 | 0,682          |
+  | todos (7)         | los tres juntos    | 0,515 | 0,671          |
+
+  EF1% = 0 en todas las combinaciones; EF5% = 0 salvo 5,71 en un caso.
+  NINGÚN control entra en el 1% superior de la lista.
+
+  PUESTOS frente a los 482 señuelos juntos:
+      CHEMBL2165613 (serie)   -6,37    puesto 34   (mejor que 93,0 %)
+      PRG-A01 (cumarina)      -6,19    puesto 44   (90,9 %)
+      5-fluorouridina         -5,70    puesto 113  (76,6 %)
+      LCS-1 (piridazinona)    -4,96    puesto 313  (35,2 %)
+      adrenalina              -4,78    puesto 361  (25,3 %)
+      dopamina                -4,71    puesto 380  (21,3 %)
+      isoproterenol           -4,64    puesto 398  (17,6 %)
+
+  Los tres últimos tienen la pose resuelta en este mismo bolsillo y el
+  ranking los coloca por debajo del 75-82 % de los señuelos. El 0,815
+  queda así EXPLICADO de forma cuantitativa: es una serie congénica de
+  moléculas grandes, y el tamaño se paga a 0,096 kcal/mol por átomo.
+
+----------------------------------------------------------------------------
+ LO QUE ESTÁ VALIDADO Y LO QUE NO (declaración explícita)
+----------------------------------------------------------------------------
+
+1. EL SITIO ESTÁ VALIDADO. La caja Trp32 es el bolsillo donde la
+   cristalografía sitúa a los cuatro ligandos (Wright et al., 2013), y
+   es la caja que da mejor enriquecimiento de las cuatro comparadas.
+
+2. EL PROTOCOLO ESTÁ VALIDADO PARA EL QUIMIOTIPO CATECOLAMINA DE TRP32.
+   Isoproterenol y adrenalina, los dos ligandos que definen el bolsillo,
+   se reproducen a 0,48-1,28 Å y 0,66-0,75 Å con todos los protocolos
+   probados (flexible/rígido, vina/vinardo, caja 18/24 Å, exhaustividad
+   8/32). Esta validación es ESPECÍFICA de ese quimiotipo y de ese
+   bolsillo: no se hereda a otros bolsillos ni a otras quimias.
+
+3. EL RANKING NO ESTÁ VALIDADO, y ahora se sabe por qué. Los ligandos
+   co-cristalizados puntúan peor que el azar frente a los señuelos
+   emparejados (AUC 0,32-0,43); descontado el tamaño suben a 0,62-0,75,
+   que es «débil», no «validado». Los dos únicos activos independientes
+   quedan en el azar tanto antes como después de descontar el tamaño
+   (0,60-0,67 y 0,46-0,57), y LCS-1 cae en el puesto 313 de 482.
+
+4. En consecuencia, EL 0,815 SIGUE SIENDO PROVISIONAL, y ahora por dos
+   motivos independientes y medidos: los positivos son una sola serie
+   química, y la puntuación de Vina en esta caja está sesgada por el
+   tamaño. No es provisional porque el protocolo no reproduzca poses:
+   reproduce las de las catecolaminas.
+
+5. NINGUNA de las tres listas de candidatos (SOD1, TDP-43, FUS) debe
+   presentarse como validada. Son hipótesis para selección experimental,
+   que es lo que el artículo dice de forma explícita (sección 5.7).
+
+----------------------------------------------------------------------------
+ NOTA SOBRE TDP-43
+----------------------------------------------------------------------------
+En TDP-43 v2 (el sitio nuevo, interfaz RRM1-RRM2) el AUC bruto es ~al
+azar POR EL SESGO DE TAMAÑO CONOCIDO del motor (los señuelos grandes
+puntúan demasiado bien). Pero los 9 activos acoplan en las mejores
+posiciones y con energías que REPRODUCEN las publicadas dentro de
+~1 kcal/mol:
+    - PE859:        predicho -7,60 frente a -8,49 publicado
+    - berberrubina: predicho -7,74 frente a -7,72 publicado
+Eso confirma que el receptor y el bolsillo están bien definidos.
+
+Lo que NO está demostrado en TDP-43, y hay que decirlo, es que la
+puntuación ORDENE. Van dos cajas probadas y las dos veces los ligandos
+conocidos caen al fondo de la tabla. Además, la medida de similitud
+química que se usó para armar la lista focalizada resultó ser un detector
+de familia, no un predictor de unión: da AUC 1,000 dentro de su propia
+familia y 0,538 (azar) fuera de ella, y una sola molécula de referencia
+bate al conjunto entero de ocho.
+
+El protocolo de TDP-43 (4IUF) sí está validado para la reposición de su
+ligando nativo (RMSD 1,75 Å), igual que el de Trp32 lo está para las
+catecolaminas. Cada bolsillo y cada quimiotipo se validan aparte.
+
+----------------------------------------------------------------------------
+ CONCLUSIÓN (corregida)
+----------------------------------------------------------------------------
+  • SOD1: la caja Trp32 está validada como sitio, y el protocolo está
+    validado para el quimiotipo catecolamina (redocking 0,48-1,28 Å).
+    El 0,815 demuestra que la caja está bien colocada, NO que el método
+    ordene ligandos de SOD1: con controles independientes es 0,601 (n=2)
+    y con el conjunto limpio y los dos fondos, 0,515 bruto (0,671 sin
+    tamaño), con los co-cristalizados por debajo del azar.
+  • TDP-43: protocolo válido (RMSD 1,75 Å en la reposición del ligando
+    nativo) y bolsillo v2 con energías reproducidas. El ORDEN de la
+    lista no está validado.
+  • FUS: provisional, sin controles propios en la literatura.
+
+  Por tanto, NINGUNA de las tres listas de candidatos debe presentarse
+  como validada. Son hipótesis para selección experimental.
+
+----------------------------------------------------------------------------
+ CRITERIO QUE SE ADOPTA A PARTIR DE AHORA
+----------------------------------------------------------------------------
+Un ranking se considera informativo sólo si coloca positivos de AL
+MENOS DOS SERIES QUÍMICAS INDEPENDIENTES por delante de los señuelos
+emparejados. Un conjunto de positivos de una sola química no se
+reporta como prueba de capacidad de orden. Y el fondo de comparación
+debe ser difícil (señuelos emparejados en propiedades y, para
+metaloenzimas, un fondo de quelantes y redox-activos), no moléculas al
+azar.
+
+Además, toda lista se leerá con una métrica que no dependa del tamaño:
+eficiencia de ligando (score / átomos pesados) o el residuo del ajuste
+por tamaño descrito arriba. En este proyecto la puntuación de Vina se
+usa como FILTRO de triaje, no como clasificador.
+
+En todos los casos, el ranking final de candidatos se complementa con
+un re-análisis físico (MM-GBSA) y filtros de fármaco-likeness, como se
+describe en el documento de metodología.
+
+El análisis completo está en:
+  analysis/INFORME_VALIDACION_SOD1_2026-09-20.md
+  analysis/validar_sod1_v3.py
+  analysis/validacion_SOD1_v3/analisis_sod1_v3.csv
+  analysis/AUDITORIA_POSITIVOS_2026-09-20.md
+  analysis/auditar_positivos_sod1.py
+  analysis/auditar_similitud_tdp43.py
+  analysis/redocking_trp32/INFORME_CONTROLES_CORREGIDOS_2026-09-20.md

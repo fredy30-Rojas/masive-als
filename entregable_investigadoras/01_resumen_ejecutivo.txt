@@ -1,0 +1,105 @@
+============================================================
+ RESUMEN EJECUTIVO — PROYECTO MASIVE-ALS
+ 1 de septiembre de 2026
+============================================================
+
+QUÉ ES
+MASIVE-ALS es una campaña de cribado molecular masivo para encontrar
+candidatos a fármaco contra la esclerosis lateral amiotrófica (ELA),
+realizada de forma autónoma, sin financiación externa, y pensada para
+publicarse en acceso abierto para que toda la comunidad científica
+pueda usarla.
+
+QUÉ SE HA BUSCADO
+Cuatro sitios de unión en las tres proteínas clave de la enfermedad:
+  1. TDP-43 — dominio RRM1 (sitio de unión a ARN, PDB 4IUF)
+  2. TDP-43 versión 2 — interfaz RRM1-RRM2 (PDB 4BS2), el sitio de
+     agregación propuesto por el estudio de Kapsiani y colaboradores
+     (Cambridge, 2026), nunca antes cribado a esta escala
+  3. SOD1 — sitio anti-agregación Trp32 (PDB 1HL5)
+  4. FUS — modelo por resonancia magnética nuclear (PDB 6G99)
+
+CÓMO SE HA HECHO
+Con AutoDock Vina 1.2.5 y su versión acelerada por GPU (Vina-GPU 2.1),
+en infraestructura gratuita (nube y una GPU local trabajando 24 horas
+al día), leyendo el problema con el mismo rigor que un laboratorio:
+validaciones con compuestos conocidos, corrección de cajas de unión,
+y un guardián automático que vigila cada paso.
+
+QUÉ HAY HOY (DATOS REALES)
+  • 151.382 acoplamientos proteína-compuesto completados
+  • SOD1: campaña TERMINADA
+  • TDP-43: aproximadamente al 50% de la librería
+  • TDP-43 v2: en marcha
+  • Mejores energías: SOD1 -9,5 kcal/mol (CHEMBL4559945),
+    TDP-43 -8,6 kcal/mol (CHEMBL6356), FUS -8,2 kcal/mol (CHEMBL6207)
+  • Re-análisis (rescoring MM-GBSA) de los candidatos en curso
+
+QUÉ SE VALIDA CON EVIDENCIA
+  • SOD1 (sitio Trp32): curva ROC-AUC 0,815, enriquecimiento 4x a 5%.
+    CORRECCIÓN 20 sep 2026: esa cifra la sostiene una sola serie
+    química (16 de los 20 activos son el mismo esqueleto de pirazolona).
+    Con ligandos químicamente independientes la medida es 0,601 con
+    dos compuestos, y uno de ellos (LCS-1, el ligando de referencia
+    real) no lo encuentra el acoplamiento. Lo que el 0,815 SÍ demuestra
+    es que la caja está bien colocada.
+    SEGUNDA CORRECCIÓN 20 sep 2026: se hizo el control de re-acoplamiento
+    de los cuatro ligandos cristalizados del bolsillo. Lo PASA la mitad
+    del conjunto: isoproterenol 0,48-1,28 Å y adrenalina 0,66-0,75 Å;
+    falla la dopamina (3,1 Å: la pose correcta sí se genera, pero la
+    puntuación prefiere otra) y la 5-fluorouridina, cuya pose depositada
+    no es un mínimo del potencial (contacto F···N de 2,07 Å en una
+    estructura de 1,06 Å). Es decir: el sitio y el protocolo están
+    validados para el quimiotipo catecolamina.
+    TERCERA CORRECCIÓN 20 sep 2026: se rehizo la validación con el
+    conjunto limpio (7 controles) contra DOS fondos: señuelos emparejados
+    en propiedades y un fondo duro de quelantes de metales y redox-activos.
+    Resultado: los cuatro ligandos co-cristalizados —los que definen el
+    bolsillo— puntúan PEOR QUE EL AZAR (AUC 0,32-0,43). La causa medida es
+    el sesgo de tamaño: en esta caja cada átomo pesado vale 0,096 kcal/mol.
+    Descontado el tamaño, suben a 0,62-0,75; los dos independientes se
+    quedan en el azar (0,46-0,57) y LCS-1 cae en el puesto 313 de 482.
+    Ningún control entra en el 1% superior. El 0,815 queda explicado: es
+    una serie de moléculas grandes, y el tamaño se paga. Por tanto el
+    0,815 sigue PROVISIONAL, ahora con dos motivos medidos.
+  • TDP-43 (sitio RNA): recupera la pose cristalográfica con RMSD 1,75 Å
+  • TDP-43 v2 (interfaz RRM1-RRM2): reproduce las energías de unióndel estudio de Cambridge 2026 dentro de ~1 kcal/mol (ej.: PE859:
+    predicho -7,60 frente a publicado -8,49), lo que confirma que el
+    receptor y el bolsillo están correctamente definidos
+
+UNA ADVERTENCIA QUE EL AUTOR PREFIERE DAR ÉL MISMO
+  Una auditoría hecha el 20 de septiembre de 2026 encontró que los
+  conjuntos de compuestos conocidos usados como control no eran
+  independientes entre sí (en SOD1, 16 de 20 son la misma química) y
+  que la medida de similitud química usada para armar una lista
+  focalizada medía "de qué familia es la molécula", no "si se une a la
+  proteína". Las cifras corregidas están en el archivo 05, y el
+  artículo lo trata en su sección 5.7.
+
+  La misma auditoría hizo por fin el control de re-acoplamiento del
+  bolsillo de SOD1 (volver a acoplar los ligandos de pose cristalográfica
+  conocida). Los dos ligandos que definen el bolsillo SÍ se reproducen
+  (isoproterenol 0,48-1,28 Å; adrenalina 0,66-0,75 Å). El protocolo está
+  validado en el bolsillo de TDP-43 (RMSD 1,75 Å) y en el de SOD1 para
+  el quimiotipo catecolamina, pero eso no se hereda: cada bolsillo y cada
+  quimiotipo hay que validarlos por separado. Las cifras de SOD1 quedan
+  marcadas como provisionales por el conjunto de positivos y por el sesgo
+  de tamaño, no porque el protocolo no reproduzca las poses conocidas.
+
+  Consecuencia: ninguna de las tres listas de candidatos debe
+  presentarse como validada. Son hipótesis para selección experimental.
+  El criterio que se adopta desde ahora es que un ranking sólo cuenta
+  si coloca positivos de al menos dos quimias distintas por delante de
+  los señuelos.
+
+QUÉ SE ENTREGA
+  • Este paquete, con los cien mejores compuestos por proteína
+  • El artículo completo (archivo 02)
+  • Toda la cadena de software y datos, lista para replicarse
+  • La disposición total del autor a que el proyecto continúe en manos
+    de un equipo de investigación
+
+El autor del proyecto es un paciente de ELA que escribe con un control
+ocular. Su único interés es que este trabajo sirva para acercar un
+tratamiento a los 350.000 pacientes del mundo que comparten su
+enfermedad.

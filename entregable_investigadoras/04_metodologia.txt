@@ -1,0 +1,73 @@
+============================================================
+ METODOLOGÍA — PROYECTO MASIVE-ALS
+============================================================
+
+1. PROTEÍNAS Y CAJAS DE UNIÓN
+   • TDP-43 (4IUF): dominio RRM1 limpio; caja centrada en la superficie
+     de unión a ARN definida por el ligando co-cristalizado (centro
+     16,3, 41,1, 48,5 Å; tamaño 24 Å). Validado por re-acoplamiento del
+     ligando nativo con RMSD 1,75 Å.
+   • TDP-43 v2 (4BS2): tándem de dominios RRM1-RRM2; caja de 26 Å
+     centrada en la interfaz Arg151-Asp247 descrita por
+     Kapsiani et al. (2026). Comprobado por reproducción de energías
+     del artículo de Cambridge (el receptor y el bolsillo están bien;
+     el ORDEN de la lista no está validado — ver 05).
+   • SOD1 (1HL5): sitio anti-agregación Trp32 del barril beta
+     (centro 46,5, 80,0, 73,3 Å; 22 Å). AUC 0,815 con 20 activos
+     conocidos contra 199 señuelos, PERO esa cifra la sostiene una
+     sola serie química: con ligandos independientes queda en 0,601
+     (ver la corrección en 05). Rehecha con el conjunto limpio (7
+     controles) contra dos fondos (señuelos emparejados en propiedades
+     y fondo duro de quelantes de metales y redox-activos): 0,515 bruto
+     y 0,671 tras descontar el sesgo de tamaño (0,096 kcal/mol por
+     átomo pesado). Los cuatro ligandos co-cristalizados puntúan por
+     debajo del azar antes de descontar el tamaño (0,32-0,43). Ningún
+     control entra en el 1% superior (EF1% = 0).
+   • FUS (6G99): modelo 1 del conjunto NMR (centro -14,5, 15,1, -7,8 Å;
+     25 Å). Pendiente de controles positivos específicos.
+
+2. LIBRERÍA DE COMPUESTOS
+   • Aproximadamente 2 millones de compuestos tipo fármaco de ZINC20,
+     más compuestos bioactivos de ChEMBL y fármacos aprobados.
+   • Conversión a formato PDBQT con Open Babel 3.1.1 (hidrógenos
+     polares y cargas Gasteiger).
+
+3. MOTOR DE ACOPLAMIENTO
+   • AutoDock Vina 1.2.5 (CPU) y Vina-GPU 2.1 (GPU), 3 modos de unión
+     por ligando, exhaustividad por defecto (8).
+   • El rendimiento se mide en kc/mol y las listas se ordenan por
+     energía mínima por objetivo (las puntuaciones NO se comparan
+     entre distintos receptores).
+
+4. JERARQUÍA DE SELECCIÓN
+   • El resultado del acoplamiento se usa como FILTRO, no como
+     clasificador definitivo.
+   • Los mejores por proteína pasan a un re-análisis con un método
+     físico independiente (MM-GBSA con solvente implícito) para
+     ordenarlos.
+   • Filtros de fármaco-likeness (regla de Lipinski, Veber) y de
+     permeabilidad al sistema nervioso central (TPSA ≤ 90, MW ≤ 450).
+
+5. CONTROL DE CALIDAD
+   • Cada caja de unión fue evaluada contra ligandos conocidos y
+     señuelos equilibrados por propiedades físico-químicas.
+   • AUDITORÍA DE POSITIVOS (20 sep 2026): se comprobó si los activos
+     usados como controles son compuestos independientes o series
+     repetidas. En SOD1, 16 de 20 son el mismo esqueleto, y la medida
+     con ligandos independientes baja de 0,815 a 0,601. En TDP-43,
+     la similitud química resultó ser un detector de familia y no un
+     predictor de unión. La tabla de validación de 05 recoge las
+     cifras corregidas, y el artículo lo trata en la sección 5.7.
+   • Los pocos casos de formatos no soportados por el motor se
+     corrigieron y re-evaluaron.
+   • Un sistema automático vigila el proceso las 24 horas y avisa
+     si algo se detiene.
+
+6. PRÓXIMOS PASOS (escenario completo)
+   • Ampliar a 10 millones de compuestos en supercomputación
+     (MareNostrum 5, solicitado a la Red Española de Supercomputación).
+   • Validar los mejores candidatos con dinámica molecular (GROMACS).
+   • Publicar todos los datos en acceso abierto.
+
+Todos los parámetros exactos y el código están en el repositorio del
+proyecto y en el artículo (archivo 02).

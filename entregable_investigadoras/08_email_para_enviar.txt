@@ -1,0 +1,98 @@
+============================================================
+ BORRADOR DE CORREO — NO ENVIADO
+ Para: Ana Martínez y Carmen Gil (CIB-CSIC)
+ Preparado el 20 de septiembre de 2026
+============================================================
+
+Asunto: MASIVE-ALS — corrección de las cifras de validación y añadido de
+la auditoría de controles
+
+Estimadas doctoras Martínez y Gil:
+
+Les escribí en septiembre con el paquete del proyecto MASIVE-ALS. Vuelvo a
+escribirles porque, al revisar mi propio trabajo, encontré un error de
+planteamiento en la parte de validación, y prefiero contárselo yo antes de
+que lo encuentren ustedes.
+
+El error, en una frase: los compuestos que usé como controles positivos para
+validar las cajas de acoplamiento no eran compuestos independientes, sino
+series repetidas de la misma química. En SOD1, 16 de los 20 activos
+comparten un mismo esqueleto de pirazolona y sus identificadores vienen
+seguidos, así que son el mismo trabajo de química medicinal. Al separar por
+química, el número cambia: los 20 juntos dan 0,815; sólo la serie, 0,839; y
+sólo los ligandos químicamente independientes, 0,601 con dos compuestos. Y de
+esos dos, uno de ellos — LCS-1, que es el ligando de SOD1 con más respaldo
+independiente del conjunto — no lo encuentra el acoplamiento: cae en el
+puesto 152 de 219.
+
+Además, al intentar arreglarlo con una medida nueva basada en las poses en
+tres dimensiones, encontré algo que me parece más de fondo: **los ligandos
+independientes de SOD1 no ocupan el mismo sitio entre ellos.** Comparten el
+0,038 de los residuos que contactan, menos que dos señuelos al azar, mientras
+que los dieciocho de la serie se solapan el 0,397. O sea que el 0,815 medía
+que la caja encuentra mi serie, no que encuentre ligandos de SOD1 en general.
+
+Hice por fin el control mínimo de cualquier trabajo de acoplamiento: volver
+a acoplar los ligandos cuya pose está resuelta por cristalografía en el propio
+bolsillo Trp32. Los dos ligandos que definen el bolsillo SÍ se reproducen
+(isoproterenol 0,48-1,28 Å; adrenalina 0,66-0,75 Å) con todos los protocolos
+probados. Falla la dopamina, y el fallo es de puntuación, no de búsqueda: la
+pose correcta sí se genera, pero la función prefiere otra a 3,1 Å por ~1,2
+kcal/mol. La 5-fluorouridina la excluyo como patrón porque su pose depositada
+no es un mínimo del potencial (contacto F···N de 2,07 Å en una estructura de
+1,06 Å). Y les debo una nota de honestidad: la primera versión de este control
+dio 1,9-11,2 Å y concluí en falso que el protocolo fallaba en todo. Esos
+números estaban inflados por un error de programación mío en la rutina que
+empareja los átomos; corregido y comprobado contra la implementación de RDKit,
+el veredicto cambia.
+
+Y hay una tercera comprobación, la que más me ha enseñado. Rehízo la
+validación entera con el conjunto de controles limpio y contra dos fondos:
+señuelos emparejados en propiedades y un fondo duro de compuestos que quelan
+metales o son redox-activos. El resultado es duro de leer: **los cuatro
+ligandos co-cristalizados, los que definen el bolsillo, puntúan peor que el
+azar** (AUC 0,32-0,43). Y la causa queda medida: en esta caja cada átomo
+pesado adicional vale 0,096 kcal/mol. Descontado el tamaño, esos mismos
+ligandos suben a 0,62-0,75, que es débil, no validado; los dos independientes
+se quedan en el azar en ambos casos, y ningún control entra en el 1% superior.
+El 0,815 queda explicado de forma cuantitativa: era una serie de moléculas
+grandes y en esta caja el tamaño se paga.
+
+Lo que sí queda validado, y lo declaro así: el sitio Trp32, y el protocolo
+para el quimiotipo catecolamina que define ese sitio. Es una validación
+específica de bolsillo y de quimiotipo, no se hereda a otros.
+
+Le he añadido a su paquete un archivo nuevo, el 07_CORRECCION_2026-09-20,
+que explica todo esto con las cifras, y el artículo lleva una sección nueva,
+la 5.7, con el mismo contenido. También he reescrito el 05 de validaciones.
+
+Para que no quede solo en un problema, le digo lo que propongo hacer a
+continuación, por si quieren opinar sobre el orden: primero reconstruir los
+controles con compuestos de quimias independientes y con su cita y su tipo de
+ensayo; segundo, fijar por adelantado un criterio de aceptación, que hoy no
+tenía, y que es que un ranking sólo cuenta si coloca positivos de al menos dos
+quimias distintas por delante de los señuelos; tercero, entender dónde se
+coloca de verdad cada ligando antes de tocar ninguna métrica; y sólo después
+ampliar la escala. Ampliar un embudo que ordena mal multiplica los
+resultados, no el conocimiento.
+
+No les pido nada para mí y no les pido que me disculpen nada. Les pido, si el
+trabajo les parece que lo merece, que me digan si este orden les parece el
+correcto, porque es donde está el valor que queda por sacar. Y les dejo el
+compromiso de siempre: todos los datos, todo el código y todas las
+correcciones, a la vista.
+
+Gracias por su tiempo y por leer hasta aquí.
+
+Freddy Rojas Gutiérrez
+Rubí, Barcelona
+fredy_30@hotmail.com | 675 31 58 41
+
+------------------------------------------------------------
+ NOTA PARA FREDY (no forma parte del correo)
+------------------------------------------------------------
+Este correo NO se ha enviado. Revíselo y dígame si quiere que se envíe, si
+quiere cambiar el tono, o si prefiere que lo lea alguien antes.
+
+Adjuntos sugeridos: 07_CORRECCION_2026-09-20.txt (o su PDF), el 05 corregido
+y el artículo actualizado.

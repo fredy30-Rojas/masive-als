@@ -1,0 +1,116 @@
+========================================================================
+1. COMPROBACION DE COMPARABILIDAD
+========================================================================
+filas con dG: 238   |   filas con error: 4
+plataformas: ['CUDA']
+  FUS        receptor md5: ['6c90f013f59aae2f']
+  SOD1       receptor md5: ['f4331421f45c096d']
+  TDP43_v2   receptor md5: ['1a17b49efaf7677d']
+  snapshot 11 sep:    {'fecha': '2026-09-11 14:58:43', 'criterio': 'bolsillo por union de esferas, radio 10 A', 'uso': 'validacion de controles 11 sep 2026', 'receptores': {'TDP43_v2': {'archivo': 'receptores_fijos\\snapshot_20260911\\TDP43_v2_fijo.pdb', 'md5': '1a17b49efaf7677d2909f5b45d0b3b4f', 'atomos': 2067}, 'SOD1': {'archivo': 'receptores_fijos\\snapshot_20260911\\SOD1_fijo.pdb', 'md5': 'f4331421f45c096d929c979dd1a06f43', 'atomos': 1459}, 'FUS': {'archivo': 'receptores_fijos\\snapshot_20260911\\FUS_fijo.pdb', 'md5': '6c90f013f59aae2f5a0bf8706af198c8', 'atomos': 601}}}
+
+========================================================================
+2. CONTROLES vs FONDO (lo que decide si el orden sirve)
+========================================================================
+
+=== FUS ===  controles n=0 | fondo n=73
+  sin controles en este recálculo: no se puede evaluar aquí
+
+=== SOD1 ===  controles n=18 | fondo n=68
+  dG controles: mediana -17.7  (-7.6 a -30.9)
+  dG fondo:     mediana -25.5  (-11.8 a -72.0)
+  tamaño: controles 17.5 atomos pesados | fondo 28.3
+  Spearman dG vs tamaño = -0.585
+  1) AUC bruto = 0.143   p = 0.0000
+  2) AUC tamaño-comparable (15-26 atomos, n=21) = 0.230
+  3) AUC sobre residuales (quitando el tamaño) = 0.703
+     pendiente dG/tamaño = -1.26 kcal/mol por atomo pesado
+  4) AUC sobre eficiencia de ligando (dG/atomo) = 0.595
+     por dG bruto   los controles caen en el percentil 18 (puesto 70 de 86)
+     por residual   los controles caen en el percentil 72 (puesto 24 de 86)
+     por eficiencia los controles caen en el percentil 69 (puesto 26 de 86)
+
+=== TDP43_v2 ===  controles n=8 | fondo n=71
+  dG controles: mediana -16.9  (-10.4 a -36.6)
+  dG fondo:     mediana -34.5  (-13.7 a -87.3)
+  tamaño: controles 27.4 atomos pesados | fondo 26.7
+  Spearman dG vs tamaño = -0.349
+  1) AUC bruto = 0.130   p = 0.0002
+  2) AUC tamaño-comparable (24-36 atomos, n=51) = 0.108
+  3) AUC sobre residuales (quitando el tamaño) = 0.032
+     pendiente dG/tamaño = -0.93 kcal/mol por atomo pesado
+  4) AUC sobre eficiencia de ligando (dG/atomo) = 0.030
+     por dG bruto   los controles caen en el percentil 6 (puesto 74 de 79)
+     por residual   los controles caen en el percentil 5 (puesto 75 de 79)
+     por eficiencia los controles caen en el percentil 5 (puesto 75 de 79)
+
+========================================================================
+3. RANKING DE CANDIDATOS (por residual y por eficiencia, NO por dG)
+========================================================================
+
+--- FUS ---
+  por RESIDUAL (mejor de lo que su tamaño predice):
+    CHEMBL501732                       dG= -49.25   28 at.  residual=-22.08  [fondo]
+    CHEMBL1163230                      dG= -43.72   30 at.  residual=-14.41  [fondo]
+    CHEMBL1206581                      dG= -38.08   25 at.  residual=-14.12  [fondo]
+    CHEMBL16243                        dG= -36.46   25 at.  residual=-12.50  [fondo]
+    CHEMBL4636792                      dG= -39.51   28 at.  residual=-12.34  [fondo]
+    CHEMBL1865383                      dG= -40.04   30 at.  residual=-10.73  [fondo]
+    CHEMBL3311108                      dG= -45.05   36 at.  residual= -9.33  [fondo]
+    CHEMBL4638885                      dG= -44.14   36 at.  residual= -8.42  [fondo]
+  por EFICIENCIA DE LIGANDO (dG por atomo pesado):
+    CHEMBL501732                       dG= -49.25   28 at.  efic=-1.7589  [fondo]
+    CHEMBL1206581                      dG= -38.08   25 at.  efic=-1.5232  [fondo]
+    CHEMBL16243                        dG= -36.46   25 at.  efic=-1.4584  [fondo]
+    CHEMBL1163230                      dG= -43.72   30 at.  efic=-1.4573  [fondo]
+    CHEMBL4636792                      dG= -39.51   28 at.  efic=-1.4111  [fondo]
+    CHEMBL1865383                      dG= -40.04   30 at.  efic=-1.3347  [fondo]
+    CHEMBL3311108                      dG= -45.05   36 at.  efic=-1.2514  [fondo]
+    CHEMBL1207227                      dG= -29.62   24 at.  efic=-1.2342  [fondo]
+
+--- SOD1 ---
+  por RESIDUAL (mejor de lo que su tamaño predice):
+    CHEMBL520254                       dG= -72.01   34 at.  residual=-37.61  [fondo]
+    CHEMBL4570385                      dG= -50.57   28 at.  residual=-23.76  [fondo]
+    CHEMBL521548                       dG= -54.60   33 at.  residual=-21.47  [fondo]
+    CHEMBL561610                       dG= -52.59   34 at.  residual=-18.19  [fondo]
+    CHEMBL500921                       dG= -42.68   31 at.  residual=-12.08  [fondo]
+    GLASDEGIB                          dG= -37.95   28 at.  residual=-11.14  [fondo]
+    CHEMBL4575882                      dG= -34.92   27 at.  residual= -9.37  [fondo]
+    CHEMBL4569357                      dG= -41.12   32 at.  residual= -9.25  [fondo]
+  por EFICIENCIA DE LIGANDO (dG por atomo pesado):
+    CHEMBL520254                       dG= -72.01   34 at.  efic=-2.1179  [fondo]
+    CHEMBL4570385                      dG= -50.57   28 at.  efic=-1.8061  [fondo]
+    CHEMBL521548                       dG= -54.60   33 at.  efic=-1.6545  [fondo]
+    CHEMBL561610                       dG= -52.59   34 at.  efic=-1.5468  [fondo]
+    CHEMBL500921                       dG= -42.68   31 at.  efic=-1.3768  [fondo]
+    GLASDEGIB                          dG= -37.95   28 at.  efic=-1.3554  [fondo]
+    CHEMBL4575882                      dG= -34.92   27 at.  efic=-1.2933  [fondo]
+    CHEMBL4569357                      dG= -41.12   32 at.  efic=-1.2850  [fondo]
+
+--- TDP43_v2 ---
+  por RESIDUAL (mejor de lo que su tamaño predice):
+    CHEMBL1094870                      dG= -87.35   33 at.  residual=-44.95  [fondo]
+    CHEMBL19929                        dG= -54.65   29 at.  residual=-15.96  [fondo]
+    CHEMBL568414                       dG= -47.76   22 at.  residual=-15.58  [fondo]
+    CHEMBL12225                        dG= -51.44   28 at.  residual=-13.68  [fondo]
+    CHEMBL4581271                      dG= -46.65   24 at.  residual=-12.61  [fondo]
+    CHEMBL4637197                      dG= -54.51   34 at.  residual=-11.18  [fondo]
+    CHEMBL522622                       dG= -54.27   34 at.  residual=-10.94  [fondo]
+    CHEMBL511518                       dG= -41.07   20 at.  residual=-10.74  [fondo]
+  por EFICIENCIA DE LIGANDO (dG por atomo pesado):
+    CHEMBL1094870                      dG= -87.35   33 at.  efic=-2.6470  [fondo]
+    CHEMBL568414                       dG= -47.76   22 at.  efic=-2.1709  [fondo]
+    CHEMBL1864753                      dG= -36.98   18 at.  efic=-2.0544  [fondo]
+    CHEMBL511518                       dG= -41.07   20 at.  efic=-2.0535  [fondo]
+    CHEMBL4581271                      dG= -46.65   24 at.  efic=-1.9437  [fondo]
+    CHEMBL19929                        dG= -54.65   29 at.  efic=-1.8845  [fondo]
+    CHEMBL12225                        dG= -51.44   28 at.  efic=-1.8371  [fondo]
+    CHEMBL1808762                      dG= -40.30   22 at.  efic=-1.8318  [fondo]
+
+========================================================================
+4. FILAS CON ERROR (no entraron en el análisis)
+========================================================================
+  FUS        CHEMBL1206581                salida vacia
+  FUS        CHEMBL4434647                salida vacia
+  TDP43_v2   cepharanthine                {'mmgbsa_dG': None, 'error': 'n atomos no coincide: SMILES 45 vs pose 47'}
+  TDP43_v2   cepharanthine_limpio         {'mmgbsa_dG': None, 'error': 'n atomos no coincide: SMILES 45 vs pose 47'}
