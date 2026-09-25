@@ -1,0 +1,114 @@
+[
+  {
+    "control": "control 1",
+    "condicion": "receptor rigido, ligando flexible",
+    "entrada": "4A7S",
+    "ligando": "5UD",
+    "puntuacion": "vina",
+    "caja": 18,
+    "exhaustividad": 8,
+    "rmsd_por_semilla": "9.03 / 9.04 / 9.05",
+    "rmsd_mejor": 9.03,
+    "rmsd_mediana": 9.04,
+    "semillas_que_pasan": 0,
+    "criterio": "FALLA",
+    "por_semilla": [
+      {
+        "semilla": 42,
+        "rmsd": 9.03
+      },
+      {
+        "semilla": 2026,
+        "rmsd": 9.04
+      },
+      {
+        "semilla": 777,
+        "rmsd": 9.05
+      }
+    ]
+  },
+  {
+    "control": "control 1",
+    "condicion": "receptor rigido, ligando flexible",
+    "entrada": "4A7T",
+    "ligando": "5FW",
+    "puntuacion": "vina",
+    "caja": 18,
+    "exhaustividad": 8,
+    "rmsd_por_semilla": "1.60 / 2.45 / 1.62",
+    "rmsd_mejor": 1.6,
+    "rmsd_mediana": 1.62,
+    "semillas_que_pasan": 2,
+    "criterio": "PASA",
+    "por_semilla": [
+      {
+        "semilla": 42,
+        "rmsd": 1.6
+      },
+      {
+        "semilla": 2026,
+        "rmsd": 2.45
+      },
+      {
+        "semilla": 777,
+        "rmsd": 1.62
+      }
+    ]
+  },
+  {
+    "control": "control 1",
+    "condicion": "receptor rigido, ligando flexible",
+    "entrada": "4A7U",
+    "ligando": "ALE",
+    "puntuacion": "vina",
+    "caja": 18,
+    "exhaustividad": 8,
+    "rmsd_por_semilla": "0.75 / 0.72 / 0.74",
+    "rmsd_mejor": 0.72,
+    "rmsd_mediana": 0.74,
+    "semillas_que_pasan": 3,
+    "criterio": "PASA",
+    "por_semilla": [
+      {
+        "semilla": 42,
+        "rmsd": 0.75
+      },
+      {
+        "semilla": 2026,
+        "rmsd": 0.72
+      },
+      {
+        "semilla": 777,
+        "rmsd": 0.74
+      }
+    ]
+  },
+  {
+    "control": "control 1",
+    "condicion": "receptor rigido, ligando flexible",
+    "entrada": "4A7V",
+    "ligando": "LDP",
+    "puntuacion": "vina",
+    "caja": 18,
+    "exhaustividad": 8,
+    "rmsd_por_semilla": "3.15 / 3.15 / 3.16",
+    "rmsd_mejor": 3.15,
+    "rmsd_mediana": 3.15,
+    "semillas_que_pasan": 0,
+    "criterio": "FALLA",
+    "por_semilla": [
+      {
+        "semilla": 42,
+        "rmsd": 3.15
+      },
+      {
+        "semilla": 2026,
+        "rmsd": 3.15
+      },
+      {
+        "semilla": 777,
+        "rmsd": 3.16
+      }
+    ]
+  }
+]

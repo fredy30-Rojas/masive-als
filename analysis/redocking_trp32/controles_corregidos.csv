@@ -1,0 +1,33 @@
+control,condicion,entrada,ligando,puntuacion,caja,exhaustividad,rmsd_por_semilla,rmsd_mejor,rmsd_mediana,semillas_que_pasan,criterio
+control 1,"receptor rigido, ligando flexible",4A7S,5UD,vina,24,8,11.07 / 11.33 / 11.29,11.07,11.29,0,FALLA
+control 1,"receptor rigido, ligando flexible",4A7T,5FW,vina,24,8,1.28 / 2.50 / 0.48,0.48,1.28,2,PASA
+control 1,"receptor rigido, ligando flexible",4A7U,ALE,vina,24,8,0.72 / 0.69 / 0.74,0.69,0.72,3,PASA
+control 1,"receptor rigido, ligando flexible",4A7V,LDP,vina,24,8,3.15 / 3.13 / 3.15,3.13,3.15,0,FALLA
+control 1,"receptor rigido, ligando flexible",4A7S,5UD,vina,18,8,9.03 / 9.04 / 9.05,9.03,9.04,0,FALLA
+control 1,"receptor rigido, ligando flexible",4A7T,5FW,vina,18,8,1.60 / 2.45 / 1.62,1.6,1.62,2,PASA
+control 1,"receptor rigido, ligando flexible",4A7U,ALE,vina,18,8,0.75 / 0.72 / 0.74,0.72,0.74,3,PASA
+control 1,"receptor rigido, ligando flexible",4A7V,LDP,vina,18,8,3.15 / 3.15 / 3.16,3.15,3.15,0,FALLA
+control 1,"receptor rigido, ligando flexible",4A7S,5UD,vina,24,32,11.07 / n/d / n/d,11.07,11.07,0,FALLA
+control 1,"receptor rigido, ligando flexible",4A7T,5FW,vina,24,32,1.28 / n/d / n/d,1.28,1.28,1,PASA
+control 1,"receptor rigido, ligando flexible",4A7U,ALE,vina,24,32,0.72 / n/d / n/d,0.72,0.72,1,PASA
+control 1,"receptor rigido, ligando flexible",4A7V,LDP,vina,24,32,3.15 / n/d / n/d,3.15,3.15,0,FALLA
+control 2,"receptor rigido, ligando flexible",4A7S,5UD,vina,24,8,9.88 / 8.74 / 9.86,8.74,9.86,0,FALLA
+control 2,"receptor rigido, ligando flexible",4A7T,5FW,vina,24,8,0.46 / 0.67 / 0.56,0.46,0.56,3,PASA
+control 2,"receptor rigido, ligando flexible",4A7U,ALE,vina,24,8,0.66 / 0.73 / 0.74,0.66,0.73,3,PASA
+control 2,"receptor rigido, ligando flexible",4A7V,LDP,vina,24,8,3.13 / 3.11 / 3.13,3.11,3.13,0,FALLA
+control 2,"receptor rigido, ligando flexible",4A7S,5UD,vinardo,24,8,5.42 / 5.44 / 5.45,5.42,5.44,0,FALLA
+control 2,"receptor rigido, ligando flexible",4A7T,5FW,vinardo,24,8,0.79 / 0.77 / 0.78,0.77,0.78,3,PASA
+control 2,"receptor rigido, ligando flexible",4A7U,ALE,vinardo,24,8,0.88 / 0.92 / 0.93,0.88,0.92,3,PASA
+control 2,"receptor rigido, ligando flexible",4A7V,LDP,vinardo,24,8,12.78 / 3.08 / 2.90,2.9,3.08,0,FALLA
+control 2,"receptor rigido, ligando RIGIDO",4A7S,5UD,vina-rigido,24,8,9.83 / 9.83 / 9.83,9.83,9.83,0,FALLA
+control 2,"receptor rigido, ligando RIGIDO",4A7T,5FW,vina-rigido,24,8,0.65 / 0.63 / 0.65,0.63,0.65,3,PASA
+control 2,"receptor rigido, ligando RIGIDO",4A7U,ALE,vina-rigido,24,8,0.43 / 0.45 / 0.44,0.43,0.44,3,PASA
+control 2,"receptor rigido, ligando RIGIDO",4A7V,LDP,vina-rigido,24,8,2.97 / 2.97 / 2.97,2.97,2.97,0,FALLA
+control 2,"receptor rigido, ligando RIGIDO",4A7S,5UD,vinardo-rigido,24,8,10.00 / 10.01 / 10.00,10.0,10.0,0,FALLA
+control 2,"receptor rigido, ligando RIGIDO",4A7T,5FW,vinardo-rigido,24,8,0.33 / 0.33 / 0.33,0.33,0.33,3,PASA
+control 2,"receptor rigido, ligando RIGIDO",4A7U,ALE,vinardo-rigido,24,8,0.61 / 0.61 / 0.62,0.61,0.61,3,PASA
+control 2,"receptor rigido, ligando RIGIDO",4A7V,LDP,vinardo-rigido,24,8,12.72 / 12.72 / 3.02,3.02,12.72,0,FALLA
+control 3,"receptor flexible (A:21,22,23,30,100), ligando flexible",4A7S,5UD,vina,24,8,10.74 / 9.90 / 10.86,9.9,10.74,0,FALLA
+control 3,"receptor flexible (A:21,22,23,30,100), ligando flexible",4A7V,LDP,vina,24,8,3.65 / 12.87 / 3.34,3.34,3.65,0,FALLA
+control 3,"receptor flexible (A:21,22,23,30,100), ligando flexible",4A7T,5FW,vina,24,8,12.05 / 12.14 / 1.61,1.61,12.05,1,FALLA
+control 3,"receptor flexible (A:21,22,23,30,100), ligando flexible",4A7U,ALE,vina,24,8,11.98 / 11.98 / 11.72,11.72,11.98,0,FALLA

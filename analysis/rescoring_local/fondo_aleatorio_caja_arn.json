@@ -1,0 +1,33 @@
+{
+  "panel": {
+    "controles": [
+      "BERBERINE",
+      "KETOCONAZOLE",
+      "PE859",
+      "berberrubine",
+      "coptisine",
+      "epiberberine",
+      "nitidine",
+      "sanguinarine"
+    ],
+    "fondo_aleatorio": 200,
+    "semilla": 20260917
+  },
+  "caja_actual": {
+    "controles": 8,
+    "fondo": 193,
+    "auc": 0.6567357512953368,
+    "mediana_control": -7.3,
+    "mediana_fondo": -6.9,
+    "percentil_medio_control": 64.1839378238342
+  },
+  "caja_arn": {
+    "controles": 8,
+    "fondo": 193,
+    "auc": 0.6547927461139896,
+    "mediana_control": -7.4,
+    "mediana_fondo": -7.1,
+    "percentil_medio_control": 64.11917098445596
+  },
+  "nota": "El fondo del recalculo (top-100 por afinidad de Vina contra esta misma diana) no sirve para medir discriminacion: esta elegido por puntuar bien. Este fondo es aleatorio de la libreria entera y no ha pasado filtro ninguno."
+}

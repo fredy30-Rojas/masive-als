@@ -1,0 +1,61 @@
+{
+  "origen": "4BS2 modelo 1 (TDP-43 tandem RRM + ARN UG-rico); mismo sistema de coordenadas que el receptor",
+  "lado": 26.0,
+  "candidatos": {
+    "interfaz_arn_completa": {
+      "centro": [
+        22.742,
+        21.755,
+        -10.183
+      ],
+      "interfaz_dentro": 452,
+      "atomos_receptor": 511,
+      "dist_a_caja_actual": 7.63
+    },
+    "plataformas_aromaticas": {
+      "centro": [
+        22.303,
+        25.578,
+        -14.57
+      ],
+      "interfaz_dentro": 402,
+      "atomos_receptor": 535,
+      "dist_a_caja_actual": 8.99
+    },
+    "rrm1_rnp": {
+      "centro": [
+        30.597,
+        13.739,
+        -3.857
+      ],
+      "interfaz_dentro": 360,
+      "atomos_receptor": 476,
+      "dist_a_caja_actual": 13.96
+    },
+    "caja_actual_del_cribado": {
+      "centro": [
+        24.23,
+        16.89,
+        -15.87
+      ],
+      "interfaz_dentro": 323,
+      "atomos_receptor": 611,
+      "dist_a_caja_actual": 0.0
+    }
+  },
+  "elegida": "interfaz_arn_completa",
+  "caja_actual": {
+    "centro": [
+      24.23,
+      16.89,
+      -15.87
+    ],
+    "lado": 26.0
+  },
+  "criterio": "De las cajas que encierran menos receptor que la actual (menos relleno de cavidad), la que mas atomos del sitio de union de ARN cubre",
+  "centro_elegido": [
+    22.742,
+    21.755,
+    -10.183
+  ]
+}

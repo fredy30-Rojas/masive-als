@@ -1,0 +1,78 @@
+[
+  {
+    "entrada": "4A7S",
+    "ligando": "5UD",
+    "nombre": "5-fluorouridina",
+    "puntuacion": "vina",
+    "residuos_flexibles": "21,22,23,30,100",
+    "caja": 24,
+    "E_cristal_quieta": -0.132,
+    "E_mejor_modo": -6.153,
+    "delta_E": 6.02,
+    "por_semilla": [
+      {
+        "semilla": 42,
+        "afinidad": -5.13,
+        "rmsd": 10.94,
+        "dist_centroide": 7.75,
+        "segundos": 57.7
+      },
+      {
+        "semilla": 2026,
+        "afinidad": -6.153,
+        "rmsd": 9.64,
+        "dist_centroide": 7.48,
+        "segundos": 66.1
+      },
+      {
+        "semilla": 777,
+        "afinidad": -5.37,
+        "rmsd": 10.56,
+        "dist_centroide": 7.47,
+        "segundos": 60.9
+      }
+    ],
+    "rmsd_mejor": 9.64,
+    "rmsd_mediana": 10.56,
+    "semillas_que_pasan": 0,
+    "criterio": "FALLA"
+  },
+  {
+    "entrada": "4A7V",
+    "ligando": "LDP",
+    "nombre": "dopamina",
+    "puntuacion": "vina",
+    "residuos_flexibles": "21,22,23,30,100",
+    "caja": 24,
+    "E_cristal_quieta": -3.587,
+    "E_mejor_modo": -4.997,
+    "delta_E": 1.41,
+    "por_semilla": [
+      {
+        "semilla": 42,
+        "afinidad": -4.655,
+        "rmsd": 4.27,
+        "dist_centroide": 2.48,
+        "segundos": 43.2
+      },
+      {
+        "semilla": 2026,
+        "afinidad": -4.601,
+        "rmsd": 12.96,
+        "dist_centroide": 5.15,
+        "segundos": 52.0
+      },
+      {
+        "semilla": 777,
+        "afinidad": -4.997,
+        "rmsd": 4.09,
+        "dist_centroide": 2.48,
+        "segundos": 42.3
+      }
+    ],
+    "rmsd_mejor": 4.09,
+    "rmsd_mediana": 4.27,
+    "semillas_que_pasan": 0,
+    "criterio": "FALLA"
+  }
+]
