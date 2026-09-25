@@ -114,6 +114,17 @@ python analysis/regla_decision_bootstrap.py
 > mueve. La decisión es si se quiere **re-acoplar** esos dos con la receta de hoy (salen
 > −6,624 y −8,228, como el 23 sep con el mismo caso) y actualizar la tabla, o dejarlo como
 > está. Ya no es una cosa que pase sola: ahora hace falta decirlo.
+>
+> **Y medido el 25 sep, para no decidirlo a ojo.** Con los 7 positivos y esos dos
+> re-acoplados, el bloque duro pasa de **0,7340 a 0,7368** y los tres bloques conservan el
+> veredicto (0,6932 SIN EVIDENCIA el blando, 0,7368 PASA el duro, 0,7174 PASA los dos
+> juntos). Re-acoplar esos dos mueve la tercera cifra, no el veredicto; lo que sí mueve el
+> veredicto es perder los tres fragmentos, que es el otro caso y baja a 0,595. Por eso lo
+> razonable es **no re-acoplarlos**: §3.4 no se toca por un cambio que está dentro del ruido
+> del método (0,34 kcal/mol entre modelos y semillas, medido en el CR). Además, el validador
+> suelto que produjo el CSV publicado (`validar_tdp43_limpia.py`) **no está en git**, solo
+> sus salidas: el único camino que hoy lo reproduce es `validar_diana_limpia.py`, y se
+> comprobó que lo reproduce valor a valor.
 
 **El orden importa, y por eso está numerado.** El validador es el que prepara y acopla el
 positivo nuevo, y lo deja en `validar_tdp43_limpia/ligands`; el barrido de exhaustividad y
