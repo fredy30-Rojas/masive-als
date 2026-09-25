@@ -1,0 +1,43 @@
+Fondo de señuelos emparejados en propiedades en el CR
+receptor 2N2C (307-349), 6 modelos de RMN, caja de 22 A, semilla 42, exhaustividad 8, --cpu 1 en todos
+señuelos: 64 emparejados con los ocho en tamaño, logP, TPSA, donantes, aceptores, rotables y anillos,
+         con Tanimoto ECFP4 < 0.35 al de referencia y uno por esqueleto de Murcko
+
+  LOS OCHO DENTRO DE SU PROPIO FONDO (mejor y mediana de los 6 modelos)
+  lig   mejor    mediana  percentil  percentil  señuelos  lectura
+                          (mejor)    (mediana)  mejores   
+  XL20  -5.35    -4.88    72.1       51.6       33 de 64  dentro del fondo
+  XL21  -5.29    -4.95    69.8       54.4       34 de 64  dentro del fondo
+  XL23  -6.92    -5.62    100.0      82.6       0 de 64   algo por encima del fondo
+  XL22  -5.13    -4.89    64.6       52.3       36 de 64  dentro del fondo
+  XL25  -5.91    -5.61    89.8       82.0       19 de 64  algo por encima del fondo
+  XL26  -6.01    -5.30    92.4       70.6       15 de 64  algo por encima del fondo
+  XL24  -4.79    -4.48    46.4       30.2       52 de 64  por debajo del fondo
+  XL27  -5.44    -5.08    74.7       60.9       32 de 64  algo por encima del fondo
+
+  EL FONDO, para comparar: mejor -6.75 | mediana -4.85 | peor -3.41 | cuartil 25% -5.45
+
+  EL MARGEN DEL PRIMERO (media de los 6 modelos, que es lo comparable)
+    mejor de los ocho:   XL23 -5.91
+    mejor del fondo:     CHEMBL24507 -6.17
+    margen: -0.26 kcal/mol
+    ruido del metodo aqui (desviacion tipica mediana entre los 6 modelos): 0.34 kcal/mol
+    -> EMPATE: el margen es del tamano del ruido, no es un destacar
+
+  LOS OCHO EN EL RANKING COMPLETO (por mediana de los 6 modelos, 1 = el mejor)
+    puesto  10 de 72 | XL23  | -5.62 | inhibe la agregacion
+    puesto  11 de 72 | XL25  | -5.61 | sin nada reportado
+    puesto  22 de 72 | XL26  | -5.30 | sin nada reportado
+    puesto  30 de 72 | XL27  | -5.08 | neuroprotege solo a 100 uM
+    puesto  35 de 72 | XL21  | -4.95 | inhibe la agregacion
+    puesto  36 de 72 | XL22  | -4.89 | sin nada reportado
+    puesto  37 de 72 | XL20  | -4.88 | union medida
+    puesto  50 de 72 | XL24  | -4.48 | empeora
+
+  LO QUE ESTO DICE Y LO QUE NO
+    Los señuelos son parecidos en propiedades, no inactivos conocidos: de
+    ninguno hay dato de union al CR. Asi que esto no lee «se une o no se
+    une», lee si el sitio distingue a unos de otros. Si los ocho caen dentro
+    del fondo, y algun señuelo los supera, la respuesta es que no distingue:
+    la afinidad que da Vina aqui es funcion del tamaño y la forma, no de la
+    quimica que separa a estos compuestos en el laboratorio.

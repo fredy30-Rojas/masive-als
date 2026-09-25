@@ -315,7 +315,83 @@ texto, y el `min` de Python sobre textos compara letras, no números —entre `-
 `-4.865` elige `-4.865`. El contraste salía con números malos hasta que se convirtió a
 número en un solo sitio: la función `afinidad()` de `acoplar_familia_cr.py`.)*
 
-## 7. Qué sigue
+## 7. El fondo de señuelos emparejados: ninguno destaca
+
+Todo lo anterior compara los ocho **entre ellos**, y eso sirve para ver quién va delante
+de quién pero no para saber si alguno se une bien: sin un fondo con el que comparar, una
+afinidad de −6 kcal/mol no significa nada. Este era el control que faltaba.
+
+`analysis/acoplar_fondo_cr.py` (nuevo) pone ese fondo con **señuelos emparejados en
+propiedades**: para cada uno de los ocho busca en las librerías que ya están en el
+repositorio (6.612 moléculas: `decoys_library.smi`, las extra de ChEMBL, la FDA y el
+fondo R-BIND) moléculas con el mismo tamaño, la misma hidrofobia, la misma polaridad,
+los mismos donantes, aceptores, rotables y anillos, pero **química distinta**: Tanimoto
+ECFP4 < 0,35 y una sola por esqueleto de Murcko. Ocho señuelos por compuesto, 64 en
+total.
+
+Dos detalles que hay que decir porque condicionan la lectura: con las ventanas
+estrechas no había bastantes señuelos para los más polares —**XL21 y XL22 necesitaron la
+ventana ancha** (±4 átomos, ±1,5 logP, ±40 Å² de TPSA) y XL24 y XL25 la intermedia— y
+queda escrito compuesto por compuesto en `fondo_moleculas.csv`; y se descartan las
+moléculas con más de un fragmento (sales), en vez de quitarles la sal después, para que
+el emparejamiento sea con la especie que de verdad se acopla.
+
+**Y se vuelven a acoplar los ocho, en el mismo proceso y con `--cpu 1` para todos.** El
+número de núcleos cambia cómo reparte Vina la búsqueda, así que comparar los señuelos
+contra las corridas anteriores de los ocho (que usaron los 20 núcleos) no habría sido
+limpio: mismo proceso para todos, o no vale. 432 tandas, 6 modelos, semilla 42.
+
+| Compuesto | Mejor | Mediana | Percentil (mediana) | Señuelos que lo superan | Lectura |
+|---|---|---|---|---|---|
+| XL20 (unión medida) | −5,35 | −4,88 | 51,6 | **33 de 64** | dentro del fondo |
+| XL21 (inhibe) | −5,29 | −4,95 | 54,4 | 34 de 64 | dentro del fondo |
+| XL23 (inhibe) | −6,92 | −5,62 | 82,6 | 19 de 64 | algo por encima |
+| XL22 (nada) | −5,13 | −4,89 | 52,3 | 36 de 64 | dentro del fondo |
+| XL25 (nada) | −5,91 | −5,61 | 82,0 | 19 de 64 | algo por encima |
+| XL26 (nada) | −6,01 | −5,30 | 70,6 | 15 de 64 | algo por encima |
+| XL24 (empeora) | −4,79 | −4,48 | 30,2 | 52 de 64 | por debajo del fondo |
+| XL27 (neuroprotege) | −5,44 | −5,08 | 60,9 | 32 de 64 | algo por encima |
+
+El fondo, para comparar: mejor −6,75, mediana −4,85, peor −3,41, cuartil 25 % −5,45.
+
+**Siete de los ocho caen dentro del fondo**, y el que tiene la unión medida es el caso
+más claro: **XL20 está en el puesto 37 de 72 y 33 de sus 64 señuelos lo superan**. El
+compuesto que empeora la muerte neuronal es el peor de los ocho (puesto 50, por debajo
+del fondo), y el mejor situado —XL23— es el que más se parece a lo que Vina premia
+(más grande, más polar).
+
+**Y el que mejor queda tampoco destaca, si se mide bien.** Comparando la media de los 6
+modelos: el mejor de los ocho es XL23 (−5,91) y el mejor del fondo es **CHEMBL24507
+(−6,17), que es un señuelo emparejado con el propio XL23** (33 átomos, logP 1,75, TPSA
+151). El margen es de **0,26 kcal/mol a favor del señuelo**, y el ruido del método en
+esta rejilla (desviación típica mediana entre los 6 modelos) es 0,34. Es decir: **empatan**.
+
+| | |
+|---|---|
+| Mejor de los ocho | XL23 −5,91 |
+| Mejor del fondo | CHEMBL24507 −6,17 |
+| Margen | 0,26 kcal/mol **a favor del señuelo** |
+| Ruido del método | 0,34 kcal/mol |
+| Veredicto | **empate: no es un destacar** |
+
+Hay un detalle de método que conviene dejar escrito, porque es el que hace parecer que
+algo destaca: XL23 **sí** tiene el mejor modo de todos (percentil 100 en el mejor modo,
+ningún señuelo lo iguala). Pero eso es quedarse con el mejor de 54 intentos (9 modos × 6
+modelos), y a ese ejercicio cualquiera sube. Por la mediana de los mismos 54 intentos,
+19 señuelos van por delante. El "destaca" era un artefacto de elegir el modo más
+generoso, y por eso la lectura de la tabla se calcula con la mediana y el veredicto final
+con el margen frente al ruido.
+
+**Conclusión, y es la respuesta a la pregunta:** ninguno de los ocho destaca sobre un
+fondo de señuelos emparejados en propiedades. En este sitio el acoplamiento **no separa a
+los compuestos con evidencia de un fondo que solo se parece en tamaño y forma**, y por
+tanto cualquier lista de candidatos que saliera de esta caja sería, en su mayor parte,
+ruido. Y ojo con lo que esto NO dice: los señuelos son parecidos, no inactivos conocidos
+—de ninguno hay dato de unión al CR—, así que esto no dice «estos no se unen»; dice que
+**el método no los distingue**, que es exactamente lo que hay que saber antes de gastar
+cómputo en esta diana.
+
+## 8. Qué sigue
 
 1. **La pareja solo se convierte en relación estructura-actividad cuando haya unión
    medida de XL23** (SPR o CETSA, como XL20). Mientras eso no exista, la pareja es una
@@ -327,12 +403,20 @@ número en un solo sitio: la función `afinidad()` de `acoplar_familia_cr.py`.)*
    de RRM (XL20 sigue en `verdad_de_referencia.csv` como unido de otro sitio, marcado
    como no apto) y no hay GPU autorizada para una diana nueva sin criterio previo
    (`PLAN_TDP43_2026-09-20.md`).
-3. **Si se quiere seguir la línea del CR**, lo que hay que decidir antes es el
-   criterio: qué contaría como éxito (¿reproducir la dependencia del Trp334 con una
-   serie de análogos sintéticos?) y con qué fondo de señuelos se compararía. Eso es una
-   decisión de proyecto, no un script.
+3. **La línea del CR, como diana de acoplamiento, queda cerrada con lo que hay hoy.** El
+   control que faltaba —el fondo de señuelos emparejados de §7— ya está hecho, y su
+   respuesta es que **ninguno de los ocho destaca**: siete caen dentro del fondo, el que
+   tiene la unión medida está en el puesto 37 de 72 y el que mejor queda empata con un
+   señuelo emparejado con él mismo, dentro del ruido del método. Con eso, seguir
+   acoplando aquí solo produciría listas de las que no se puede fiar nadie.
+4. **Lo único que desbloquearía esto es un dato, no un cálculo**: unión medida del CR
+   para más de un compuesto (SPR o CETSA de XL23, o de un par de análogos sintéticos
+   alrededor de la cabeza adenina-aminociclohexanol). Con dos o tres uniones medidas en
+   el CR se podría montar un control de verdad —¿reproduce el acoplamiento la
+   dependencia del Trp334?— y entonces sí valdría la pena gastar cómputo. Sin ese dato,
+   el criterio de éxito no se puede ni escribir.
 
-## 8. Cómo se reproduce
+## 9. Cómo se reproduce
 
 ```
 python C:/Users/Fredy/masive-als/analysis/comparar_xl20_xl23.py            # la pareja
@@ -340,6 +424,8 @@ python C:/Users/Fredy/masive-als/analysis/construir_receptor_cr.py         # eli
 python C:/Users/Fredy/masive-als/analysis/acoplar_xl20_xl23_cr.py          # prepara y acopla la pareja
 python C:/Users/Fredy/masive-als/analysis/acoplar_familia_cr.py            # los ocho, por grupos
 python C:/Users/Fredy/masive-als/analysis/acoplar_familia_cr_flexible.py   # los ocho con el Trp334 suelto
+python C:/Users/Fredy/masive-als/analysis/acoplar_fondo_cr.py              # el fondo de señuelos
+python C:/Users/Fredy/masive-als/analysis/acoplar_fondo_cr.py --solo-elegir  # solo elegir el fondo, sin acoplar
 ```
 
 - Pareja: `analysis/_xl20_xl23/pareja.csv`, `pareja.txt` y `XL20_XL23_comparacion.png`
@@ -362,6 +448,12 @@ exhaustividad está el `--semillas 42,2026,777` y el `--exhaustividad` del scrip
   (el rígido se lee de `familia_cr.csv`, no se recalcula). Los receptores por modelo
   quedan en `modelos/flex334_modelo<n>_rigid.pdbqt` y `_flex.pdbqt`, y las poses en
   `out/<ligando>_modelo<n>_s<semilla>_flex334.pdbqt`, todo regenerable con el script.
+- El fondo (§7): `analysis/_cr_receptor/fondo_moleculas.csv` (los 64 señuelos con sus
+  propiedades, su compuesto de referencia, su Tanimoto y la ventana de emparejamiento que
+  hizo falta), `fondo_cr.csv` (una fila por compuesto: mejor, mediana, peor y percentil) y
+  `fondo_cr.txt` (percentiles, ranking de 72 y el margen del primero contra el ruido).
+  Las poses y los ligandos del fondo (`fondo_out/`, `fondo_ligands/`) quedan fuera de git
+  por peso y se regeneran con el script.
 - El reparto de trabajo con las herramientas que ya existían: la preparación de
   ligandos es `preparar_ligando.py` (la única copia de la receta) y la de receptores y
   el propio Vina son los de `redocking_trp32/redock_trp32.py`; aquí no se reimplementa
