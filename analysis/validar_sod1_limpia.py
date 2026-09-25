@@ -52,6 +52,23 @@ se mezclaran los dos fondos en todas las cuentas, el puesto de un positivo contr
 los señuelos dependeria de cuantos ligandos de R-BIND hubiera, y eso es otra
 pregunta, no la misma con mas datos.
 
+UN TERCERO, QUE NO SE INVENTA  (25 sep 2026)
+------------------------------------------
+Los dos fondos de arriba son parecidos, no inactivos: de los señuelos no se sabe si
+unen y del fondo duro se sabe que unen a otra cosa. El tercero es el unico fondo del
+que se puede decir que NO une, y por eso no se genera aqui: lo arma
+`analysis/fondo_inactivos.py` con los compuestos que el propio cribado propone medir
+(`peticion_ensayos.csv`), con el MISMO receptor, caja y exhaustividad de esta corrida,
+y solo entra en la puntuacion **el que ya este declarado negativo en ESA caja**
+(`estado = no_une` en `_medidos_no_unen/manifiesto.csv`). Ese es `POSES_FONDO3` +
+`MANIFIESTO_FONDO3`, su papel en el CSV es `inactivo`, y **no se mezcla** con ninguno de
+los otros dos bloques ni con "los dos juntos" (ver la declaracion, donde esta escrito
+antes de tener el primer dato: `_medidos_no_unen/DECLARACION.md`).
+
+Mientras no exista ninguna fila `no_une`, el bloque no aparece y los numeros de los
+otros dos no se mueven: se comprobo el 25 sep 2026 que la salida de la regla con el
+bloque tolerado es identica byte a byte a la de antes de montarlo.
+
 COMPROBACION PREVIA (pre-flight)
 --------------------------------
 Antes de puntuar nada se comprueba que cada ligando tenga los MISMOS atomos
@@ -92,7 +109,9 @@ NOTA_FONDO = ("482 señuelos: 199 emparejados antiguos + 140 emparejados nuevos 
 ETIQUETA_FONDO = "señuelos emparejados en propiedades"
 
 sys.path.insert(0, RAIZ)
+sys.path.insert(0, BASE)   # `fondo_inactivos` vive aqui (nombre de los MED_)
 from preparar_ligando import contar_atomos, escribir, smi_del_fichero   # noqa: E402
+from fondo_inactivos import nombre_de                                  # noqa: E402
 
 RECEPTOR = os.path.join(GPU, "SOD1_limpio.pdbqt")
 # La misma caja Trp32 de toda la serie (validar_sod1_v3.py, lineas 72-75).
@@ -113,6 +132,25 @@ POSES_FONDO2 = None
 LIGS_FONDO2 = None
 NOTA_FONDO2 = ""
 ETIQUETA_FONDO2 = "fondo duro"
+
+# Tercer fondo: compuestos MEDIDOS que NO unen. No se puede inventar —solo existe
+# cuando alguien mide— pero si dejar montado: `fondo_inactivos.py` prepara y acopla con
+# este mismo receptor, caja y exhaustividad los compuestos que la peticion de ensayos
+# propone, y su manifiesto dice el estado de cada uno. Aqui solo entran los declarados
+# negativos en la caja de ESTA diana; el resto se queda fuera aunque tenga pose. Si es
+# None, no hay tercer bloque y todo sale como antes.
+POSES_FONDO3 = None
+LIGS_FONDO3 = None
+MANIFIESTO_FONDO3 = None
+NOTA_FONDO3 = ""
+ETIQUETA_FONDO3 = "compuestos medidos que no unen"
+# La diana tal como se llama en el manifiesto (`TDP-43`, no `TDP43`), para no cargar en
+# una diana los negativos de la otra ni avisar de que faltan sus poses.
+DIANA_MANIFIESTO = "SOD1"
+# Unico estado del manifiesto que cuenta como negativo medido. El vocabulario lo declara
+# `_medidos_no_unen/DECLARACION.md`: el compuesto empieza en `pendiente_medicion` y pasa
+# a `no_une` con su ensayo, su constructo, su metodo y su rango de concentracion.
+ESTADO_NEGATIVO = "no_une"
 
 CORTE_EF = 5.0     # el quimiotipo cuenta si su mejor miembro esta en el 5% de cabeza
 
@@ -138,6 +176,27 @@ def afinidad(ruta):
             except (IndexError, ValueError):
                 return None
     return None
+
+
+def pesados_del_fichero(nombre, *dirs):
+    """Atomos pesados leidos del fichero preparado, y de donde salieron.
+
+    Es el MISMO camino que usa `cargar_fondo` con los fondos: el SMILES que el
+    preparador deja dentro del `.pdbqt`. Existe para los positivos cuyo SMILES de
+    `verdad_de_referencia.csv` no es legible (hoy los tres fragmentos de Nshogoza, que
+    estan "pendiente: hay que dibujarlo"): sin ese numero no hay AUC por atomo, y el
+    ligando **rompia la corrida entera** con un KeyError en `evaluar` (25 sep 2026).
+
+    No se inventa nada: si no hay fichero, devuelve None y el ligando se queda fuera
+    diciendolo.
+    """
+    for d in dirs:
+        p = os.path.join(d, nombre + ".pdbqt")
+        if os.path.exists(p):
+            n = pesados_smiles(smi_del_fichero(p))
+            if n is not None:
+                return n, os.path.relpath(p, RAIZ)
+    return None, None
 
 
 def _dock(t):
@@ -235,6 +294,10 @@ def evaluar(positivos, decoys, scores, pesados, quimias, etiqueta, nota="",
     if not positivos or not decoys:
         return None
     S = {k: scores[k] for k in positivos + decoys}
+    # La invariante es que TODOS los de `positivos` y `decoys` tienen atomos pesados:
+    # los fondos los exige `cargar_fondo` y los positivos se caen antes si no llegan
+    # (ver main). El `if` se queda como red, pero si alguien saltara la comprobacion el
+    # error saltaria aqui y no en el medio de la tabla.
     P = {k: pesados[k] for k in positivos + decoys if pesados.get(k)}
 
     a = [S[k] for k in positivos]
@@ -391,12 +454,17 @@ def evaluar(positivos, decoys, scores, pesados, quimias, etiqueta, nota="",
             "correlacion_fondo_tamano": round(float(corr_fondo), 3)}
 
 
-def cargar_fondo(dir_poses, dir_ligs, scores, pesados, papel, etiqueta):
+def cargar_fondo(dir_poses, dir_ligs, scores, pesados, papel, etiqueta, solo=None):
     """Lee las poses de un fondo ya acoplado y devuelve sus nombres.
 
     Un ligando entra solo si tiene afinidad en la pose Y su numero de atomos
     pesados se puede leer del fichero preparado: sin eso no se puede emparejar por
     tamaño, que es lo que decide.
+
+    `solo` acota la lectura a unos nombres concretos. Lo usa el tercer fondo: en la
+    carpeta estan TODOS los compuestos que el cribado propone medir (acoplados en la
+    misma caja para que sus numeros sean comparables), y solo los que el ensayo haya
+    declarado negativos pueden entrar como tales.
     """
     nombres = []
     for p in sorted(os.listdir(dir_poses)):
@@ -404,6 +472,8 @@ def cargar_fondo(dir_poses, dir_ligs, scores, pesados, papel, etiqueta):
             continue
         nombre = p.replace("_out.pdbqt", "")
         if nombre in scores:
+            continue
+        if solo is not None and nombre not in solo:
             continue
         aff = afinidad(os.path.join(dir_poses, p))
         lig = os.path.join(dir_ligs, nombre + ".pdbqt")
@@ -415,6 +485,38 @@ def cargar_fondo(dir_poses, dir_ligs, scores, pesados, papel, etiqueta):
         papel[nombre] = etiqueta
         nombres.append(nombre)
     return nombres
+
+
+def leer_negativos_medidos(ruta, diana=None):
+    """Nombres `MED_...` que el manifiesto da por NEGATIVOS medidos en esta caja.
+
+    Hacen falta las tres cosas, y cada una cierra una puerta por la que se colaria un
+    numero que no es:
+
+      * `diana` — los negativos de la otra diana no son fondo de esta;
+      * `estado = no_une` — hay un ensayo y es negativo. Un `pendiente_medicion` tiene
+        pose y afinidad, pero ensayo no: no puede entrar por tener buena pinta;
+      * `en_el_fondo` empieza por "si" — el sitio donde se midio es esta caja. Los que
+        se piden con el sitio "por determinar" no entran aunque el ensayo salga
+        negativo, porque un negativo en otra caja no dice nada de esta (es la misma
+        regla que se le aplica a los positivos).
+
+    Los estados se devuelven contados: un estado mal escrito no puede colarse como
+    negativo ni desaparecer sin que nadie lo vea.
+    """
+    nombres, estados = set(), {}
+    with open(ruta, encoding="utf-8") as f:
+        for r in csv.DictReader(f):
+            e = r["estado"].strip()
+            estados[e] = estados.get(e, 0) + 1
+            if diana and r["diana"].strip() != diana:
+                continue
+            if e != ESTADO_NEGATIVO:
+                continue
+            if not r["en_el_fondo"].strip().lower().startswith("si"):
+                continue
+            nombres.add(nombre_de(r["compuesto"]))
+    return nombres, estados
 
 
 def main():
@@ -495,8 +597,21 @@ def main():
         if aff is None:
             log("   !! sin pose para %s: queda fuera" % r["ligand"])
             continue
+        n_pesados = pesados_smiles(r["smiles"])
+        if n_pesados is None:
+            n_pesados, de_donde = pesados_del_fichero(nombre, ligdir, LIGS_FONDO)
+            if n_pesados is not None:
+                log("   %s: SMILES sin leer en verdad_de_referencia; %d atomos pesados"
+                    " del fichero preparado (%s)" % (r["ligand"], n_pesados, de_donde))
+        if n_pesados is None:
+            # Sin atomos pesados no se puede normalizar la afinidad por atomo, que es
+            # la medida que decide: el ligando no entra (y se dice, en vez de romper
+            # la corrida con un KeyError como hacia antes).
+            log("   !! sin atomos pesados legibles para %s (ni SMILES ni fichero):"
+                " queda fuera de la corrida" % r["ligand"])
+            continue
         scores[nombre] = aff
-        pesados[nombre] = pesados_smiles(r["smiles"])
+        pesados[nombre] = n_pesados
         papel[nombre] = "positivo"
 
     fondo1 = cargar_fondo(POSES_FONDO, LIGS_FONDO, scores, pesados, papel, "fondo")
@@ -514,22 +629,54 @@ def main():
         if NOTA_FONDO2:
             log("   %s" % NOTA_FONDO2)
 
+    fondo3 = []
+    if POSES_FONDO3 and MANIFIESTO_FONDO3:
+        negativos, estados = leer_negativos_medidos(MANIFIESTO_FONDO3, DIANA_MANIFIESTO)
+        log("")
+        log("manifiesto de compuestos medidos: %s" % os.path.relpath(MANIFIESTO_FONDO3, RAIZ))
+        log("   estados: %s" % ", ".join("%s=%d" % kv for kv in sorted(estados.items())))
+        log("   negativos medidos en la caja de esta diana: %d" % len(negativos))
+        fondo3 = cargar_fondo(POSES_FONDO3, LIGS_FONDO3, scores, pesados, papel,
+                              "inactivo", solo=negativos)
+        log("inactivos medidos: %d con pose y atomos legibles" % len(fondo3))
+        if NOTA_FONDO3:
+            log("   %s" % NOTA_FONDO3)
+        faltan = sorted(n for n in negativos if n not in fondo3)
+        if faltan:
+            log("   !! negativos medidos sin pose o sin ligando: %s" % ", ".join(faltan))
+        if not fondo3:
+            log("   (sin inactivos medidos no hay bloque: el unico fondo del que se sabe")
+            log("    que no une no se puede inventar, solo esperar al laboratorio)")
+
     positivos = [k for k in scores if papel[k] == "positivo"]
     log("positivos con pose: %d de %d" % (len(positivos), len(filas)))
 
     # ---------------------------------------------------------------- los bloques
     resultados = [evaluar(positivos, fondo1, scores, pesados, quimias,
                           ETIQUETA_FONDO, NOTA_FONDO, detalle=True)]
+    # El prefijo de cada bloque en el resumen va en una lista, en el mismo orden que
+    # `resultados`: con el `if` encadenado de antes, añadir el tercer fondo le habria
+    # dado el prefijo "juntos_" y habria pisado los numeros de los dos fondos juntos.
+    prefijos = [""]
     if fondo2:
         resultados.append(evaluar(positivos, fondo2, scores, pesados, quimias,
                                   ETIQUETA_FONDO2, NOTA_FONDO2, detalle=True))
+        prefijos.append("duro_")
         resultados.append(evaluar(positivos, fondo2 + fondo1, scores, pesados,
                                   quimias, "los dos fondos juntos", detalle=False))
+        prefijos.append("juntos_")
+    if fondo3:
+        # Nunca junto a los otros dos: los otros fondos son parecidos o son unidores de
+        # otra cosa; este es el unico de negativos medidos, y mezclarlo cambiaria los
+        # numeros ya publicados sin que nadie hubiera medido nada nuevo.
+        resultados.append(evaluar(positivos, fondo3, scores, pesados, quimias,
+                                  ETIQUETA_FONDO3, NOTA_FONDO3, detalle=True))
+        prefijos.append("inactivo_")
 
     # ------------------------------------------------------- tabla de los bloques
     log("")
     log("=" * 78)
-    log("LOS TRES BLOQUES, UNO AL LADO DEL OTRO")
+    log("LOS BLOQUES, UNO AL LADO DEL OTRO")
     log("=" * 78)
     log("   %-34s %-7s %-9s %-9s %-9s %-6s %s"
         % ("fondo", "n", "AUC", "AUC/at.", "residual", "EF5%", "quimias/total"))
@@ -543,6 +690,9 @@ def main():
     log("")
     log("   El fondo que decide es el duro: es el unico que puede separar quimia")
     log("   especifica de quimia generica de ARN.")
+    if fondo3:
+        log("   El de los medidos que no unen no se suma a ese: se lee aparte, con las")
+        log("   reglas declaradas por adelantado en _medidos_no_unen/DECLARACION.md.")
 
     # ------------------------------------------------------------------ guardado
     resumen = {}
@@ -561,7 +711,7 @@ def main():
     for i, r in enumerate(resultados[1:], 1):
         if not r:
             continue
-        pre = "duro_" if i == 1 else "juntos_"
+        pre = prefijos[i]
         resumen[pre + "n_fondo"] = r["n_fondo"]
         resumen[pre + "auc_crudo"] = r["auc_crudo"]
         resumen[pre + "auc_residual"] = r["auc_residual"]
@@ -575,17 +725,19 @@ def main():
         w.writerow([resumen[k] for k in resumen])
 
     campos = ["ligand", "papel", "afinidad", "pesados", "puesto_fondo1",
-              "puesto_fondo2", "residual"]
+              "puesto_fondo2", "puesto_fondo3", "residual"]
     # El puesto va DENTRO DE CADA BLOQUE, que es como se lee esta validacion: el
     # puesto absoluto de una lista mezclada no significa lo mismo.
     p1 = {k: i + 1 for i, k in enumerate(sorted(fondo1, key=lambda x: scores[x]))}
     p2 = {k: i + 1 for i, k in enumerate(sorted(fondo2, key=lambda x: scores[x]))}
+    p3 = {k: i + 1 for i, k in enumerate(sorted(fondo3, key=lambda x: scores[x]))}
     with open(SALIDA + ".csv", "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(campos)
         for k in sorted(scores, key=lambda x: scores[x]):
             w.writerow([k.replace("ACT_", ""), papel[k], scores[k],
-                        pesados.get(k, ""), p1.get(k, ""), p2.get(k, ""), ""])
+                        pesados.get(k, ""), p1.get(k, ""), p2.get(k, ""),
+                        p3.get(k, ""), ""])
     log("")
     log("guardado: %s.csv" % SALIDA)
     return 0

@@ -81,6 +81,22 @@ python analysis/control_gpu_tdp43.py                  # la corrida de GPU
 python analysis/regla_decision_bootstrap.py
 ```
 
+> **Aviso del 25 sep 2026, antes de re-puntuar TDP-43.** Al montar el fondo de
+> inactividad se corrió el validador de TDP-43 para comprobar que no se rompía nada, y
+> salieron dos cosas que hay que tener delante el día del re-run. Primera: los ligandos
+> preparados de `rTRD01` y `nTRD22` **ya no están** en la carpeta del fondo
+> (`analysis/_validacion_TDP43/ligands` está a medias en disco), así que la comprobación
+> previa los da por sospechosos y **los re-acopla**: con la receta de hoy salen −6,624 y
+> −8,228 en vez de los −6,621 y −8,026 publicados. Las poses re-acopladas **no se han
+> dejado en el repositorio** (se restauraron las de la corrida que produjo el CSV)
+> precisamente para no mover la tabla de §3.4 del paper por la puerta de atrás: antes de
+> dar por buenos unos números nuevos, decidir si se re-acoplan esos dos positivos o se
+> recuperan sus ficheros. Segunda: los tres fragmentos de Nshogoza siguen **sin SMILES** en
+> `verdad_de_referencia.csv` (dice "pendiente: hay que dibujarlo"), y eso **rompía la
+> corrida entera** con un `KeyError` al calcular el AUC por átomo; ya no rompe (su número
+> de átomos pesados se lee del fichero preparado y coincide con los publicados: 13, 11 y
+> 15), pero el SMILES sigue pendiente.
+
 **El orden importa, y por eso está numerado.** El validador es el que prepara y acopla el
 positivo nuevo, y lo deja en `validar_tdp43_limpia/ligands`; el barrido de exhaustividad y
 la corrida de GPU **copian de ahí** y solo acoplan lo que no tenga pose válida. Si se
@@ -105,10 +121,22 @@ porque es material que hoy no existe en el proyecto: el primer **señuelo con in
 medida**. Hoy los fondos son parecidos en propiedades, no inactivos conocidos, y eso está
 escrito como limitación.
 
-Propuesta, para declararla antes de usarla: guardarlos en un `medido_no_une.csv` y, cuando
-haya unos cuantos, montar con ellos **un tercer fondo declarado** (inactividad medida) y
-leer la regla contra él. Lo que no se puede hacer es meterlos en `fondo` sin decirlo: eso
-cambiaría el número de bloques que ya están publicados.
+**Ya está montado** (25 sep 2026), y a propósito antes de tener el dato: así el día que
+llegue no hay que decidir nada con el número delante. Los compuestos que la propia
+petición propone medir ya están preparados y acoplados con el mismo receptor, caja y
+exhaustividad que la validación de su diana (`analysis/_medidos_no_unen/`, con
+`fondo_inactivos.py` y su `manifiesto.csv`), la forma de leerlos está declarada de
+antemano en `_medidos_no_unen/DECLARACION.md` —bloque aparte, que no se mezcla con los
+otros dos; el compuesto entra con su ensayo, su constructo y su rango; el sitio manda;
+piso de 30 compuestos; decide el AUC por átomo pesado, nunca el crudo— y la regla ya
+reconoce ese bloque (papel `inactivo`).
+
+Hoy el bloque **no sale** en `regla_decision.csv` y los números publicados no se han
+movido ni un decimal, porque no hay ningún negativo: el manifiesto está entero en
+`pendiente_medicion` y se comprobó que la salida de la regla es idéntica byte a byte a la
+congelada. El día que llegue el primero se cambia su `estado` a `no_une` (con su ensayo y
+su cita) y el bloque aparece solo. Lo que no se puede hacer es meterlo en `fondo` sin
+decirlo: eso cambiaría los bloques que ya están publicados.
 
 ### C. Llega el dato del CR (XL23)
 

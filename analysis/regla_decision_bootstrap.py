@@ -91,7 +91,14 @@ SOD1 = [("exh 8 (CPU), fondo mezclado", os.path.join(BASE, "validar_sod1_limpia.
 # haria que SOD1 saliera etiquetado con el fondo de otra diana.
 BLOQUES = [("blando", "fondo", "señuelos emparejados por tamaño"),
            ("duro", "fondo2", "el fondo duro (segundo fondo del montaje)"),
-           ("juntos", ("fondo", "fondo2"), "los dos fondos juntos")]
+           ("juntos", ("fondo", "fondo2"), "los dos fondos juntos"),
+           # Tercer bloque, que HOY NO EXISTE en ninguna corrida y por eso no sale: los
+           # compuestos que se midieron y NO unieron. Es el unico fondo del que se sabe
+           # que no une, a diferencia de los otros dos (parecidos, o unidores de otra
+           # cosa). Solo aparece cuando alguien mida un negativo y su fila entre en el
+           # CSV con papel "inactivo"; el montaje esta preparado en fondo_inactivos.py
+           # y la forma de leerlo, declarada en _medidos_no_unen/DECLARACION.md.
+           ("medidos_no_unen", "inactivo", "compuestos medidos que no unen")]
 
 
 def log(m):
@@ -116,7 +123,8 @@ def leer_corrida(ruta):
             pesados[k] = int(r["pesados"])
             papeles[k] = r["papel"]
     positivos = [k for k in scores if papeles[k] == "positivo"]
-    hay = {p: any(v == p for v in papeles.values()) for p in ("fondo", "fondo2")}
+    hay = {p: any(v == p for v in papeles.values())
+           for p in ("fondo", "fondo2", "inactivo")}
     bloques = {}
     for nombre, papeles_bloque, _ in BLOQUES:
         # Un bloque solo existe si SU fondo existe: sin fondo duro no hay bloque duro,

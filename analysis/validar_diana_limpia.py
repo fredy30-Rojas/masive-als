@@ -15,6 +15,9 @@ LO QUE MIDE, IGUAL PARA LAS DOS
   * receptor limpio y caja las de la validación de esa diana;
   * positivos de **unión medida** de `verdad_de_referencia.csv`;
   * el fondo que ya esté acoplado contra ESE receptor;
+  * y, cuando el laboratorio haya medido algún negativo, el **tercer fondo**: los
+    compuestos que el cribado propone medir y se midieron sin unir en esa caja
+    (`_medidos_no_unen/`, con `fondo_inactivos.py` y su `DECLARACION.md`);
   * **comprobación previa** de que fichero = pose = SMILES en átomos pesados, y
     re-preparado + re-acoplado de lo que no cuadre;
   * cuatro números (AUC crudo, por átomo, residual, EF) y **el criterio**: cuántos
@@ -63,6 +66,11 @@ DIANAS = {
         "ligands2": None,
         "nota_fondo2": "",
         "etiqueta_fondo2": "fondo duro",
+        "diana_manifiesto": "SOD1",
+        "poses3": os.path.join(BASE, "_medidos_no_unen", "SOD1", "out"),
+        "ligands3": os.path.join(BASE, "_medidos_no_unen", "SOD1", "ligands"),
+        "nota_fondo3": "los de la peticion de ensayos acoplados en esta misma caja "
+                       "(fondo_inactivos.py); ver _medidos_no_unen/DECLARACION.md",
     },
     "TDP43": {
         "receptor": os.path.join(BASE, "_tdp43_bolsillo_v2", "4BS2_ph74.pdbqt"),
@@ -78,8 +86,19 @@ DIANAS = {
         "nota_fondo2": "unidores de ARN de R-BIND 2.0 (Donlic 2022), acoplados "
                        "en la misma caja; ver analysis/rbind_fondo.py",
         "etiqueta_fondo2": "unidores de ARN de R-BIND 2.0 (fondo duro)",
+        "diana_manifiesto": "TDP-43",
+        "poses3": os.path.join(BASE, "_medidos_no_unen", "TDP-43", "out"),
+        "ligands3": os.path.join(BASE, "_medidos_no_unen", "TDP-43", "ligands"),
+        "nota_fondo3": "los de la peticion de ensayos acoplados en esta misma caja "
+                       "(fondo_inactivos.py); ver _medidos_no_unen/DECLARACION.md",
     },
 }
+
+# El manifiesto del tercer fondo es uno solo para las dos dianas: dentro lleva la
+# columna `diana`, y de ahi sale quien entra en cada corrida. Lo escribe
+# `fondo_inactivos.py`, y hoy todas sus filas estan en `pendiente_medicion`: sin un
+# ensayo negativo no hay bloque, y los numeros de los otros dos no se mueven.
+MANIFIESTO3 = os.path.join(BASE, "_medidos_no_unen", "manifiesto.csv")
 
 
 def main():
@@ -109,6 +128,14 @@ def main():
     V.LIGS_FONDO2 = cfg["ligands2"]
     V.NOTA_FONDO2 = cfg["nota_fondo2"]
     V.ETIQUETA_FONDO2 = cfg["etiqueta_fondo2"]
+    # Tercer fondo: compuestos medidos que NO unen. La carpeta depende de la diana y
+    # el manifiesto es comun; solo entran los que el ensayo declare negativos en ESA
+    # caja, asi que hoy (`pendiente_medicion`) no entra ninguno.
+    V.POSES_FONDO3 = cfg["poses3"]
+    V.LIGS_FONDO3 = cfg["ligands3"]
+    V.MANIFIESTO_FONDO3 = MANIFIESTO3
+    V.NOTA_FONDO3 = cfg["nota_fondo3"]
+    V.DIANA_MANIFIESTO = cfg["diana_manifiesto"]
     return V.main()
 
 
