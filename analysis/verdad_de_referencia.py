@@ -70,7 +70,7 @@ CITA_TDP43 = {
     "berberrubine": "Kapsiani 2026, PMC12918951 (union medida en HEK + C. elegans)",
     "AIM4": "Prasad 2016, Sci Rep 6:39490 (funcional, levadura)",
     "bis-ANS": "Babinchak 2020, Nat Commun 11:5574 (funcional, LLPS)",
-    "XL20": "Gao 2026, Nature Aging 6:1667 (SPR micromolar aparente + CETSA)",
+    "XL20": "Gao 2026, Nature Aging 6:1667 (SPR micromolar aparente + CETSA); Asinex BDF34019555",
 }
 
 
@@ -255,12 +255,14 @@ def positivos_tdp43(smis):
         # del dominio de baja complejidad (320-340), NO al bolsillo de RRM que acoplamos.
         # Por eso entra con la cita pero no apto: no puede contar como positivo de la
         # validacion de RRM sin mentir sobre el sitio. Sirve para la linea de agregacion.
-        ("XL20", "Asinex BioDesign (cribado virtual)",
+        ("XL20", "adenina-aminociclohexanol",
          "CR del C-terminal (320-340, Trp334)",
          "union_directa (SPR micromolar aparente + CETSA)", NO_APTO,
          "union medida real pero de OTRO sitio: entra cuando se ataque el CR, no en la "
-         "validacion de RRM. SMILES pendiente (figura 2b de Gao 2026); XL21 y XL23 solo "
-         "tienen actividad funcional, sin union medida"),
+         "validacion de RRM. SMILES leido por OCR quimico (DECIMER 2.7.2) de la Figura "
+         "Suplementaria 1a (dos recortes coinciden; ver controles_tdp43_xl20.csv), "
+         "pendiente de visto bueno humano; XL21 y XL23 solo tienen actividad funcional, "
+         "sin union medida"),
     ]
     filas_out = []
     for lig, quimia, sitio, ensayo, apto, nota in filas:
@@ -293,7 +295,8 @@ def positivos_fus(smis):
 
 def main():
     smis = smiles_de("activos_sod1_v2.csv", "activos_tdp43.csv",
-                     "activos_tdp43_v2.csv", "activos_fus.csv", "controles_sod1_v4.csv")
+                     "activos_tdp43_v2.csv", "activos_fus.csv", "controles_sod1_v4.csv",
+                     "controles_tdp43_xl20.csv")
 
     filas = positivos_sod1(smis) + positivos_tdp43(smis) + positivos_fus(smis)
 

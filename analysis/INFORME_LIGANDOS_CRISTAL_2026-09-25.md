@@ -103,11 +103,39 @@ baja complejidad. Lo que tiene medido, leído del artículo:
   **Trp334** baja mucho; con eso el sitio no es una suposición.
 
 Además, XL21 y XL23 inhiben la agregación in vitro pero **no tienen unión medida**: no
-entran. XL20 entra en `verdad_de_referencia.csv` **con su cita y su tipo de ensayo, y
-marcado como no apto**: se une a otro sitio (el CR del C-terminal), no al bolsillo de
-RRM1-RRM2 que acoplamos. Contarlo como positivo de RRM sería mentir sobre el sitio.
-Su SMILES está pendiente (figura 2b del artículo; el proyecto ya tiene el camino de OCR
-químico que se usó con los fragmentos de Nshogoza).
+entran. XL20 entra en `verdad_de_referencia.csv` **con su cita, su tipo de ensayo y su
+estructura, y marcado como no apto**: se une a otro sitio (el CR del C-terminal), no al
+bolsillo de RRM1-RRM2 que acoplamos. Contarlo como positivo de RRM sería mentir sobre el
+sitio.
+
+### 3.3 Y su estructura, leída del dibujo
+
+Su SMILES no está en el texto del artículo ni en PubChem: aparece **dibujada** en la
+Figura Suplementaria 1(a). La tabla del panel (b) da su código de catálogo de Asinex,
+**BDF34019555** (el texto del artículo lo confirma: «XL20 (BDF34019555) was identified
+from the Asinex compound library and synthesized by WuXi AppTec»), y ese código tampoco
+resuelve a una estructura en PubChem.
+
+Así que se leyó el dibujo, con el camino que ya se usó para los tres fragmentos de
+Nshogoza 2019:
+
+- `analysis/leer_figura_xl20.py` (nuevo) corta la fila de ocho dibujos por los huecos de
+tinta, asigna los bloques **en orden** a las etiquetas XL20–XL27 (comprobadas leyendo la
+tira superior) y pasa cada celda por **DECIMER 2.7.2**, el OCR químico.
+- **XL20 = `CN(Cc1ccccc1)[C@H]1CCC[C@H](n2cnc3c(N)ncnc32)[C@H]1O`**: `C19H24N6O`,
+352,4 Da, logP 2,0, TPSA 93 Å², cuatro anillos. Es una **adenina unida a un
+aminociclohexanol bencilado**, un quimiotipo nuevo y coherente con lo que el artículo
+describe: un compuesto que entra al cerebro y que se apoya en el **Trp334** por
+contactos hidrófobos y aromáticos.
+- **Comprobaciones hechas:** válido en RDKit; **los dos recortes distintos dan el mismo
+canónico** —y no solo en XL20: las ocho estructuras coinciden en las dos pasadas,
+comparando el fragmento mayor, porque el recorte más ancho coge ruido de las etiquetas—;
+y el código de Asinex leído por OCR coincide letra por letra con el del texto.
+- **Lo que NO se ha hecho, y queda escrito:** no hay contraste con una fuente externa
+(PubChem no tiene ni el código ni la estructura) y **falta el visto bueno humano**. La
+procedencia completa está en `analysis/controles_tdp43_xl20.csv`, y para poder mirarlo
+queda la imagen de comparación —recorte original a la izquierda, dibujo de RDKit a la
+derecha— en `_xl20_fig/XL20_comparacion.png`.
 
 ## 4. Qué significa para el plan
 
@@ -133,11 +161,19 @@ químico que se usó con los fragmentos de Nshogoza).
 python C:/Users/Fredy/masive-als/analysis/buscar_ligandos_cristal.py   # barrido del PDB
 python C:/Users/Fredy/masive-als/analysis/sitio_ligandos_cristal.py    # sitio real de cada ligando
 python C:/Users/Fredy/masive-als/analysis/verdad_de_referencia.py      # regenera el CSV
+
+# estructura de XL20 (figura suplementaria del articulo, OCR quimico)
+ocsr_env/Scripts/python.exe analysis/leer_figura_xl20.py analysis/_xl20_fig/suppfig1_full.png
 ```
 
 - Salidas del barrido: `analysis/ligandos_cristal/{sod1,tdp43,fus}.csv` y `resumen.txt`.
 - Salidas del sitio: `analysis/ligandos_cristal/sitio_sod1.csv` y `sitio_sod1.txt`
   (contactos a 4,0 Å, distancia mínima al Trp32 y clasificación).
+- Salidas de la lectura de XL20: `_xl20_fig/XL20.png` (la celda recortada),
+  `XL20_comparacion.png` (recorte frente a dibujo de RDKit) y `smiles_crudos.csv` con las
+  ocho lecturas. La figura sale del paquete suplementario del artículo, que se descarga
+  entero con `https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13472882/supplementaryFiles`
+  (la página de PMC sirve un aviso de descarga en vez del PDF, así que por ahí no baja).
 - Descartes que quedan escritos: cuatro entradas de la familia del ebselen
   (6Z3V, 6Z4J, 6Z4L, 6Z4O) son solo mmCIF y no se leyeron sus coordenadas con el lector de
   PDB; su familia ya está medida en Cys111 por otros cinco miembros, así que no cambia la
