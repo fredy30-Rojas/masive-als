@@ -100,10 +100,21 @@ python analysis/regla_decision_bootstrap.py
 > comparable con lo publicado. Comprobado después del arreglo: la corrida vuelve a dar 7
 > positivos, 0,686 / **0,734** / 0,713 (PASA en los tres bloques), el CSV queda idéntico
 > salvo la columna nueva vacía `puesto_fondo3`, y `regla_decision.csv` sigue **idéntico
-> byte a byte** al congelado. El SMILES de los tres fragmentos sigue pendiente: hoy se
-> suple con el número de átomos pesados leído del fichero preparado (13, 11 y 15, que
-> coinciden con los publicados), que es lo que decidía el `KeyError` que rompía la
-> corrida entera.
+> byte a byte** al congelado.
+>
+> **Y el SMILES de los tres fragmentos dejó de estar pendiente el mismo 25 sep.** Se
+> leyeron del dibujo (Figura 1c) por OCR químico el 23 de septiembre —DECIMER 2.7.2, con
+> comprobación en RDKit y cotejo visual—, pero **se quedaron solo en el informe**: la
+> verdad de referencia decía "pendiente: hay que dibujarlo" porque su generador buscaba el
+> SMILES en los ficheros de activos y ahí no había ninguno. Ahora están en
+> `analysis/fragmentos_nshogoza.csv`, con su método y su fuente, y el generador los coge de
+> ahí, así que una corrida puede reconstruirlos aunque se pierdan sus ficheros preparados.
+> Comprobado que son los mismos que se acoplaron (el canónico coincide letra por letra con
+> el `REMARK SMILES` de `validar_tdp43_limpia/ligands/ACT_fragmento_*.pdbqt`) y que con
+> ellos puestos los tres pasan la comprobación previa (13 / 11 / 15 átomos en SMILES,
+> fichero y pose) y **ningún número se mueve**: el CSV de TDP-43 queda idéntico y
+> `regla_decision.csv` sigue idéntico byte a byte al congelado. La nota de la fila ya dice
+> de dónde sale el SMILES en vez de decir que falta.
 >
 > **La decisión que sigue abierta.** Los ligandos preparados de `rTRD01` y `nTRD22` no
 > están en la carpeta del fondo (los `D` del `git status` en `_validacion_TDP43/` son las

@@ -218,12 +218,23 @@ def positivos_tdp43(smis):
          "union_directa (Kd 89,4 uM, MST + NMR)", APTO, ""),
         ("nTRD22", "isoxazol-piperidina", "NTD, alosterico",
          "union_directa (Kd 145 uM, MST)", APTO, ""),
+        # Los tres fragmentos de Nshogoza 2019 (IJMS 20:3230) existen SOLO como dibujo en
+        # la Figura 1c: el articulo y su suplementario no dan nombre, CAS ni formula. Su
+        # SMILES se leyo por OCR quimico (DECIMER 2.7.2) con `leer_figura_nshogoza.py`, se
+        # comprobo en RDKit y se cotejo dibujandolo; esta en `fragmentos_nshogoza.csv`,
+        # que es de donde lo coge este generador. Hasta el 25 de septiembre de 2026 ese
+        # SMILES vivia SOLO en el informe del 23: una corrida sin el prepara los
+        # fragmentos de cero o no los prepara, y con ellos fuera el bloque duro de TDP-43
+        # baja de 0,734 (PASA) a 0,595 (SIN EVIDENCIA).
         ("fragmento_1", "fragmento", "RRM2 (G245, E246, H256, I257, S258)",
-         "union_directa (CSP de 15N-RRM)", APTO, "SMILES pendiente: hay que dibujarlo"),
+         "union_directa (CSP de 15N-RRM)", APTO,
+         "SMILES leido del dibujo por OCR quimico (fragmentos_nshogoza.csv)"),
         ("fragmento_2", "fragmento", "RRM2 (mismos residuos)",
-         "union_directa (CSP de 15N-RRM)", APTO, "SMILES pendiente: hay que dibujarlo"),
+         "union_directa (CSP de 15N-RRM)", APTO,
+         "SMILES leido del dibujo por OCR quimico (fragmentos_nshogoza.csv)"),
         ("fragmento_3", "fragmento", "RRM2 (mismos residuos)",
-         "union_directa (CSP de 15N-RRM)", APTO, "SMILES pendiente: hay que dibujarlo"),
+         "union_directa (CSP de 15N-RRM)", APTO,
+         "SMILES leido del dibujo por OCR quimico (fragmentos_nshogoza.csv)"),
         ("PE859", "piridil-pirazol", "interfaz RRM1-RRM2",
          "union_directa (HEK + C. elegans)", APTO, ""),
         ("berberrubine", "bencilisoquinolina", "interfaz RRM1-RRM2",
@@ -298,9 +309,12 @@ def positivos_fus(smis):
 
 
 def main():
+    # `fragmentos_nshogoza.csv` entra aqui a proposito: son SMILES que no estan en ningun
+    # otro fichero de activos porque en la literatura solo existen dibujados, y sin ellos
+    # la validacion de TDP-43 pierde tres positivos.
     smis = smiles_de("activos_sod1_v2.csv", "activos_tdp43.csv",
                      "activos_tdp43_v2.csv", "activos_fus.csv", "controles_sod1_v4.csv",
-                     "controles_tdp43_xl20.csv")
+                     "controles_tdp43_xl20.csv", "fragmentos_nshogoza.csv")
 
     filas = positivos_sod1(smis) + positivos_tdp43(smis) + positivos_fus(smis)
 
