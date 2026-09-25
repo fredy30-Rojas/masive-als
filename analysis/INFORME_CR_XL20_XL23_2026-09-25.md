@@ -195,12 +195,79 @@ decir dónde cabe un ligando y con qué contactos, no para cuantificar. La caja,
 desborda el CR: contactos con 341, 347, 348 y 349 son de la hélice de fuera del CR, y
 están anotados como tales en el CSV.
 
-## 5. Qué sigue
+## 5. Y los otros seis de la tabla: el sitio no los distingue
+
+Con la maquinaria de la pareja ya montada, la pregunta que sigue se contesta casi
+sola: **los que sí tienen actividad funcional en el artículo (XL21 y XL23, que inhiben
+la agregación del LCD in vitro a 100 µM) se colocan en el sitio del Trp334 de otra
+manera que los que no tienen nada reportado (XL22, XL25, XL26)?**
+
+`analysis/acoplar_familia_cr.py` (nuevo) prepara los siete compañeros de XL20 con la
+misma receta canónica, los acopla con **el mismo receptor, la misma caja y las mismas
+tres semillas**, y **reutiliza las poses de XL20 y XL23** que ya estaban calculadas: los
+ocho quedan hechos exactamente con lo mismo. No reimplementa nada — lee poses,
+contactos, distancias y la llamada a Vina del script de la pareja.
+
+| Compuesto | Evidencia funcional (del artículo) | At. pesados | Mejor | Mediana | kcal/mol por átomo | Poses sobre Trp334 |
+|---|---|---|---|---|---|---|
+| XL20 | **unión medida** (SPR + CETSA) | 26 | −5,70 | −4,99 | −0,192 | 137 de 161 (85 %) |
+| XL21 | inhibe la agregación (100 µM) | 23 | −5,38 | −4,93 | −0,215 | 71 de 162 (44 %) |
+| XL23 | inhibe la agregación (100 µM) | 34 | **−6,92** | −5,64 | −0,166 | 140 de 161 (87 %) |
+| XL22 | sin nada reportado | 22 | −5,31 | −4,84 | −0,220 | 80 de 158 (51 %) |
+| XL25 | sin nada reportado | 29 | −6,55 | **−5,78** | −0,199 | 106 de 161 (66 %) |
+| XL26 | sin nada reportado | 22 | −6,01 | −5,30 | **−0,241** | 104 de 162 (64 %) |
+| XL24 | **empeora** la muerte neuronal | 20 | −5,00 | −4,47 | −0,224 | 58 de 162 (36 %) |
+| XL27 | neuroprotege solo a 100 µM | 23 | −5,49 | −4,98 | −0,217 | 69 de 162 (43 %) |
+
+Las medianas de cada combinación de modelo y semilla: inhibidores (XL21, XL23) de
+−6,92 a −4,32, mediana −5,30; sin nada reportado (XL22, XL25, XL26) de −6,55 a −4,07,
+mediana −5,05. **Se solapan por completo**: el peor de los inhibidores (−4,32) es peor
+que el mejor de los que no tienen nada reportado (−6,55). El sitio no los separa.
+
+**Y quitando el efecto del tamaño** (que es lo que Vina premia, y lo que hizo ganar a
+XL23 en la pareja) pasa lo siguiente: la afinidad mediana sube −0,077 kcal/mol por
+átomo pesado, y el residuo de cada uno —lo que le sobra o le falta respecto a lo que su
+tamaño predice— queda así:
+
+| Mejor de lo que le toca | | Peor de lo que le toca | |
+|---|---|---|---|
+| XL26 (nada reportado) | −0,405 | XL23 (inhibe) | +0,172 |
+| XL25 (nada reportado) | −0,342 | **XL20 (unión medida)** | **+0,213** |
+| XL27 (neuroprotege a 100 µM) | −0,011 | XL24 (empeora) | +0,273 |
+
+Es decir: **el orden por residuo va al revés de la evidencia** —los dos mejor colocados
+no tienen nada reportado y el único con unión medida es el segundo peor—, y el recorrido
+entero del residuo (de −0,40 a +0,27, o sea 0,68 kcal/mol) es **del orden del ruido del
+propio método**: el reparto de un mismo compuesto entre modelos y semillas tiene 0,39
+kcal/mol de desviación típica. Así que ni el orden directo ni el inverso son una señal.
+Esto **no** quiere decir que el CR prefiera a los inactivos; quiere decir que, con esta
+índole, el sitio no está codificando la química que los separa.
+
+Hay una lectura que sí es informativa y va en la misma dirección: la **fracción de
+poses que se apoyan en el Trp334**. XL20 y XL23 la tienen altísima (85 % y 87 %) y
+XL25/XL26 media (66 % y 64 %), pero XL21 —que también inhibe la agregación— se queda en
+el 44 %, igual que XL27 (43 %) y XL24 (36 %). O sea que incluso la medida puramente
+geométrica de «¿prefiere este sitio?» deja a los inhibidores en extremos opuestos. Y
+conviene recordar que esos dos inhibidores **no se parecen entre sí** (uno es
+uracilo-carboxamida y el otro adenina-aminociclohexanol): es lo esperable si la
+inhibición de la agregación a 100 µM no es un dato de unión específica —en este campo
+es conocido que buena parte de esos inhibidores lo son por mecanismos inespecíficos o
+coloidales, y el artículo no publica unión para ninguno de los dos.
+
+**La conclusión útil es negativa y ahorra trabajo:** el CR tal como está modelado (la
+hélice del 2N2C) **no sirve para ordenar los compuestos de esta tabla**, ni por afinidad
+ni por ocupación del sitio. Si algún día se quiere priorizar análogos con este receptor,
+antes habrá que tener el dato que falta —unión medida de más de uno de ellos— y no al
+revés.
+
+## 6. Qué sigue
 
 1. **La pareja solo se convierte en relación estructura-actividad cuando haya unión
    medida de XL23** (SPR o CETSA, como XL20). Mientras eso no exista, la pareja es una
    cabeza común con dos colas y nada más; y el dato que falta es un experimento, no
-   más acoplamiento.
+   más acoplamiento. Con los ocho de la tabla (§5) la conclusión es aún más clara: este
+   receptor no ordena ninguno de los dos criterios, así que por esta vía no se puede
+   elegir a quién mandar a medir.
 2. **No se relanza nada por esta vía.** El CR no entra en la validación del bolsillo
    de RRM (XL20 sigue en `verdad_de_referencia.csv` como unido de otro sitio, marcado
    como no apto) y no hay GPU autorizada para una diana nueva sin criterio previo
@@ -210,12 +277,13 @@ están anotados como tales en el CSV.
    serie de análogos sintéticos?) y con qué fondo de señuelos se compararía. Eso es una
    decisión de proyecto, no un script.
 
-## 6. Cómo se reproduce
+## 7. Cómo se reproduce
 
 ```
 python C:/Users/Fredy/masive-als/analysis/comparar_xl20_xl23.py     # la pareja
 python C:/Users/Fredy/masive-als/analysis/construir_receptor_cr.py  # elige el CR y arma el receptor
-python C:/Users/Fredy/masive-als/analysis/acoplar_xl20_xl23_cr.py   # prepara y acopla, y lee contactos
+python C:/Users/Fredy/masive-als/analysis/acoplar_xl20_xl23_cr.py   # prepara y acopla la pareja, y lee contactos
+python C:/Users/Fredy/masive-als/analysis/acoplar_familia_cr.py     # los ocho de la tabla, por grupos
 ```
 
 - Pareja: `analysis/_xl20_xl23/pareja.csv`, `pareja.txt` y `XL20_XL23_comparacion.png`
@@ -229,6 +297,10 @@ python C:/Users/Fredy/masive-als/analysis/acoplar_xl20_xl23_cr.py   # prepara y 
   mejor pose de cada combinación de modelo y semilla, la tabla por modelo y semilla, y
   el parteo por átomo pesado). Para repetirlo con otras semillas o más
 exhaustividad está el `--semillas 42,2026,777` y el `--exhaustividad` del script.
+- Los ocho de la tabla: `analysis/_cr_receptor/familia_cr.csv` (una fila por pose, con
+  su grupo de evidencia) y `familia_cr.txt` (el resumen legible: la tabla por compuesto,
+  la comparación por grupos, el residuo tras quitar el tamaño y el ruido del método).
+  Comparte la carpeta de poses con la pareja, así que no repite trabajo.
 - El reparto de trabajo con las herramientas que ya existían: la preparación de
   ligandos es `preparar_ligando.py` (la única copia de la receta) y la de receptores y
   el propio Vina son los de `redocking_trp32/redock_trp32.py`; aquí no se reimplementa

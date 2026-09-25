@@ -1,0 +1,51 @@
+Los ocho compuestos de la tabla del CR, acoplados en el CR
+receptor 2N2C (307-349), 6 modelos de RMN, caja de 22 A sobre el anillo del Trp334 de cada modelo
+exhaustividad 8, 9 modos, semillas 42, 2026, 777 | contactos a 4.0 A
+
+  lig   evidencia funcional             at.  mejor    mediana  peor     kcal/at. sobre Trp334
+  XL20  union medida                    26   -5.70    -4.99    -4.51    -0.192   137 de 161 poses
+  XL21  inhibe la agregacion            23   -5.38    -4.93    -4.32    -0.215   71 de 162 poses
+  XL23  inhibe la agregacion            34   -6.92    -5.64    -5.30    -0.166   140 de 161 poses
+  XL22  sin nada reportado              22   -5.31    -4.84    -4.07    -0.220   80 de 158 poses
+  XL25  sin nada reportado              29   -6.55    -5.78    -4.95    -0.199   106 de 161 poses
+  XL26  sin nada reportado              22   -6.01    -5.30    -4.66    -0.241   104 de 162 poses
+  XL24  empeora                         20   -5.00    -4.47    -3.88    -0.224   58 de 162 poses
+  XL27  neuroprotege solo a 100 uM      23   -5.49    -4.98    -4.25    -0.217   69 de 162 poses
+
+  POR GRUPOS (mejor y mediana de las 18 combinaciones de modelo y semilla de cada compuesto)
+    union medida                     n=1 | de -5.70 a -4.51 | mediana -4.99
+    inhibe la agregacion (100 uM)    n=2 | de -6.92 a -4.32 | mediana -5.30
+    sin nada reportado               n=3 | de -6.55 a -4.07 | mediana -5.05
+    otros                            n=2 | de -5.49 a -3.88 | mediana -4.70
+
+  SE SOLAPAN O ESTAN SEPARADAS (lo que de verdad se puede leer):
+    inhibidores (XL21, XL23) frente a sin nada reportado (XL22, XL25, XL26):
+      peor de los inhibidores: -4.32 | mejor de los otros: -6.55
+      -> SE SOLAPAN: el sitio no los separa
+      (XL20, el unico con union medida: de -5.70 a -4.51; XL24, que empeora la muerte neuronal: de -5.00 a -3.88)
+
+
+  QUITANDO EL EFECTO DEL TAMANO (recta de afinidad mediana frente a atomos pesados:
+  -0.077 kcal/mol por atomo). El residuo es lo que le sobra o le falta a cada
+  uno respecto a lo que su tamano predice; negativo = mejor de lo que le toca.
+  lig   evidencia funcional             at.  residuo   lectura
+  XL26  sin nada reportado              22   -0.405    mejor de lo que le toca
+  XL25  sin nada reportado              29   -0.342    mejor de lo que le toca
+  XL27  neuroprotege solo a 100 uM      23   -0.011    mejor de lo que le toca
+  XL21  inhibe la agregacion            23   0.040     peor de lo que le toca
+  XL22  sin nada reportado              22   0.061     peor de lo que le toca
+  XL23  inhibe la agregacion            34   0.172     peor de lo que le toca
+  XL20  union medida                    26   0.213     peor de lo que le toca
+  XL24  empeora                         20   0.273     peor de lo que le toca
+    los tres mejores por residuo: XL26, XL25, XL27
+    los tres peores por residuo:  XL23, XL20, XL24
+    (de cuanto: el reparto de un mismo compuesto entre modelos y semillas tiene 0.39 kcal/mol
+     de desviacion tipica; el residuo va de -0.40 a 0.27, del mismo orden)
+
+  LO QUE ESTO NO PUEDE DECIR:
+    Dos compuestos que inhiben y tres sin nada reportado no son un test
+    estadistico: los grupos son de dos y de tres, y el ruido del propio
+    metodo (el reparto de un mismo compuesto entre modelos y semillas)
+    es de decimas de kcal/mol, igual que las diferencias que se ven.
+    Y no hay fondo de señuelos en el CR: aqui solo cuenta la comparacion
+    entre estos ocho, nunca una afinidad absoluta.
