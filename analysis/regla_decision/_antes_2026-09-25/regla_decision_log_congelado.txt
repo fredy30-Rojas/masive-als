@@ -1,0 +1,239 @@
+REGLA DE DECISION CON ERROR MEDIDO (bootstrap)   2026-09-24 13:13
+medida: AUC por atomo pesado | umbral 0.5 | 2000 remuestreos | nivel 95.0%
+semilla 20260924 (reproducible)
+
+   (a) IC solo fondo      = mueve la cola del fondo, que es lo que hacia
+                            bailar el corte por quimiotipos
+   (b) IC fondo+positivos = mide ademas el muestreo de los positivos
+   PASA si el limite INFERIOR de (a) y de (b) supera 0.5.
+
+==============================================================================
+PRUEBA DE LA REGLA: TDP-43, el mismo conjunto corrido de 4 maneras
+==============================================================================
+   corrida (bloque)                   AUC/at.   IC f. inf IC t. inf residual  veredicto
+   exh 8 (CPU) (blando)               0.683     0.642     0.452     0.307     SIN EVIDENCIA
+
+------------------------------------------------------------------------------
+exh 8 (CPU) | bloque blando (señuelos emparejados por tamaño)
+   7 positivos contra 122 del fondo
+   medida           punto    IC 95% (solo fondo)    IC 95% (fondo y positivos)
+   AUC crudo        0.301    [0.267, 0.335]  <      [0.076, 0.547]  <
+   AUC/atomo        0.683    [0.642, 0.722]         [0.452, 0.897]  <
+   AUC residual     0.307    [0.272, 0.340]  <      [0.071, 0.568]  <
+   pendiente de tamaño -0.0446 kcal/mol por atomo pesado
+   VEREDICTO DEL BLOQUE: SIN EVIDENCIA
+      El AUC/atomo aguanta el remuestreo del FONDO, pero no el de los
+      positivos: con 7 ligandos no se puede afirmar que el embudo
+      reconozca quimia. Lo que falta son positivos, no exhaustividad.
+      Para que el limite inferior tocara el 0.5 harian falta ~11 positivos (hoy 7).
+   exh 8 (CPU) (duro)                 0.731     0.686     0.540     0.407     PASA
+
+------------------------------------------------------------------------------
+exh 8 (CPU) | bloque duro (el fondo duro (segundo fondo del montaje))
+   7 positivos contra 152 del fondo
+   medida           punto    IC 95% (solo fondo)    IC 95% (fondo y positivos)
+   AUC crudo        0.371    [0.337, 0.406]  <      [0.125, 0.613]  <
+   AUC/atomo        0.731    [0.686, 0.773]         [0.540, 0.889]
+   AUC residual     0.407    [0.361, 0.445]  <      [0.161, 0.639]  <
+   pendiente de tamaño -0.0333 kcal/mol por atomo pesado
+   VEREDICTO DEL BLOQUE: PASA
+   exh 8 (CPU) (juntos)               0.710     0.678     0.513     0.361     PASA
+
+------------------------------------------------------------------------------
+exh 8 (CPU) | bloque juntos (los dos fondos juntos)
+   7 positivos contra 274 del fondo
+   medida           punto    IC 95% (solo fondo)    IC 95% (fondo y positivos)
+   AUC crudo        0.340    [0.315, 0.365]  <      [0.112, 0.585]  <
+   AUC/atomo        0.710    [0.678, 0.739]         [0.513, 0.894]
+   AUC residual     0.361    [0.333, 0.391]  <      [0.133, 0.604]  <
+   pendiente de tamaño -0.0357 kcal/mol por atomo pesado
+   VEREDICTO DEL BLOQUE: PASA
+   exh 16 (CPU) (blando)              0.686     0.648     0.465     0.306     SIN EVIDENCIA
+
+------------------------------------------------------------------------------
+exh 16 (CPU) | bloque blando (señuelos emparejados por tamaño)
+   7 positivos contra 122 del fondo
+   medida           punto    IC 95% (solo fondo)    IC 95% (fondo y positivos)
+   AUC crudo        0.301    [0.265, 0.337]  <      [0.091, 0.552]  <
+   AUC/atomo        0.686    [0.648, 0.728]         [0.465, 0.898]  <
+   AUC residual     0.306    [0.274, 0.349]  <      [0.084, 0.562]  <
+   pendiente de tamaño -0.0388 kcal/mol por atomo pesado
+   VEREDICTO DEL BLOQUE: SIN EVIDENCIA
+      El AUC/atomo aguanta el remuestreo del FONDO, pero no el de los
+      positivos: con 7 ligandos no se puede afirmar que el embudo
+      reconozca quimia. Lo que falta son positivos, no exhaustividad.
+      Para que el limite inferior tocara el 0.5 harian falta ~10 positivos (hoy 7).
+   exh 16 (CPU) (duro)                0.734     0.689     0.545     0.391     PASA
+
+------------------------------------------------------------------------------
+exh 16 (CPU) | bloque duro (el fondo duro (segundo fondo del montaje))
+   7 positivos contra 152 del fondo
+   medida           punto    IC 95% (solo fondo)    IC 95% (fondo y positivos)
+   AUC crudo        0.357    [0.321, 0.392]  <      [0.118, 0.593]  <
+   AUC/atomo        0.734    [0.689, 0.775]         [0.545, 0.893]
+   AUC residual     0.391    [0.349, 0.437]  <      [0.153, 0.621]  <
+   pendiente de tamaño -0.0344 kcal/mol por atomo pesado
+   VEREDICTO DEL BLOQUE: PASA
+   exh 16 (CPU) (juntos)              0.713     0.681     0.516     0.356     PASA
+
+------------------------------------------------------------------------------
+exh 16 (CPU) | bloque juntos (los dos fondos juntos)
+   7 positivos contra 274 del fondo
+   medida           punto    IC 95% (solo fondo)    IC 95% (fondo y positivos)
+   AUC crudo        0.332    [0.306, 0.359]  <      [0.106, 0.570]  <
+   AUC/atomo        0.713    [0.681, 0.743]         [0.516, 0.892]
+   AUC residual     0.356    [0.325, 0.384]  <      [0.129, 0.587]  <
+   pendiente de tamaño -0.0348 kcal/mol por atomo pesado
+   VEREDICTO DEL BLOQUE: PASA
+   exh 32 (CPU) (blando)              0.666     0.621     0.447     0.288     SIN EVIDENCIA
+
+------------------------------------------------------------------------------
+exh 32 (CPU) | bloque blando (señuelos emparejados por tamaño)
+   7 positivos contra 122 del fondo
+   medida           punto    IC 95% (solo fondo)    IC 95% (fondo y positivos)
+   AUC crudo        0.288    [0.251, 0.328]  <      [0.089, 0.533]  <
+   AUC/atomo        0.666    [0.621, 0.710]         [0.447, 0.884]  <
+   AUC residual     0.288    [0.248, 0.324]  <      [0.088, 0.528]  <
+   pendiente de tamaño -0.0389 kcal/mol por atomo pesado
+   VEREDICTO DEL BLOQUE: SIN EVIDENCIA
+      El AUC/atomo aguanta el remuestreo del FONDO, pero no el de los
+      positivos: con 7 ligandos no se puede afirmar que el embudo
+      reconozca quimia. Lo que falta son positivos, no exhaustividad.
+      Para que el limite inferior tocara el 0.5 harian falta ~13 positivos (hoy 7).
+   exh 32 (CPU) (duro)                0.733     0.687     0.562     0.423     PASA
+
+------------------------------------------------------------------------------
+exh 32 (CPU) | bloque duro (el fondo duro (segundo fondo del montaje))
+   7 positivos contra 152 del fondo
+   medida           punto    IC 95% (solo fondo)    IC 95% (fondo y positivos)
+   AUC crudo        0.390    [0.358, 0.424]  <      [0.127, 0.653]  <
+   AUC/atomo        0.733    [0.687, 0.775]         [0.562, 0.889]
+   AUC residual     0.423    [0.378, 0.466]  <      [0.150, 0.680]  <
+   pendiente de tamaño -0.0335 kcal/mol por atomo pesado
+   VEREDICTO DEL BLOQUE: PASA
+   exh 32 (CPU) (juntos)              0.703     0.672     0.510     0.362     PASA
+
+------------------------------------------------------------------------------
+exh 32 (CPU) | bloque juntos (los dos fondos juntos)
+   7 positivos contra 274 del fondo
+   medida           punto    IC 95% (solo fondo)    IC 95% (fondo y positivos)
+   AUC crudo        0.345    [0.320, 0.371]  <      [0.110, 0.593]  <
+   AUC/atomo        0.703    [0.672, 0.734]         [0.510, 0.881]
+   AUC residual     0.362    [0.332, 0.391]  <      [0.129, 0.602]  <
+   pendiente de tamaño -0.0335 kcal/mol por atomo pesado
+   VEREDICTO DEL BLOQUE: PASA
+   GPU (search_depth 20) (blando)     0.667     0.621     0.434     0.264     SIN EVIDENCIA
+
+------------------------------------------------------------------------------
+GPU (search_depth 20) | bloque blando (señuelos emparejados por tamaño)
+   7 positivos contra 122 del fondo
+   medida           punto    IC 95% (solo fondo)    IC 95% (fondo y positivos)
+   AUC crudo        0.246    [0.204, 0.289]  <      [0.081, 0.424]  <
+   AUC/atomo        0.667    [0.621, 0.710]         [0.434, 0.879]  <
+   AUC residual     0.264    [0.214, 0.301]  <      [0.074, 0.457]  <
+   pendiente de tamaño -0.0221 kcal/mol por atomo pesado
+   VEREDICTO DEL BLOQUE: SIN EVIDENCIA
+      El AUC/atomo aguanta el remuestreo del FONDO, pero no el de los
+      positivos: con 7 ligandos no se puede afirmar que el embudo
+      reconozca quimia. Lo que falta son positivos, no exhaustividad.
+      Para que el limite inferior tocara el 0.5 harian falta ~13 positivos (hoy 7).
+   GPU (search_depth 20) (duro)       0.738     0.694     0.543     0.414     PASA
+
+------------------------------------------------------------------------------
+GPU (search_depth 20) | bloque duro (el fondo duro (segundo fondo del montaje))
+   7 positivos contra 152 del fondo
+   medida           punto    IC 95% (solo fondo)    IC 95% (fondo y positivos)
+   AUC crudo        0.401    [0.360, 0.441]  <      [0.133, 0.640]  <
+   AUC/atomo        0.738    [0.694, 0.780]         [0.543, 0.902]
+   AUC residual     0.414    [0.370, 0.454]  <      [0.148, 0.652]  <
+   pendiente de tamaño -0.0148 kcal/mol por atomo pesado
+   VEREDICTO DEL BLOQUE: PASA
+   GPU (search_depth 20) (juntos)     0.706     0.676     0.498     0.345     SIN EVIDENCIA
+
+------------------------------------------------------------------------------
+GPU (search_depth 20) | bloque juntos (los dos fondos juntos)
+   7 positivos contra 274 del fondo
+   medida           punto    IC 95% (solo fondo)    IC 95% (fondo y positivos)
+   AUC crudo        0.332    [0.302, 0.364]  <      [0.117, 0.540]  <
+   AUC/atomo        0.706    [0.676, 0.737]         [0.498, 0.880]  <
+   AUC residual     0.345    [0.310, 0.376]  <      [0.128, 0.557]  <
+   pendiente de tamaño -0.0153 kcal/mol por atomo pesado
+   VEREDICTO DEL BLOQUE: SIN EVIDENCIA
+      El AUC/atomo aguanta el remuestreo del FONDO, pero no el de los
+      positivos: con 7 ligandos no se puede afirmar que el embudo
+      reconozca quimia. Lo que falta son positivos, no exhaustividad.
+      Para que el limite inferior tocara el 0.5 harian falta ~7 positivos (hoy 7).
+
+   LA REGLA AGUANTA: las 4 corridas dan el mismo veredicto sobre el fondo duro -> PASA
+
+==============================================================================
+PRUEBA DE LA REGLA: SOD1, el mismo conjunto corrido de 2 maneras
+==============================================================================
+   corrida (bloque)                   AUC/at.   IC f. inf IC t. inf residual  veredicto
+   exh 8 (CPU), fondo mezclado (blando) 0.563     0.540     0.369     0.478     SIN EVIDENCIA
+
+------------------------------------------------------------------------------
+exh 8 (CPU), fondo mezclado | bloque blando (señuelos emparejados por tamaño)
+   11 positivos contra 482 del fondo
+   medida           punto    IC 95% (solo fondo)    IC 95% (fondo y positivos)
+   AUC crudo        0.439    [0.419, 0.461]  <      [0.246, 0.664]  <
+   AUC/atomo        0.563    [0.540, 0.586]         [0.369, 0.749]  <
+   AUC residual     0.478    [0.446, 0.511]  <      [0.359, 0.613]  <
+   pendiente de tamaño -0.1070 kcal/mol por atomo pesado
+   VEREDICTO DEL BLOQUE: SIN EVIDENCIA
+      El AUC/atomo aguanta el remuestreo del FONDO, pero no el de los
+      positivos: con 11 ligandos no se puede afirmar que el embudo
+      reconozca quimia. Lo que falta son positivos, no exhaustividad.
+      Para que el limite inferior tocara el 0.5 harian falta ~99 positivos (hoy 11).
+   exh 8 (CPU), fondo separado (blando) 0.530     0.501     0.342     0.454     SIN EVIDENCIA
+
+------------------------------------------------------------------------------
+exh 8 (CPU), fondo separado | bloque blando (señuelos emparejados por tamaño)
+   11 positivos contra 339 del fondo
+   medida           punto    IC 95% (solo fondo)    IC 95% (fondo y positivos)
+   AUC crudo        0.442    [0.416, 0.468]  <      [0.246, 0.649]  <
+   AUC/atomo        0.530    [0.501, 0.558]         [0.342, 0.720]  <
+   AUC residual     0.454    [0.416, 0.493]  <      [0.324, 0.599]  <
+   pendiente de tamaño -0.1015 kcal/mol por atomo pesado
+   VEREDICTO DEL BLOQUE: SIN EVIDENCIA
+      El AUC/atomo aguanta el remuestreo del FONDO, pero no el de los
+      positivos: con 11 ligandos no se puede afirmar que el embudo
+      reconozca quimia. Lo que falta son positivos, no exhaustividad.
+      Para que el limite inferior tocara el 0.5 harian falta ~444 positivos (hoy 11).
+   exh 8 (CPU), fondo separado (duro) 0.643     0.608     0.435     0.567     SIN EVIDENCIA
+
+------------------------------------------------------------------------------
+exh 8 (CPU), fondo separado | bloque duro (el fondo duro (segundo fondo del montaje))
+   11 positivos contra 143 del fondo
+   medida           punto    IC 95% (solo fondo)    IC 95% (fondo y positivos)
+   AUC crudo        0.434    [0.398, 0.476]  <      [0.230, 0.677]  <
+   AUC/atomo        0.643    [0.608, 0.676]         [0.435, 0.837]  <
+   AUC residual     0.567    [0.510, 0.616]         [0.411, 0.723]  <
+   pendiente de tamaño -0.1436 kcal/mol por atomo pesado
+   VEREDICTO DEL BLOQUE: SIN EVIDENCIA
+      El AUC/atomo aguanta el remuestreo del FONDO, pero no el de los
+      positivos: con 11 ligandos no se puede afirmar que el embudo
+      reconozca quimia. Lo que falta son positivos, no exhaustividad.
+      Para que el limite inferior tocara el 0.5 harian falta ~22 positivos (hoy 11).
+   exh 8 (CPU), fondo separado (juntos) 0.563     0.540     0.369     0.478     SIN EVIDENCIA
+
+------------------------------------------------------------------------------
+exh 8 (CPU), fondo separado | bloque juntos (los dos fondos juntos)
+   11 positivos contra 482 del fondo
+   medida           punto    IC 95% (solo fondo)    IC 95% (fondo y positivos)
+   AUC crudo        0.439    [0.419, 0.461]  <      [0.246, 0.664]  <
+   AUC/atomo        0.563    [0.540, 0.586]         [0.369, 0.749]  <
+   AUC residual     0.478    [0.446, 0.511]  <      [0.359, 0.613]  <
+   pendiente de tamaño -0.1070 kcal/mol por atomo pesado
+   VEREDICTO DEL BLOQUE: SIN EVIDENCIA
+      El AUC/atomo aguanta el remuestreo del FONDO, pero no el de los
+      positivos: con 11 ligandos no se puede afirmar que el embudo
+      reconozca quimia. Lo que falta son positivos, no exhaustividad.
+      Para que el limite inferior tocara el 0.5 harian falta ~99 positivos (hoy 11).
+
+   UNA SOLA CORRIDA: no hay nada que comparar; estabilidad sin probar. Su veredicto sobre el fondo duro es SIN EVIDENCIA.
+
+   (comprobado en cada bloque: el AUC vectorizado coincide al decimal con el
+    de validar_sod1_limpia, que es la unica copia de la metrica)
+
+guardado: C:\Users\Fredy\masive-als\analysis\regla_decision\regla_decision.csv

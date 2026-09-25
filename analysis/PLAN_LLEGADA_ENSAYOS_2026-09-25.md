@@ -10,9 +10,12 @@ se eligen después de mirar el dato, lo que se mide es la elección, no el embud
 ## 1. El veredicto de hoy queda congelado
 
 El estado con el que se compara todo lo que venga está copiado en
-`analysis/regla_decision/_antes_2026-09-25/` (`regla_decision.csv` y `.log` y
-`sod1_fondos_separados.csv`). La regla **sobrescribe** sus salidas cada vez que corre, así
-que sin esa copia el veredicto de hoy se perdería al primer re-run.
+`analysis/regla_decision/_antes_2026-09-25/`: `regla_decision.csv`,
+`sod1_fondos_separados.csv` y el log de la corrida, guardado como
+`regla_decision_log_congelado.txt` —el original se llama `.log` y el `.gitignore` del
+repositorio ignora esa extensión, así que con ese nombre no se habría subido—. La regla
+**sobrescribe** sus salidas cada vez que corre, así que sin esa copia el veredicto de hoy
+se perdería al primer re-run.
 
 De hoy, lo que hay que batir: **TDP-43 PASA contra el fondo duro** (0,731–0,738; límite
 inferior 0,686–0,694 en las cuatro corridas) y **SIN EVIDENCIA** en señuelos emparejados
@@ -148,6 +151,7 @@ python analysis/regla_decision_bootstrap.py          # la regla, con lo que haya
 ```
 
 - El portero está en `analysis/incorporar_positivo.py`; el veredicto congelado, en
-  `analysis/regla_decision/_antes_2026-09-25/`.
+  `analysis/regla_decision/_antes_2026-09-25/` (el log, como `.txt`, porque `.log` está en
+  el `.gitignore`).
 - La regla importa `auc` y `residual` de `validar_sod1_limpia.py`, que sigue siendo la
   única copia de las métricas.
