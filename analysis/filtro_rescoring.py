@@ -43,7 +43,7 @@ COL_TARGET = "target"
 COL_AFINIDAD_POSIBLES = ("affinity", "energy")
 COL_SMILES_SAIDA = "smiles"
 # Nombres reales en las librerias locales de compuestos:
-COL_ID_POSIBLES = ("molecule_chembl_id", "chembl_id", "name", "molecule_id", "zinc_id")
+COL_ID_POSIBLES = ("molecule_chembl_id", "chembl_id", "name", "molecule_id", "zinc_id", "ligand")
 COL_SMILES_POSIBLES = ("canonical_smiles", "smiles")
 
 

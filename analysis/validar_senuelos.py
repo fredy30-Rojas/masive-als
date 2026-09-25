@@ -43,7 +43,7 @@ RDLogger.DisableLog("rdApp.*")
 VINA = r"C:\Users\Fredy\masive-als\gpu_dock\Vina-GPU-2.1-win.exe"
 VINA_CPU = r"C:\Users\Fredy\masive-als\tools\vina.exe"
 GBASE = r"C:\Users\Fredy\masive-als\gpu_dock"  # opencl_binary_path
-SIZE = 25
+SIZE = 18  # por defecto; se puede cambiar con --tamano
 NUM_MODES = 3
 THREAD = 8000
 
@@ -132,33 +132,26 @@ def generar_decoys(activo_smi, libreria, n=30):
 
 
 # ---------------- conversión SMILES -> PDBQT ----------------
+# La receta vive en UN solo sitio: ../preparar_ligando.py. Este script tenia su
+# propia copia con `MoleculePreparation()` sin `rigid_macrocycles`, y de ahi
+# salieron los pseudo-atomos «glue» que envenenaron todas las validaciones
+# (ver `INFORME_GLUE_VALIDACIONES_2026-09-21.md`). No volver a copiarla aqui.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from preparar_ligando import construir  # noqa: E402
+
+
 def convertir_pdbqt(name, smi, outdir):
+    os.makedirs(outdir, exist_ok=True)
     outp = os.path.join(outdir, name + ".pdbqt")
     if os.path.exists(outp) and os.path.getsize(outp) > 100:
         return outp
-    try:
-        mol = Chem.MolFromSmiles(smi)
-        if mol is None:
-            return None
-        mol = Chem.AddHs(mol)
-        if AllChem.EmbedMolecule(mol, AllChem.ETKDGv3()) != 0:
-            return None
-        try:
-            AllChem.MMFFOptimizeMolecule(mol, maxIters=200)
-        except Exception:
-            pass
-        prep = MoleculePreparation()
-        setups = prep.prepare(mol)
-        if not setups:
-            return None
-        pdbqt, ok, _ = PDBQTWriterLegacy.write_string(setups[0])
-        if not ok:
-            return None
-        with open(outp, "w", encoding="utf-8") as f:
-            f.write(pdbqt)
-        return outp if os.path.getsize(outp) > 100 else None
-    except Exception:
+    txt, _, motivo = construir(smi)
+    if txt is None:
+        log("   [convertir_pdbqt] %s NO preparado: %s" % (name, motivo))
         return None
+    with open(outp, "w", encoding="utf-8") as f:
+        f.write(txt)
+    return outp if os.path.getsize(outp) > 100 else None
 
 
 # ---------------- docking ----------------
@@ -204,25 +197,27 @@ def dockear(receptor, ligand_dir, out_dir, cx, cy, cz):
 
 # ---------------- docking CPU (AutoDock Vina 1.2.3) ----------------
 def _dock_one_cpu(args):
-    vina_exe, receptor, lig_pdbqt, out_pdbqt, cx, cy, cz, exhaust = args
+    vina_exe, receptor, lig_pdbqt, out_pdbqt, cx, cy, cz, exhaust, tamano = args
     cmd = [vina_exe, "--receptor", receptor, "--ligand", lig_pdbqt,
            "--center_x", str(cx), "--center_y", str(cy), "--center_z", str(cz),
-           "--size_x", str(SIZE), "--size_y", str(SIZE), "--size_z", str(SIZE),
+           "--size_x", str(tamano), "--size_y", str(tamano), "--size_z", str(tamano),
            "--exhaustiveness", str(exhaust), "--num_modes", "3",
            "--out", out_pdbqt, "--cpu", "1"]
-    subprocess.run(cmd, capture_output=True, timeout=900)
+    subprocess.run(cmd, capture_output=True, timeout=3600)
     return out_pdbqt
 
 
-def dockear_cpu(receptor, ligand_dir, out_dir, cx, cy, cz, workers=6, exhaustividad=4):
+def dockear_cpu(receptor, ligand_dir, out_dir, cx, cy, cz, workers=6, exhaustividad=4, tamano=None):
     from concurrent.futures import ProcessPoolExecutor
+    if tamano is None:
+        tamano = SIZE
     ligs = glob.glob(os.path.join(ligand_dir, "*.pdbqt"))
     os.makedirs(out_dir, exist_ok=True)
     tasks = []
     for p in ligs:
         name = os.path.basename(p).replace(".pdbqt", "")
         outp = os.path.join(out_dir, name + "_out.pdbqt")
-        tasks.append((VINA_CPU, receptor, p, outp, cx, cy, cz, exhaustividad))
+        tasks.append((VINA_CPU, receptor, p, outp, cx, cy, cz, exhaustividad, tamano))
     with ProcessPoolExecutor(max_workers=workers) as ex:
         for _ in ex.map(_dock_one_cpu, tasks):
             pass
@@ -264,6 +259,7 @@ def main():
     ap.add_argument("--receptor", required=True)
     ap.add_argument("--centro", required=True, help="x,y,z")
     ap.add_argument("--decoys-por-activo", type=int, default=30)
+    ap.add_argument("--tamano", type=int, default=None, help="tamano de caja en Angstrom")
     ap.add_argument("--cpu", action="store_true", help="usar Vina CPU (sin GPU)")
     ap.add_argument("--exhaustividad", type=int, default=4,
                     help="exhaustividad de Vina (default 4)")
@@ -271,6 +267,9 @@ def main():
     args = ap.parse_args()
 
     cx, cy, cz = [float(x) for x in args.centro.split(",")]
+    global SIZE
+    if args.tamano:
+        SIZE = args.tamano
     activos = [a for a in leer_activos(args.activos) if a["target"] == args.target]
     log("Activos para %s: %d" % (args.target, len(activos)))
     if not activos:
@@ -306,7 +305,7 @@ def main():
     if args.cpu:
         log("Dockeando con Vina CPU contra %s..." % args.target)
         affs = dockear_cpu(args.receptor, ligdir, outdir, cx, cy, cz,
-                           exhaustividad=args.exhaustividad)
+                           exhaustividad=args.exhaustividad, tamano=SIZE)
     else:
         log("Dockeando con Vina-GPU contra %s..." % args.target)
         affs = dockear(args.receptor, ligdir, outdir, cx, cy, cz)

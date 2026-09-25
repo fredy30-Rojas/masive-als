@@ -7,8 +7,18 @@ Reutiliza los ligandos ya preparados (activos + decoys) en
 varios centros de caja, calculando ROC-AUC y EF1%/EF5% para cada uno.
 
 Bolsa de bolsillos candidatos (coordenadas del receptor SOD1.pdbqt, 1hl5):
-  1. trp32     : bolsillo de Trp32 (Wright 2013, 4A7S/4A7T). Residuos Trp32,
-                 Glu21, Gln22, Pro28, Lys30, Ser98, Glu100. Centroide ~(46,80,73).
+  1. trp32     : bolsillo de Trp32 (Wright 2013, PDB 4A7S 5-fluorouridina,
+                 4A7T isoproterenol, 4A7U adrenalina, 4A7V dopamina). Residuos
+                 Glu21, Gln22, Lys23, Pro28, Val29, Lys30, Trp32, Glu100;
+                 Ser98 en el borde. Centroide ~(46,80,73).
+
+AVISO (20 sep 2026): este bolsillo NO ha pasado el control de redocking. Los
+cuatro ligandos cristalizados de Trp32, acoplados en su propia estructura, dan
+RMSD 1,9-11,2 A y la pose correcta no aparece ni entre los nueve modos de Vina
+(ver `redocking_trp32/INFORME_REDOCKING_TRP32_2026-09-20.md`). Es decir: el
+acoplamiento NO reproduce las poses conocidas de este bolsillo, asi que
+cualquier ordenacion de ligandos hecha aqui (incluido el AUC 0,815 de esta
+validacion) es provisional hasta que el protocolo se valide.
   2. metal     : sitio activo Cu/Zn (canal catalítico). Cu A154 ~(40.6,99.0,79.0),
                  Zn A155 ~(46.6,100.4,77.7). Centroide ~(43.6,99.7,78.3).
   3. dimer     : interfaz del dímero (cavidad hidrofóbica Val7-Gly147-Val148).
