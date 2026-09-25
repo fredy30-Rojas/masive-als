@@ -1,0 +1,13 @@
+@echo off
+cd /d C:\Users\Fredy\masive-als\analysis
+echo === EMBUDO 10 TANDAS === %date% %time%
+copy /y candidatos_filtrados.csv candidatos_filtrados_z001_solo.csv >nul 2>&1
+echo [1/4] TDP43...
+python filtro_rescoring.py ../gpu_dock/resultados_vinagpu_total.csv --proteina TDP43 --top-pct 5 --salida candidatos_TDP43.csv
+echo [2/4] SOD1...
+python filtro_rescoring.py ../gpu_dock/resultados_vinagpu_total.csv --proteina SOD1 --top-pct 5 --salida candidatos_SOD1.csv
+echo [3/4] FUS...
+python filtro_rescoring.py ../gpu_dock/resultados_vinagpu_total.csv --proteina FUS --top-pct 5 --salida candidatos_FUS.csv
+echo [4/4] CNS...
+python cns_filtro.py --prefijo candidatos --salida candidatos_filtrados.csv
+echo === FIN EMBUDO === %date% %time%
