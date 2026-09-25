@@ -131,11 +131,24 @@ contactos hidrófobos y aromáticos.
 canónico** —y no solo en XL20: las ocho estructuras coinciden en las dos pasadas,
 comparando el fragmento mayor, porque el recorte más ancho coge ruido de las etiquetas—;
 y el código de Asinex leído por OCR coincide letra por letra con el del texto.
-- **Lo que NO se ha hecho, y queda escrito:** no hay contraste con una fuente externa
-(PubChem no tiene ni el código ni la estructura) y **falta el visto bueno humano**. La
-procedencia completa está en `analysis/controles_tdp43_xl20.csv`, y para poder mirarlo
-queda la imagen de comparación —recorte original a la izquierda, dibujo de RDKit a la
-derecha— en `_xl20_fig/XL20_comparacion.png`.
+- **Segunda lectura, con visión.** `analysis/verificar_xl20_vision.py` (nuevo) le pasa el
+recorte al modelo de visión local **`qwen3-vl:8b`** y le pide que describa lo que ve (a
+propósito **no** se le pide el SMILES: un modelo de visión escribe SMILES mal y eso no se
+nota). El modelo nombra **los cinco fragmentos** que dice el SMILES —benceno, ciclohexano
+saturado, purina con amino, hidroxilo y un nitrógeno con metilo y bencilo—, y en la
+pregunta de comparación lee lo mismo en el recorte original y en el dibujo de RDKit. La
+traza entera queda en `_xl20_fig/verificacion_vision.txt`.
+- **Trampa medida, y conviene no repetirla:** `qwen3-vl:8b` se pasa el presupuesto de
+tokens **pensando** y devuelve el campo de la respuesta **vacío** (`done_reason: length`).
+Con 500 y con 1.500 tokens la respuesta salió en blanco y el contenido entero estaba en
+`message.thinking`. El script pide 4.000 y guarda las dos cosas; aun así, el formato de
+lista fija de cinco líneas se lo salta y hay que buscar los fragmentos en el razonamiento.
+- **Lo que sigue faltando:** el contraste con una base de datos. **PubChem no reconoce ni
+el código ni la estructura**, así que la identidad descansa en el dibujo del artículo y en
+estas dos lecturas, no en un registro. La procedencia completa está en
+`analysis/controles_tdp43_xl20.csv`, y para poder mirarlo queda la imagen de comparación
+—recorte original a la izquierda, dibujo de RDKit a la derecha— en
+`_xl20_fig/XL20_comparacion.png`.
 
 ## 4. Qué significa para el plan
 
@@ -164,11 +177,16 @@ python C:/Users/Fredy/masive-als/analysis/verdad_de_referencia.py      # regener
 
 # estructura de XL20 (figura suplementaria del articulo, OCR quimico)
 ocsr_env/Scripts/python.exe analysis/leer_figura_xl20.py analysis/_xl20_fig/suppfig1_full.png
+
+# segunda lectura con el modelo de vision local (hace falta `ollama serve`)
+python analysis/verificar_xl20_vision.py
 ```
 
 - Salidas del barrido: `analysis/ligandos_cristal/{sod1,tdp43,fus}.csv` y `resumen.txt`.
 - Salidas del sitio: `analysis/ligandos_cristal/sitio_sod1.csv` y `sitio_sod1.txt`
   (contactos a 4,0 Å, distancia mínima al Trp32 y clasificación).
+- Salida de la verificación con visión: `_xl20_fig/verificacion_vision.txt`, con las tres
+  respuestas y sus razonamientos.
 - Salidas de la lectura de XL20: `_xl20_fig/XL20.png` (la celda recortada),
   `XL20_comparacion.png` (recorte frente a dibujo de RDKit) y `smiles_crudos.csv` con las
   ocho lecturas. La figura sale del paquete suplementario del artículo, que se descarga

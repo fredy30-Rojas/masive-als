@@ -260,9 +260,9 @@ def positivos_tdp43(smis):
          "union_directa (SPR micromolar aparente + CETSA)", NO_APTO,
          "union medida real pero de OTRO sitio: entra cuando se ataque el CR, no en la "
          "validacion de RRM. SMILES leido por OCR quimico (DECIMER 2.7.2) de la Figura "
-         "Suplementaria 1a (dos recortes coinciden; ver controles_tdp43_xl20.csv), "
-         "pendiente de visto bueno humano; XL21 y XL23 solo tienen actividad funcional, "
-         "sin union medida"),
+         "Suplementaria 1a y contrastado con la descripcion del modelo de vision local "
+         "(ver controles_tdp43_xl20.csv), sin contraste en bases de datos; XL21 y XL23 "
+         "solo tienen actividad funcional, sin union medida"),
     ]
     filas_out = []
     for lig, quimia, sitio, ensayo, apto, nota in filas:
