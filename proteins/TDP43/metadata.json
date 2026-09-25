@@ -1,9 +1,9 @@
 {
   "uniprot": "Q13148",
   "gene": "TARDBP",
-  "pdb_best": "6b1n",
-  "pdb_alt": "4iuf",
+  "pdb_best": "4iuf",
+  "pdb_alt": "4bs2",
   "receptor_used": "TDP43_RRM1_clean.pdb",
-  "receptor_notes": "Dominio RRM1 limpio de TDP-43 (no el PDB completo). El archivo TDP43_RRM1_clean.pdb fue usado para generar TDP43.pdbqt y acoplar la tanda z001 (config: center 28.3, 43.7, 52.5; size 25x25x25).",
+  "receptor_notes": "Dominio RRM1 limpio de TDP-43. CORRECCIÓN 20/08/2026: la fuente real del receptor de docking es 4IUF (cristal de TDP-43 RRM1 en complejo con DNA; 773/786 atomos del TDP43.pdbqt coinciden con la cadena A de 4IUF). El PDB 6B1N citado antes NO es TDP-43: es Hsc70/HSPA8 (proteina de choque termico) y estaba mal documentado. La caja original (center 28.3, 43.7, 52.5; size 25) quedaba 17 A lejos del sitio de union a RNA nativo (DNA co-cristalizado, centro 16.3, 41.1, 48.5); re-docking del ligando nativo XUA con la caja corregida da RMSD 1.75 A (< 2 A = exito). Tandas TDP-43 cribadas con la caja vieja deben re-dockearse con la corregida (ver analysis/INVESTIGACION_TDP43_2026-08-20.md).",
   "description": "TAR DNA-binding protein 43"
 }
