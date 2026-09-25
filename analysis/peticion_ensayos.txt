@@ -1,0 +1,48 @@
+PETICION DE ENSAYOS DE UNION MEDIDA — 15 compuestos
+==============================================================================
+
+QUE FALTA, SEGUN LA REGLA DE DECISION DEL 24 DE SEPTIEMBRE 2026
+------------------------------------------------------------------------------
+  TDP-43  exh 8 (CPU)                    bloque blando hoy 7    necesita ~11 (4 mas)           -> SIN EVIDENCIA
+  TDP-43  exh 8 (CPU)                    bloque duro   hoy 7    ya basta con los que hay       -> PASA
+  TDP-43  exh 16 (CPU)                   bloque blando hoy 7    necesita ~10 (3 mas)           -> SIN EVIDENCIA
+  TDP-43  exh 16 (CPU)                   bloque duro   hoy 7    ya basta con los que hay       -> PASA
+  TDP-43  exh 32 (CPU)                   bloque blando hoy 7    necesita ~13 (6 mas)           -> SIN EVIDENCIA
+  TDP-43  exh 32 (CPU)                   bloque duro   hoy 7    ya basta con los que hay       -> PASA
+  TDP-43  GPU (search_depth 20)          bloque blando hoy 7    necesita ~13 (6 mas)           -> SIN EVIDENCIA
+  TDP-43  GPU (search_depth 20)          bloque duro   hoy 7    ya basta con los que hay       -> PASA
+  SOD1    exh 8 (CPU), fondo mezclado    bloque blando hoy 11   necesita ~99 (88 mas)          -> SIN EVIDENCIA
+  SOD1    exh 8 (CPU), fondo separado    bloque blando hoy 11   necesita ~444 (433 mas)        -> SIN EVIDENCIA
+  SOD1    exh 8 (CPU), fondo separado    bloque duro   hoy 11   necesita ~22 (11 mas)          -> SIN EVIDENCIA
+
+  El bloque duro de TDP-43 ya pasa y no necesita nada. Lo que falta es:
+    TDP-43 contra señuelos emparejados: 3-6 positivos mas, y del MISMO sitio
+    SOD1 contra su fondo duro:           del orden de 11 mas
+  Y no van a salir del PDB: el barrido del 25 de septiembre da 22 ligandos
+  co-cristalizados de SOD1, cero de TDP-43 y cero de FUS.
+
+LOS COMPUESTOS, POR PRIORIDAD
+------------------------------------------------------------------------------
+
+  Prioridad 1 (5): cada uno mueve un numero ya publicado
+    TDP-43    XL23                       LAS51502065                CR del C-terminal (320-340)
+    SOD1      LCS-1                      CAS 41931-13-9             por determinar (Trp32, Cys111 
+    SOD1      PRG-A01                                               por determinar (Trp32, Cys111 
+    SOD1      CHEMBL2165613                                         por determinar (Trp32, Cys111 
+    SOD1      clozapina                  CHEMBL42                   Trp32 (caja del proyecto)
+
+  Prioridad 2 (8): panel propio: dicen si el embudo acierta
+    SOD1      CHEMBL3311449              CHEMBL3311449              Trp32 (caja del proyecto)
+    SOD1      CHEMBL4553700              CHEMBL4553700              Trp32 (caja del proyecto)
+    SOD1      CHEMBL584356               CHEMBL584356               Trp32 (caja del proyecto)
+    SOD1      CHEMBL8550                 CHEMBL8550                 Trp32 (caja del proyecto)
+    TDP-43    CHEMBL1362588              CHEMBL1362588              RRM1 (caja del proyecto)
+    TDP-43    CHEMBL27093                CHEMBL27093                RRM1 (caja del proyecto)
+    TDP-43    CHEMBL19347                CHEMBL19347                RRM1 (caja del proyecto)
+    TDP-43    CHEMBL23927                CHEMBL23927                RRM1 (caja del proyecto)
+
+  Prioridad 3 (2): informativos, no cierran ningun bloque
+    TDP-43    bis-ANS                                               CTD / LLPS (320-340)
+    TDP-43    CongoRed                                              CTD / LLPS (320-340)
+
+TABLA COMPLETA: C:\Users\Fredy\masive-als\analysis\peticion_ensayos.csv
