@@ -1,0 +1,33 @@
+BANCO DE PRUEBA DE TBK1 (CHEMBL5408) — 2026-09-27
+
+actividades colgando de la diana: 13123
+actividades de afinidad de verdad (IC50/Ki/Kd/EC50 con pChEMBL): 2839
+compuestos del banco (el mejor valor de cada uno): 2313
+
+reparto por potencia, y lo que decia el plan:
+   franja                                      hoy     plan
+   10 nanomolar o mejor (pChEMBL >= 8)         463       82
+   de 10 a 100 nanomolar                       578      117
+   de 0,1 a 1 micromolar                       552      232
+   de 1 a 10 micromolar                        579      110
+   peor que 10 micromolar                      141       20
+
+el numero del plan, explicado:
+   buscar_diana_calibracion.py solo pedia 6 paginas (6000 actividades)
+   de las 13123 de la diana. Con esas primeras 6000 salen 1175 compuestos,
+   que es el 1175 de la tabla del plan. La diana entera trae 2313.
+
+los mas potentes:
+   CHEMBL3604928    IC50  0.06 nM    pChEMBL 10.22  10 nanomolar o mejor (pChEMBL >= 8)
+   CHEMBL5743492    IC50  0.33 nM    pChEMBL 9.48  10 nanomolar o mejor (pChEMBL >= 8)
+   CHEMBL5985679    IC50  0.48 nM    pChEMBL 9.32  10 nanomolar o mejor (pChEMBL >= 8)
+   CHEMBL6002719    IC50  0.473 nM   pChEMBL 9.32  10 nanomolar o mejor (pChEMBL >= 8)
+   CHEMBL5742193    IC50  0.49 nM    pChEMBL 9.31  10 nanomolar o mejor (pChEMBL >= 8)
+   CHEMBL5976946    IC50  0.503 nM   pChEMBL 9.30  10 nanomolar o mejor (pChEMBL >= 8)
+   CHEMBL5758899    IC50  0.564 nM   pChEMBL 9.25  10 nanomolar o mejor (pChEMBL >= 8)
+   CHEMBL5955330    IC50  0.558 nM   pChEMBL 9.25  10 nanomolar o mejor (pChEMBL >= 8)
+   CHEMBL5969068    IC50  0.566 nM   pChEMBL 9.25  10 nanomolar o mejor (pChEMBL >= 8)
+   CHEMBL5815915    IC50  0.62 nM    pChEMBL 9.21  10 nanomolar o mejor (pChEMBL >= 8)
+
+CSV: compuestos_tbk1.csv
+cache de actividades: actividades_tbk1.json
