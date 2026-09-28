@@ -23,9 +23,16 @@ Uso:
     python lanzar_banco_tbk1.py --solo-listar     # comprueba y no toca la GPU
     python lanzar_banco_tbk1.py --probar 300      # prueba corta y mide el ritmo
     python lanzar_banco_tbk1.py                   # el banco entero
-    python lanzar_banco_tbk1.py --lote 5000       # por lotes de 5000 (por defecto)
+    python lanzar_banco_tbk1.py --lote 500        # por lotes de 500 (por defecto)
 
-Reanudable: se salta los ligandos cuya pose ya este en `out/`.
+Reanudable: se salta los ligandos cuya pose ya este en `out/`, y las poses se
+vuelcan en vivo cada 15 s, de modo que una muerte no cuesta mas que el ligando
+que estuviera en curso.
+
+Descarta los ligandos con boro, silicio o sodio: AutoDock 4 no tiene esos tipos
+y los perdia en silencio (142 de 35.349 el 28 sep). Los nombres quedan en
+`descartados_tbk1.txt` para poder contarlos despues.
+
 Salida: `out/` con las poses y `resultados_tbk1.csv` con ligand,target,energy.
 """
 from __future__ import annotations
@@ -51,6 +58,12 @@ CAJA = os.path.join(BASE, "caja.json")
 SEARCH_DEPTH = 20
 NUM_MODES = 3
 THREAD = 8000
+
+# Tipos de atomo que AutoDock 4 entiende. Los que quedan fuera producen
+# "ATOM syntax incorrect" y el ligando se pierde en silencio dentro del lote.
+# El 28 sep 2026 se contaron 142 ligandos del banco con boro, silicio o sodio.
+TIPOS_AUTODOCK = {"A", "C", "N", "NA", "OA", "SA", "S", "HD", "H",
+                  "F", "Cl", "Br", "I", "P"}
 
 
 def log(m):
@@ -81,6 +94,39 @@ def escribir_config(receptor, ligdir, outdir, caja, cfg):
                 % (SEARCH_DEPTH, NUM_MODES, THREAD))
 
 
+def tipos_de(ruta):
+    """Tipos de atomo de un pdbqt, leidos de las columnas 78-79 del formato."""
+    out = set()
+    with open(ruta, encoding="utf-8", errors="ignore") as f:
+        for l in f:
+            if l.startswith("ATOM") or l.startswith("HETATM"):
+                out.add(l[77:79].strip())
+    return out
+
+
+def separables(ruta):
+    """False si el ligando lleva un tipo de atomo que AutoDock no reconoce."""
+    return tipos_de(ruta) <= TIPOS_AUTODOCK
+
+
+def volcar(outdir):
+    """Mueve las poses ya escritas por Vina a la carpeta buena.
+
+    Se llama MIENTRAS corre el motor, no al final del lote. El 28 sep el lote de
+    5000 se cayo a las tres horas y se perdio entero, porque las poses solo se
+    copiaban cuando el lote terminaba. Con lotes de 500 y volcado cada 15 s, una
+    muerte se lleva como mucho el ligando que este en curso.
+    """
+    n = 0
+    for p in glob.glob(os.path.join(outdir, "*_out.pdbqt")):
+        try:
+            os.replace(p, os.path.join(SALIDA, os.path.basename(p)))
+            n += 1
+        except OSError:
+            pass
+    return n
+
+
 def afinidad(ruta):
     """Afinidad de la mejor pose de un *_out.pdbqt."""
     try:
@@ -97,7 +143,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--solo-listar", action="store_true")
     ap.add_argument("--probar", type=int, default=0)
-    ap.add_argument("--lote", type=int, default=5000)
+    ap.add_argument("--lote", type=int, default=500,
+                    help="ligandos por lote. Pequeno a proposito: 500 son unos "
+                         "22 min, y un lote de 5000 que se cae se lleva 3 h.")
     args = ap.parse_args()
 
     caja, receptor = leer_caja()
@@ -106,11 +154,28 @@ def main():
     log("caja: centro %s, %d A | search_depth %d num_modes %d thread %d"
         % (caja["centro_caja"], caja["tamano_caja"], SEARCH_DEPTH, NUM_MODES, THREAD))
 
-    ligandos = sorted(glob.glob(os.path.join(LIGANDS, "*.pdbqt")))
-    if not ligandos:
+    todos = sorted(glob.glob(os.path.join(LIGANDS, "*.pdbqt")))
+    if not todos:
         raise SystemExit("no hay ligandos en %s (ejecuta preparar_banco_tbk1.py)"
                          % os.path.relpath(LIGANDS, RAIZ))
-    log("ligandos en el banco: %d" % len(ligandos))
+
+    ligandos, descartados = [], []
+    for p in todos:
+        (ligandos if separables(p) else descartados).append(p)
+    log("ligandos en el banco: %d" % len(todos))
+    if descartados:
+        con_tipo = {}
+        for p in descartados:
+            for t in tipos_de(p) - TIPOS_AUTODOCK:
+                con_tipo[t] = con_tipo.get(t, 0) + 1
+        log("descartados %d: tipo de atomo que AutoDock no entiende (%s)"
+            % (len(descartados),
+               ", ".join("%s=%d" % kv for kv in sorted(con_tipo.items()))))
+        with open(os.path.join(BASE, "descartados_tbk1.txt"), "w",
+                  encoding="utf-8") as f:
+            for p in descartados:
+                f.write("%s\t%s\n" % (os.path.basename(p),
+                                      " ".join(sorted(tipos_de(p) - TIPOS_AUTODOCK))))
 
     os.makedirs(SALIDA, exist_ok=True)
     ya = set(os.path.basename(p)[:-len("_out.pdbqt")]
@@ -144,11 +209,18 @@ def main():
                   encoding="utf-8", errors="ignore") as f:
             f.write("\n===== lote de %d, %s =====\n"
                     % (len(lote), time.strftime("%Y-%m-%d %H:%M")))
-            r = subprocess.run([EXE, "--config", cfg], cwd=GPU,
-                               stdout=f, stderr=subprocess.STDOUT, timeout=None)
-        log("   terminado con codigo %s" % r.returncode)
-        for p in glob.glob(os.path.join(outdir, "*_out.pdbqt")):
-            os.replace(p, os.path.join(SALIDA, os.path.basename(p)))
+            f.flush()
+            proc = subprocess.Popen([EXE, "--config", cfg], cwd=GPU,
+                                    stdout=f, stderr=subprocess.STDOUT)
+            # Volcado en vivo: lo que Vina ya escribio pasa a out/ sin esperar
+            # al final del lote. Cada 15 s, para no castigar el disco.
+            while proc.poll() is None:
+                time.sleep(15)
+                n = volcar(outdir)
+                if n:
+                    log("   %d poses volcadas en vivo" % n)
+            n = volcar(outdir)
+        log("   codigo de salida %s | %d poses volcadas" % (proc.returncode, n))
         shutil.rmtree(tmp, ignore_errors=True)
         n = len(glob.glob(os.path.join(SALIDA, "*_out.pdbqt")))
         ritmo = (time.time() - t0) / max(n - hechos_inicio, 1)
