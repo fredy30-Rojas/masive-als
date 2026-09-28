@@ -181,3 +181,146 @@ sistema. **El MM-GBSA del proyecto funciona.**
 ## Docking
 
 Va por 13.837 de 35.207 poses, 3,19 s por ligando, unas 19 horas left.
+
+---
+
+# Cribado de 20 y de 300: el MM-GBSA da numero pero no se sabe si ordena
+
+## Lo que se midio con 20 ligandos (10 activos, 10 inactivos)
+
+19 de 20 salieron con dG (el vigesimo fallaba, ver abajo). 36 s por ligando
+con los 4 nucleos de Oracle, en vez de los 40 s en serie: doce veces mas
+rapido por paralelizar, que es abrir un proceso por nucleo y ya.
+
+| clase | dG min | mediana | dG max |
+|---|---|---|---|
+| activos (9) | -45,6 | -10,5 | +104,9 |
+| inactivos (10) | -52,2 | -12,9 | +255,5 |
+
+- **AUROC 0,567.** Cero coma cincuenta es azar. Con nueve y diez ligandos el
+  margen de error es de unas dos décimas, así que con veinte ligandos NO SE
+  PUEDE CONCLUIR. Solo queda dicho que el número sale.
+- Spearman contra pChEMBL: -0,095.
+- El rango de 300 kcal/mol es la pista: eso no es señal, es ruido.
+
+## El fallo que quedaba: dos H a 0,532 A
+
+CHEMBL5758899, en la colocación de H. La poda del bucle de candidatos
+comparaba **ángstroms al cuadrado contra ángstroms** (`puntuacion <=
+mejor_puntuacion`, con `mejor_puntuacion` ya en Å). Eso no descartaba el
+candidato que debía, y se quedaba con uno cuyo mínimo real era 0,25 Å.
+Corregido a `mejor_puntuacion ** 2`. Con eso: **20 de 20**.
+
+## La minimizacion: se probo y NO sirve (queda documentado, apagada)
+
+Relaxar la geometria antes de calcular es la via correcta en principio: se
+calculaba sobre la pose de Vina sin tocar un atomo, con los H puestos por una
+regla de geometria ideal, y de ahi el ruido. Se anadio `minimizar()` con
+sander, 200 pasos. Y al medir:
+
+- dG_union pasa de **-14,3 a -30,1 kcal/mol**. En 9.741 atomos eso no es
+  fisico.
+- **vdW del complejo = -5.420.** Una proteina minimizada da +30 a +80. Un vdW
+  muy negativo significa que los atomos se han amontonado: la minimizacion
+  COLAPSA en vez de relajar.
+- sander avisa "Maximum number of minimization cycles reached": no converge.
+- 36 s -> **6 min y medio** por ligando.
+- El rst7 que escribe sander en Amber 26 es BINARIO (Fortran nuevo, con
+  "spatial" y "atom" dentro). MMPBSA.py lo lee, pero cualquier script que lo
+  abra a pelo revienta con ValueError. Para volver a texto hace falta parmed.
+
+Queda `--minimizar N` disponible y **desactivado por defecto (0)**. Lo
+correcto seria minimizar SOLO el ligando (53 atomos, converge en segundos) e
+inyectar esas coordenadas en el complejo, o minimizar con el receptor
+restringido con `nmropt`. Pendiente de medir.
+
+## Un fallo de sander que costo tiempo: la linea de titulo
+
+Un mdin que empieza directamente por `&cntrl` hace que sander responda
+"Could not find cntrl namelist" y salga con codigo 1 sin calcular nada. Se
+come la primera linea como TITULO y luego busca el namelist a partir de la
+segunda. Se probaron ocho variantes (`&end` en vez de `/`, el bloque entero en
+la linea 1, dos y seis espacios de sangria, `mdin` en vez de `-i`, con
+AMBERHOME, con `amber.sh` sourced) y las ocho fallan igual. **Con una linea de
+texto delante, rc=0.** El mdout lo delata: "Here is the input file:" salia
+VACIO. El MM-GBSA usa MMPBSA.py, que genera su propio mdin, asi que este
+fallo solo aparece en la minimizacion.
+
+## Muestra grande en marcha
+
+`preparar_muestra.py` toma 50 ligandos de CADA una de las cuatro franjas de
+activos (no al azar: al azar casi todos caen en la mejor y no hay rango con el
+que trabajar) y 100 de los 141 inactivos. Son 300, con las 300 poses ya
+empaquetadas. Con 300 el margen del AUROC baja a unas cinco centesimas, que
+si es concluyente.
+
+---
+
+# El diagnóstico: el problema no era el método, era la lista de referencia
+
+Este es el hallazgo del 29 de septiembre y cambia la lectura de todo lo anterior.
+
+## El MM-GBSA no aporta nada sobre Vina (medido sobre 277 ligandos con dG)
+
+| criterio de verdad | Vina | MM-GBSA |
+|---|---|---|
+| lista del banco (mejor valor) | 0,602 ± 0,034 | 0,524 ± 0,036 |
+| verdad v2 (mediana, 2+ medidas) | 0,617 ± 0,033 | 0,692 ± 0,097 |
+
+El mejor peso que se le puede dar al MM-GBSA sobre la afinidad de Vina es
+**CERO**. Cero coma cincuenta y dos contra cero coma cincuenta es azar, con
+un margen de 0,036: no es "no demostrado", es medido como nulo.
+**Veredicto: el rescoring con MM-GBSA no se usa más.** El código se queda
+documentado, con los seis fallos que hicieron falta para que funcionara, para
+no repetir el camino.
+
+## Pero el docking no es malo: la lista lo estabaainingolando
+
+El control de redocking del BX-795 da **RMSD 1,23 Å** (listón del proyecto: 2 Å).
+Receptor y caja están bien. Y sin embargo:
+
+| verdad de referencia | Vina |
+|---|---|
+| el mejor pChEMBL de cada compuesto (la del banco) | **0,535** |
+| mediana de las medidas, 2+ medidas | **0,617 ± 0,033** |
+| mediana, 3+ medidas | **0,730 ± 0,095** |
+
+Y desglosado por cuántas medidas tiene cada compuesto:
+
+| medidas por compuesto | activos | inactivos | AUROC de Vina |
+|---|---|---|---|
+| 1 sola | 1156 | 703 | **0,515** (azar) |
+| 2 o más | 435 | 17 | **0,590** |
+
+**Cuantos más datos hay de un compuesto, mejor predice.** Con un solo dato
+publicado, el docking no dice absolutamente nada. Eso era lo que ahogaba la
+señal.
+
+## Por qué la lista del banco estaba contaminada (medido)
+
+1. **"El mejor valor de cada compuesto".** Con la mediana, **620 de los 2.172
+   activos (29%) dejan de serlo**. Elegir el dato más favorable de todos es
+   elegir siempre el que favorece la hipótesis.
+2. **El 80% de los compuestos tienen UNA sola medición**: 1863 de 2315.
+3. **1.221 medidas son límites** (`<` o `>`), no medidas: 831 `>` y 388 `<`.
+   Contarlas como exactas infla los inactivos.
+4. **518 actividades las marca ChEMBL como dudosas** ("los valores parecen un
+   orden de magnitud distintos de los publicados, las unidades pueden estar
+   mal"). Tirarlas está bien hecho; el resto de las perdidas sí se recuperan.
+5. **6.056 actividades cinéticas (3.028 kon + 3.028 k_off) están VACÍAS**:
+   tienen `value` y `standard_value` a `None`. ChEMBL guardó el registro del
+   ensayo y no el número. Es el 46% de las actividades de la diana y no
+   aporta ni una cifra.
+
+De 13.123 actividades crudas solo **2.839 tienen pChEMBL utilizable**, y tras
+filtrar quedan 393 activos y 77 inactivos con dos o más medidas de unión
+(`verdad_tbk1_v2.csv`).
+
+## Lo que queda
+
+Con 77 inactivos el margen del AUROC es de ±0,04: se puede medir, pero no hay
+margin para más. **TBK1 no tiene datos suficientes para validar un método de
+cribado.** Para validar el pipeline de punta a punta hace falta un conjunto
+público (DUD-E, CASF-2016 o equivalente). Para descubrir compuestos con un
+AUROC de 0,62 no hay método: el consenso multi-diana (network pharmacology) es
+lo que aguanta esa señal.

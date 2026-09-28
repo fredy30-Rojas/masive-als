@@ -589,20 +589,29 @@ def anadir_hidrogenos(mol2, destino, receptor_pdb=None, radio=6.0):
             + (c[2] - origen[2]) ** 2 < radio * radio)
         for _ in range(n):
             mejor, mejor_puntuacion = None, -1.0
+            # mejor_puntuacion esta en ANGSTROMS, y la distancia que se compara
+            # dentro del bucle esta al CUADRADO. La poda tiene que usar el
+            # cuadrado del mejor, no el mejor. Con unidades mezcladas pasaba
+            # esto: un candidato cuyo minimo parcial era 0,5 al cuadrado se
+            # comparaba con un mejor de 0,6 A, no lo echaba, y se quedaba con
+            # el, aunque su minimo real fuera de 0,25 A. Medido el 28 sep 2026
+            # con CHEMBL5758899: los dos H de un carbono salian a 0,532 A.
+            techo = mejor_puntuacion ** 2 if mejor_puntuacion > 0 else -1.0
             for cand in candidatos:
                 pos = (origen[0] + d * cand[0], origen[1] + d * cand[1],
                        origen[2] + d * cand[2])
-                puntuacion = 99.0
+                puntuacion = 1e9
                 for c in ocupados:
                     dd = ((pos[0] - c[0]) ** 2 + (pos[1] - c[1]) ** 2
                           + (pos[2] - c[2]) ** 2)
                     if dd < puntuacion:
                         puntuacion = dd
-                    if puntuacion <= mejor_puntuacion:
+                    if puntuacion <= techo:
                         break
                 puntuacion = math.sqrt(puntuacion)
                 if puntuacion > mejor_puntuacion:
                     mejor, mejor_puntuacion = pos, puntuacion
+                    techo = mejor_puntuacion ** 2
             if mejor is None:
                 continue
             idx = len(atomos) + len(nuevos) + 1
@@ -984,6 +993,85 @@ def comprobar_solapes_sistema(rst7, umbral=0.9):
     return None
 
 
+# Minimizacion corta ANTES de calcular el MM-GBSA. Sin esto el numero no
+# ordena (medido el 28 sep 2026 en Oracle, ver la nota larga de arriba): el
+# dG de union salia en un rango de mas de 200 kcal/mol y el area bajo la curva
+# daba 0,57, que es azar. La razon es que se estaba calculando sobre la pose de
+# Vina SIN RELAJAR, con los H puestos por una regla de geometria ideal: hay
+# enlaces de carbonos aromaticos a 1,38 A, angulos fuera de sitio y un par de
+# H a 0,86 A. Con eso el campo no esta cerca de su minimo y el dG lleva el
+# ruido de la geometria encima, que es mucho mayor que la diferencia entre un
+# buen ligando y uno malo.
+#
+# 200 pasos de minimos sin restriccion NO deforman la proteina (el receptor de
+# 9.688 atomos apenas se mueve) y SI relajan el sitio de union. Es lo que se
+# hace en la practica antes de un MM-GBSA de un solo cuadro, y cuesta dos
+# segundos por sistema.
+#
+# PERO NO ES LO QUE PASA AQUI, y por eso va DESACTIVADO por defecto (0). Lo
+# que se midio el 28 sep 2026 con el ligando de prueba, minimizando el
+# SISTEMA entero:
+#   - dG_union pasa de -14,3 a -30,1 kcal/mol. En un sistema de 9.741 atomos
+#     un dG de union de -30 es fisicamente inverosimil.
+#   - el vdW del complejo cae a -5.420 kcal/mol. El vdW de una proteina
+#     minimizada es +30 a +80. Un vdW muy NEGATIVO significa que los atomos se
+#     han amontonado: la minimizacion los ha colapsado.
+#   - sander avisa "Maximum number of minimization cycles reached": no
+#     converge en 200 pasos, asi que se para en un punto que no es un minimo.
+#   - el coste pasa de 36 s a 6 min y medio por ligando (200 pasos x 9.741
+#     atomos x 3 sistemas).
+#   - y el rst7 que escribe sander en Amber 26 es BINARIO (un formato
+#     Fortran nuevo, con las etiquetas "spatial" y "atom" dentro). MMPBSA.py y
+#     cpptraj lo leen, pero cualquier script que lo abra a pelo revienta con
+#     ValueError. Para volver a texto hace falta parmed.
+#
+# CONCLUSION HONESTA: relajar la geometria es la via correcta en principio, pero
+# minimizing sin restriccion y sin converger no relaja, colapsa. La version
+# correcta es minimizar SOLO el ligando (53 atomos, converge en segundos) e
+# inyectar esas coordenadas en el complejo, o minimizar el complejo con el
+# receptor restringido con nmropt. Eso esta pendiente de medir.
+#
+# LA PRIMERA LINEA ES OBLIGATORIA Y NO ES UN ADORNO. Medido el 28 sep 2026 en
+# Oracle, con Amber 26: un mdin que empieza directamente por `&cntrl` hace que
+# sander responda "Could not find cntrl namelist" y salga con codigo 1, sin
+# calcular nada y sin decir cual es el problema. La razon es que sander se
+# come la primera linea como TITULO y luego busca el namelist a partir de la
+# segunda; si la primera es el propio `&cntrl`, se lo come y no encuentra
+# ninguno. Se probo con `&end` en vez de `/`, con el bloque entero en la linea
+# uno, con seis y con dos espacios de sangria, con `mdin` en vez del nombre
+# pasado con -i, con AMBERHOME y con amber.sh sourced: las ocho fallan igual.
+# Con una linea de texto delante, rc=0 y el rst7 sale. (El mdout lo delata:
+# "Here is the input file:" salia VACIO, con la linea de titulo sale el
+# contenido.) El MM-GBSA usa MMPBSA.py, que genera su propio mdin, y por eso
+# este fallo solo aparece en la minimizacion.
+INPUT_MINIMIZAR = """minimizacion corta del sistema, para relajar la geometria
+&cntrl
+  imin=1, maxcyc={pasos}, ntb=0, ntpr=100, cut=999.0, ifqnt=0,
+/
+"""
+
+
+def minimizar(prmtop, rst7, work, etiqueta, pasos=200):
+    """Minimiza un sistema y devuelve el rst7 nuevo, o None si no se pudo.
+
+    NO se usa la salida de sander para nada mas: solo las coordenadas. El prmtop
+    no cambia al minimizar (las fuerzas son las mismas), asi que el MM-GBSA
+    sigue con el prmtop que dio tleap y solo cambia el rst7.
+    """
+    entrada = os.path.join(work, "min_%s.in" % etiqueta)
+    salida = os.path.join(work, "min_%s.out" % etiqueta)
+    nuevo = os.path.join(work, "%s_min.rst7" % etiqueta)
+    with open(entrada, "w", encoding="utf-8") as fh:
+        fh.write(INPUT_MINIMIZAR.format(pasos=pasos))
+    cmd = [SANDER, "-O", "-i", os.path.basename(entrada),
+           "-o", os.path.basename(salida), "-p", os.path.basename(prmtop),
+           "-c", os.path.basename(rst7), "-r", os.path.basename(nuevo)]
+    run(cmd, work, "minimizar.log")
+    if not os.path.exists(nuevo) or os.path.getsize(nuevo) == 0:
+        return None
+    return nuevo
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--receptor", required=True)
@@ -992,6 +1080,14 @@ def main():
     ap.add_argument("--capa", type=float, default=0.0,
                     help="capa de agua explicita en A. 0 (por defecto) es lo "
                          "correcto con igb=5; ver el comentario de SCRIPT_TLEAP")
+    ap.add_argument("--minimizar", type=int, default=0,
+                    help="pasos de minimizacion del SISTEMA antes del "
+                         "MM-GBSA. Por defecto 0, y hay un motivo medido: ver "
+                         "INPUT_MINIMIZAR. Con 200 el dG_union se va de -14 a "
+                         "-30 kcal/mol, el vdW del complejo cae a -5.420 (no "
+                         "es fisico), sander avisa 'Maximum number of "
+                         "minimization cycles reached' y cada ligando pasa de "
+                         "36 s a 6 min y medio")
     args = ap.parse_args()
     capa = args.capa
 
@@ -1043,11 +1139,18 @@ def main():
             return 1
         print("2. sin atomos solapados en el complejo  OK")
 
-        # 3. MM-GBSA
+        # 3. MM-GBSA, sobre la geometria MINIMIZADA
         res = {}
         for etiqueta in ("complex", "receptor", "ligand"):
-            r = energia_mmgbsa("%s.prmtop" % etiqueta, "%s.rst7" % etiqueta,
-                               work, etiqueta)
+            rst7 = "%s.rst7" % etiqueta
+            if args.minimizar:
+                nuevo = minimizar("%s.prmtop" % etiqueta, rst7, work, etiqueta,
+                                args.minimizar)
+                if nuevo is None:
+                    print("3. minimizacion de %s  FALLO" % etiqueta)
+                    return 1
+                rst7 = "%s_min.rst7" % etiqueta
+            r = energia_mmgbsa("%s.prmtop" % etiqueta, rst7, work, etiqueta)
             if r is None:
                 print("3. MM-GBSA %s  FALLO (ver mmpbsa_%s.log)"
                       % (etiqueta, etiqueta))
