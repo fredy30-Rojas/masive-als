@@ -91,3 +91,93 @@ contadores de la sección BOX desfasados y sander lee memoria de más.
 - El MM-GBSA está en Oracle, en `~/prueba_mmgbsa/`, sobre una pose real de Vina
   (ACT_CHEMBL1078178). Al cerrarlo la sesión, el cálculo de GB con 90.570 átomos
   dejó la VM sin responder por RAM: es pesado, pero arranca.
+
+---
+
+# Cierre del 28 de septiembre: el MM-GBSA ya da dG
+
+## El fallo de fondo: el emparejamiento por orden
+
+Durante días se tipó el ligando desde el SMILES con antechamber y luego se
+metieron las coordenadas de la pose **emparejando uno con uno por orden**.
+Ese emparejamiento era falso: **antechamber reordena los átomos**.
+
+Medido: en el mol2 tipado el C4 y el C9 están a cuatro enlaces de distancia;
+al meter las coordenadas de la pose salen a 1,489 Å, que es un enlace y medio.
+El C de la pose se quedaba con el tipo y la carga del C equivocado. Todos los
+síntomas posteriores (VDWAALS nan, EEL inf, H a 0,5 Å del vecino, tipos de H
+que no existían, ángulos imposibles) eran de ese único error, no fallos
+aparte.
+
+**La solución no fue arreglar el emparejamiento sino invertir el orden**, para
+que sea AmberTools quien reordene sobre unas coordenadas que ya son las suyas:
+
+1. `obabel -ipdbqt` lee el pdbqt de la pose, que **sí** trae conectividad
+   (Vina escribe las ramas ROOT/BRANCH). 33 átomos, 36 enlaces.
+2. Se le ponen los H que falten, contando por **valencia** (no a ojo).
+   Pide 20, y salen 53 átomos y 56 enlaces: exactamente los mismos recuentos
+   que daba antechamber desde el SMILES. Que cuadre la cuenta por dos caminos
+   distintos es lo que hizo confiar en el método.
+3. Antechamber + parmchk2 lo tipan y escriben un mol2 que **ya lleva la pose
+   dentro**. De regalo, GAFF se asigna por contexto real y no por elemento.
+
+El script ya **no necesita `--smiles`**: la topología sale de los enlaces que
+el propio Vina escribió.
+
+## Colocación de los hidrógenos
+
+AmberTools 21 (conda-forge) no sabe ponerlos, y está todo medido en
+`anadir_hidrogenos`: `addHydrogens` y `hadd` no existen, `addH` los crea sin
+tipo y deja el prmtop de 0 bytes, `pdb4amber` y `reduce` no hacen nada con un
+residuo UNK, y `obabel -h` sobre un mol2 GAFF añade 1 H de 32.
+
+Se ponen con distancia de enlace estándar, en la dirección opuesta a la suma
+de los vecinos, en cono de 2 o 3 si hacen falta varios. El criterio de elección
+del sitio es **uno solo**: la distancia mínima a todo lo ya colocado (el
+ligando y el receptor). Antes había dos criterios que se peleaban y dejaban
+los dos H de dos metilenos contiguos a 0,83 Å.
+
+Los H también esquivan al **receptor**: sin eso un H se metía dentro de la
+proteína (el H5 a 0,269 Å de un LEU15) y el vdW salía 1,98e15.
+
+## El agua: fuera, y por qué
+
+Se probó `solvateBox` (90.570 átomos, el MM-GBSA se colgaba; no era RAM, era
+tamaño) y `solvateOct` (rápido, pero...). El problema de `solvateOct` es que
+pone agua alrededor de lo que le digas **sin preguntar si hay proteína
+alrededor**: metía 5.685 moléculas de agua dentro del receptor, con pares a
+0,28 Å (OG 409 contra 14532 a 0,684 Å).
+
+Y el agua no hacía falta: con `igb=5` el solvente es **implícito**. El agua
+explícita no aporta al dG y, al estar en el sistema, GB la trata como soluto.
+Un MM-GBSA con GB no lleva agua.
+
+**Sistema ahora:** receptor 9.688 + ligando 53 = complejo 9.741 átomos.
+
+## Dos comprobaciones que convierten el silencio en error
+
+- `comprobar_solapes_sistema()` sobre el `complex.rst7` antes de gastar un
+  minuto en el MM-GBSA, con rejilla para que tarde menos de un segundo. Cuando
+  dos átomos caen en el mismo sitio, el motor **no protesta**: devuelve
+  1,98e15 y sigue. Ahora sale el par y la distancia.
+- `leer_energia_mmpbsa()` se reescribió con el formato real de AmberTools 14.
+  No existe ninguna línea "DG (Energy terms)"; las filas se llaman `VDWAALS`,
+  `EEL`, `EGB`, `ESURF`, `G gas`, `G solv`, `TOTAL`. El lector viejo buscaba
+  un encabezado que esta versión no escribe, devolvía `None` sin decir nada y
+  el paso 3 reportaba "FALLO" con las energías ya calculadas.
+
+## Resultado
+
+```
+3. MM-GBSA complex   G =   -12090.1 kcal/mol
+3. MM-GBSA receptor  G =   -17023.0 kcal/mol
+3. MM-GBSA ligand    G =     4947.1 kcal/mol
+dG_union MM-GBSA = -14.3 kcal/mol
+```
+
+Ligando de prueba ACT_CHEMBL1078178, afinidad de Vina -10,2. Tarda 12 s por
+sistema. **El MM-GBSA del proyecto funciona.**
+
+## Docking
+
+Va por 13.837 de 35.207 poses, 3,19 s por ligando, unas 19 horas left.
