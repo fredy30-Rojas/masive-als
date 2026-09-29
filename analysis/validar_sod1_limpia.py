@@ -759,8 +759,22 @@ def main():
                r["auc_residual"], r["ef5"], len(r["quimias_pareadas"]),
                len(quimias), r["veredicto"]))
     log("")
-    log("   El fondo que decide es el duro: es el unico que puede separar quimia")
-    log("   especifica de quimia generica de ARN.")
+    if fondo2:
+        log("   El fondo que decide es el duro: es el unico que puede separar quimia")
+        log("   especifica de quimia generica de ARN.")
+    else:
+        # Esto estaba escrito como texto fijo y decia, con un solo bloque calculado,
+        # que "el fondo que decide es el duro". Un lector que se fiara de esa frase
+        # creeria que hay un segundo fondo medido cuando en esta corrida no lo hay:
+        # el bloque duro esta montado pero desactivado (POSES_FONDO2 = None). Se dice
+        # lo que se ha calculado, que es lo unico honesto.
+        log("   OJO: en esta corrida SOLO se ha calculado el fondo de senuelos")
+        log("   emparejados. El fondo duro (unidores de ARN de R-BIND 2.0) esta")
+        log("   MONTADO pero DESACTIVADO (POSES_FONDO2 = None), asi que el veredicto")
+        log("   de arriba responde a 'el embudo reconoce alguna quimia' y NO a la")
+        log("   pregunta mas dura de si separa quimia especifica de quimia generica")
+        log("   de ARN. Esa segunda pregunta sigue SIN RESPONDER en SOD1, y es la que")
+        log("   importa en una diana de union de ARN como esta.")
     if fondo3:
         log("   El de los medidos que no unen no se suma a ese: se lee aparte, con las")
         log("   reglas declaradas por adelantado en _medidos_no_unen/DECLARACION.md.")
