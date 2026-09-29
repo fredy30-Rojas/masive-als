@@ -35,8 +35,14 @@ numeros se puedan poner al lado sin traducir nada:
   * el intervalo bootstrap del 95 % (2000 remuestreos, semilla fija), porque la
     regla del proyecto solo declara un bloque si el limite inferior pasa de 0,5;
   * el reparto por quimiotipo (esqueletos de Murcko), que en DUD-E es
-    obligatorio: los 474 activos de CDK2 vienen de series congenericas y un AUC
-    global alto puede venir de una sola familia;
+    obligatorio. OJO, la premisa que se suponia aqui era FALSA y se midio el
+    29 de septiembre con `auditar_activos_cdk2.py`: los 474 activos de CDK2 NO
+    vienen de series congenericas. tienen 474 esqueletos de Murcko DISTINTOS
+    (ninguno con 5 o mas activos) y el maximo comun subestructura de una
+    muestra de 60 son 3 atomos. Es decir, el AUC global NO puede estar inflado
+    por una sola familia, y el reparto por quimiotipo sale vacio porque no hay
+    familias que repartir. Eso es una buena noticia para la lectura del AUC, pero
+    hay que decirlo bien en vez de dejar escrito lo contrario;
   * la comparacion directa con TBK1, recalculada aqui con el mismo codigo desde
     `resultados_tbk1.csv`, que es la unica forma honesta de ponerlas juntas.
 
@@ -498,9 +504,16 @@ def main():
     lineas.append("quimiotipos (esqueletos de Murcko con >= %d activos): %d"
                   % (args.min_quimiotipo, len(validos)))
     lineas.append("   de ellos, con AUC por atomo > 0,5: %d" % pasan)
-    lineas.append("   es la cuenta que decide: los 474 activos de CDK2 vienen de"
-                  " series congenericas y un")
-    lineas.append("   AUC global alto puede venir de una sola familia.")
+    lineas.append("   OJO: esta cuenta sale vacia, y no por un fallo. Los 474 activos")
+    lineas.append("   de CDK2 tienen 474 esqueletos de Murcko DISTINTOS: no vienen de"
+                  " series")
+    lineas.append("   congenericas (medido el 29 de septiembre con"
+                  " `auditar_activos_cdk2.py`, y el maximo comun")
+    lineas.append("   subestructura de una muestra de 60 son 3 atomos). El riesgo"
+                  " habitual de que un")
+    lineas.append("   AUC global alto venga de una sola familia NO se cumple aqui:"
+                  " si el AUC sale")
+    lineas.append("   alto, es del conjunto.")
     for n, esc, auc_esc in detalle[:12]:
         lineas.append("     %2d activos  AUC %.3f  %s" % (n, auc_esc, esc[:70]))
 
