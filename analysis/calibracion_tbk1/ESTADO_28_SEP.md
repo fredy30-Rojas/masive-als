@@ -241,7 +241,7 @@ Un mdin que empieza directamente por `&cntrl` hace que sander responda
 come la primera linea como TITULO y luego busca el namelist a partir de la
 segunda. Se probaron ocho variantes (`&end` en vez de `/`, el bloque entero en
 la linea 1, dos y seis espacios de sangria, `mdin` en vez de `-i`, con
-AMBERHOME, con `amber.sh` sourced) y las ocho fallan igual. **Con una linea de
+AMBERHOME, con `amber.sh` cargado) y las ocho fallan igual. **Con una linea de
 texto delante, rc=0.** El mdout lo delata: "Here is the input file:" salia
 VACIO. El MM-GBSA usa MMPBSA.py, que genera su propio mdin, asi que este
 fallo solo aparece en la minimizacion.
@@ -274,7 +274,7 @@ un margen de 0,036: no es "no demostrado", es medido como nulo.
 documentado, con los seis fallos que hicieron falta para que funcionara, para
 no repetir el camino.
 
-## Pero el docking no es malo: la lista lo estabaainingolando
+## Pero el docking no es malo: la lista lo estaba engañando
 
 El control de redocking del BX-795 da **RMSD 1,23 Å** (listón del proyecto: 2 Å).
 Receptor y caja están bien. Y sin embargo:
@@ -324,3 +324,29 @@ cribado.** Para validar el pipeline de punta a punta hace falta un conjunto
 público (DUD-E, CASF-2016 o equivalente). Para descubrir compuestos con un
 AUROC de 0,62 no hay método: el consenso multi-diana (network pharmacology) es
 lo que aguanta esa señal.
+
+## 29 sep: veredicto de los tres rescorings (medido, 470 ligandos)
+
+La verdad de referencia v2 (393 activos y 77 inactivos con dos o mas medidas,
+IC50/Ki/EC50 en nM, sin limites) se rescoreo tres veces con las mismas poses:
+
+- Vina, mejor pose: AUROC 0,617. Con la media de las 9 poses: 0,637.
+- MM-GBSA (igb=5, sin agua, sin minimizar): AUROC 0,498. No discrimina nada.
+- GNINA 1.3.3 CNN (score_only, pose 1, en Kaggle): CNNscore 0,536,
+  CNNaffinity 0,547, CNN_VS 0,545. La fusion por rangos con Vina no suma
+  (0,613-0,617): el CNN y Vina se equivocan en los mismos compuestos.
+
+Conclusion: el techo del docking clasico en TBK1 con este protocolo esta en
+0,62-0,64. El MM-GBSA tal cual esta (pose congelada, H por geometria ideal,
+sin minimizacion del complejo) no aporta senal y no vale como rescore aqui.
+La senal de Vina es real (la normalizacion por tamano no la reproduce) y
+mejora poco con las 9 poses.
+
+Fallos que dejo resueltos en el camino del kernel GNINA (binario x86 en
+Kaggle, no en Oracle que es ARM): faltaban las librerias CUDA 12 de pip
+(cudnn, cudart, cusparse), las lineas MODEL/ENDMDL hay que quitarlas al
+partir un pdbqt de 9 modelos (smina da Parse error si las copia), y el
+CLI de kaggle en Windows necesita PYTHONUTF8=1 para bajar el log.
+
+La criba MM-GBSA de los 470 dejo 435 ok y 35 fallos, 7 dG absurdos
+(|dG|>500, choques) filtrados por umbral.

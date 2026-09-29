@@ -1039,7 +1039,7 @@ def comprobar_solapes_sistema(rst7, umbral=0.9):
 # segunda; si la primera es el propio `&cntrl`, se lo come y no encuentra
 # ninguno. Se probo con `&end` en vez de `/`, con el bloque entero en la linea
 # uno, con seis y con dos espacios de sangria, con `mdin` en vez del nombre
-# pasado con -i, con AMBERHOME y con amber.sh sourced: las ocho fallan igual.
+# pasado con -i, con AMBERHOME y con amber.sh cargado: las ocho fallan igual.
 # Con una linea de texto delante, rc=0 y el rst7 sale. (El mdout lo delata:
 # "Here is the input file:" salia VACIO, con la linea de titulo sale el
 # contenido.) El MM-GBSA usa MMPBSA.py, que genera su propio mdin, y por eso
