@@ -124,8 +124,14 @@ def main():
     V.NOTA_FONDO = cfg["nota_fondo"]
     V.ETIQUETA_FONDO = ("señuelos emparejados en propiedades" if args.target == "SOD1"
                         else "señuelos emparejados en propiedades (fondo blando)")
-    V.POSES_FONDO2 = cfg["poses2"]
-    V.LIGS_FONDO2 = cfg["ligands2"]
+    # El fondo duro SOLO se sobrescribe si la diana lo declara. Para SOD1, `poses2`
+    # esta a None porque el fondo duro lo creo `validar_sod1_limpia.py` en su propio
+    # `POSES_FONDO2`; sobrescribir con None lo hacia desaparecer, y la corrida se
+    # quedaba con UN solo bloque sin avisar. Es justo el error que se cuela en
+    # silencio: no falla, devuelve menos y parece que todo va bien.
+    if cfg["poses2"]:
+        V.POSES_FONDO2 = cfg["poses2"]
+        V.LIGS_FONDO2 = cfg["ligands2"]
     V.NOTA_FONDO2 = cfg["nota_fondo2"]
     V.ETIQUETA_FONDO2 = cfg["etiqueta_fondo2"]
     # Tercer fondo: compuestos medidos que NO unen. La carpeta depende de la diana y

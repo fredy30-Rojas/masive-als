@@ -24,6 +24,45 @@ script porque es el error mas facil de cometer al reimplementar la metrica.)
 
 **Las seis celdas cruzan el 0,5.** El intervalo tiene entre 0,40 y 0,48 de ancho.
 
+## Y el otro criterio, el que DECIDE, tampoco (29 sep 2026, tarde)
+
+El veredicto del proyecto no lo da el AUC crudo: lo da el **criterio C**, el emparejado
+por tamaño, que decia "PASA" con dos de cinco químicas en TDP-43 y cinco de ocho en
+SOD1. Ese criterio **nunca se le habia calculado la probabilidad de que pase con
+moleculas que no unen nada**. Con pocas químicas, quedarse en la mitad buena de su grupo
+de tamaño es facil por casualidad.
+
+Se ha añadido `permutacion_ganadoras()` al validador: bajo la hipótesis nula, cada
+positivo se sustituye por una molécula del **fondo** de su mismo tamaño, y se cuenta
+cuántas químicas ganarían con ese mismo criterio. 2.000 permutaciones:
+
+| diana | fondo | químicas que ganan | lo que daría el azar (mediana) | p |
+|---|---|---|---|---|
+| TDP-43 | blando | 2 de 5 | 2 | **0,806** |
+| TDP-43 | duro | 2 de 5 | 2 | **0,715** |
+| TDP-43 | los dos | 2 de 5 | 2 | **0,724** |
+| SOD1 | blando | 5 de 8 | 3 | 0,180 |
+| SOD1 | duro | 5 de 8 | 3 | 0,192 |
+| SOD1 | los dos | 5 de 8 | 3 | 0,183 |
+
+En TDP-43, ganar dos de cinco químicas es **exactamente lo que da el azar**: pasa en el
+81 % de las permutaciones. En SOD1 es mejor que el azar (la mediana nula son 3 de 8 y se
+llega a 5), pero no llega a significación.
+
+**Ninguna de las seis celdas de las dos dianas es distinguible de la casualidad**, ni
+por el AUC ni por el criterio que decide. El log del validador ahora lo dice junto al
+"PASA" en todas las corridas, sin cambiar la vara que el proyecto fijó por adelantado
+(moverla después de ver el resultado es la forma más rápida de convertir un proyecto en
+una historia).
+
+## Un tercer fallo encontrado de paso
+
+`validar_diana_limpia.py --target SOD1` **perdía el fondo duro**: para SOD1, `DIANAS`
+deja `poses2` a None porque el fondo lo creó `validar_sod1_limpia.py` en su propio
+`POSES_FONDO2`, y el wrapper lo sobrescribía con None. La corrida se quedaba con **un
+solo bloque** y no fallaba: devolvía menos y parecía que todo iba bien. Corregido, y
+SOD1 vuelve a sacar sus tres bloques.
+
 ## Lo que esto significa, y no es lo que parece
 
 El proyecto lleva semanas diciendo "el embudo NO PASA". Con estos intervalos, esa frase
@@ -51,6 +90,13 @@ Eso invalida, y hay que decirlo claro, tres cosas que se han dado por buenas:
 3. **El techo del embudo no se puede fijar.** Decir "el docking clasico no llega de
    0,62 en TBK1" es un numero; con 300 activos si tiene intervalo (TBK1 tiene 2.313, ahi
    si hay poder). Pero en TDP-43 y SOD1, con 7 y 11, no.
+
+Y el que mas duele, porque es el que decidia:
+
+4. **El "PASA" no era evidencia.** El criterio C decia que el embudo reconocia quimia
+   en ambas dianas. La permutacion dice que en TDP-43 eso pasa por casualidad el 81 %
+   de las veces. La conclusion ya no es "el embudo no pasa" sino "**no hay forma de
+   saber si pasa** con estos datos".
 
 ## Cuantos positivos harian falta
 
@@ -88,6 +134,12 @@ En este orden, y por una razon distinta cada uno:
 numero de este proyecto se escribe sin su IC. `bootstrap_auc.py` se ejecuta dentro de
 los validadores, no aparte. Es lo mas barato de todo lo de esta lista y es lo que mas
 protege al proyecto de escribir una conclusion falsa por tercera vez.
+
+**HECHO (29 sep, tarde).** `intervalo_auc()` y `permutacion_ganadoras()` ya estan
+dentro de `validar_sod1_limpia.py`, asi que las dos medidas salen en el log de TODA
+corrona de las dos dianas y en el diccionario de resultados. Comprobado que el punto
+del AUC no se mueve: 0,301 / 0,357 / 0,332 en TDP-43 y 0,439 / 0,313 / 0,409 en SOD1,
+identicos a los de antes.
 
 **2. No volver a tocar la funcion de puntuacion.** Es la decision que mas horas de GPU
 ahorra. El problema ya no es donde poner los numeros: es que no hay con que compararlos.

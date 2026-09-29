@@ -37,6 +37,16 @@ Se reportan cuatro numeros y no uno, porque ninguno basta solo:
                            el sesgo de tamaño. Es la medida honesta;
   * EF1% / EF5%.
 
+Y desde el 29 de septiembre de 2026, **el IC 95% del AUC crudo va siempre debajo**.
+No es adorno: `bootstrap_auc.py` midio que las seis celdas de TDP-43 y SOD1 tienen un
+margen de 0,4 a 0,5 y que todas cruzan el 0,5, es decir, que ninguna es distinguible
+del azar. Un AUC sin su margen no dice si el embudo falla o si faltan datos, y esa
+ambiguedad es exactamente la que ha hecho que este proyecto comparara tres
+re-puntuaciones distintas que no se distinguian entre si. El intervalo se calcula
+re-muestrando los positivos con `intervalo_auc()` y sale en el log de TODA corrida,
+porque un numero que se puede publicar sin margen es un numero que se acabara
+publicando sin margen.
+
 DOS FONDOS, DOS PREGUNTAS  (23 sep 2026)
 ----------------------------------------
 Todo lo de arriba se calcula **por cada fondo**, y eso es lo que faltaba. El fondo
@@ -267,6 +277,60 @@ def auc(act, dec):
     return g / (len(act) * len(dec))
 
 
+# --------------------------------------------------------------------------
+# EL INTERVALO DE CONFIANZA, DENTRO DEL VALIDADOR (29 sep 2026)
+# --------------------------------------------------------------------------
+# Por que aqui y no en un script aparte: `bootstrap_auc.py` midio que las seis celdas
+# de TDP-43 y SOD1 tienen un intervalo de 0,4 a 0,5 de ancho y que todas cruzan el
+# 0,5. O sea, que ningun AUC de este proyecto se puede leer sin su margen. Si el
+# intervalo vive en otro fichero, la proxima validacion se publica sin el, que es
+# exactamente el fallo que hay que evitar. Aqui sale SIEMPRE, junto al numero.
+#
+# Que se re-muestrea: SOLO el conjunto de positivos. El error de un AUC lo pone el
+# numero de positivos (con 7, el margen es de mas de 0,4) y el del fondo, con cientos
+# de ligandos, es despreciable al lado. Ademas el fondo se acota a FONDO_MAX para que
+# el re-muestreo no se vaya a miles de segundos con los bancos grandes (TBK1 tiene
+# 33.000 senuelos): el sub-muestreo del fondo es con semilla fija, asi que el numero
+# que sale es reproducible, y sale en el log de que se ha acotado.
+
+N_BOOT = 2000
+SEMILLA_BOOT = 20260929
+FONDO_MAX = 1500
+N_PERM = 2000
+
+
+def intervalo_auc(act, dec, n_boot=N_BOOT, semilla=SEMILLA_BOOT):
+    """(lo, hi, p_supera_azar, n_positivos, fondo_acotado) del AUC crudo.
+
+    El AUC de cada re-muestreo se calcula con la MISMA convencion que `auc()`: menos
+    energia es mejor. La version clasica de Mann-Whitney sale invertida (da el
+    complemento) y ya se vio pasar: 0,699 donde el validador da 0,301.
+    """
+    act = list(act)
+    dec = list(dec)
+    if len(act) < 2 or not dec:
+        return None
+    rng = np.random.default_rng(semilla)
+    acotado = False
+    if len(dec) > FONDO_MAX:
+        dec = list(rng.choice(np.asarray(dec, dtype=float), size=FONDO_MAX,
+                              replace=False))
+        acotado = True
+    a = np.asarray(act, dtype=float)
+    d = np.asarray(dec, dtype=float)
+    idx = rng.integers(0, a.size, size=(n_boot, a.size))
+    # Cada fila es un re-muestreo de positivos; el AUC es la proporcion de pares en los
+    # que el positivo gana (mas negativo). Vectorizado: (n_boot, n+, n-). La suma va
+    # por los DOS ejes, porque el denominador es el numero total de pares: sumar solo
+    # sobre el eje del fondo divide entre todos los pares y cuenta solo una fila de
+    # positivos, y da un AUC que sale cerca de cero. Paso por paso, asi se ve.
+    dif = d[None, None, :] - a[idx][:, :, None]
+    ganados = np.sum(dif > 0, axis=(1, 2)) + 0.5 * np.sum(dif == 0, axis=(1, 2))
+    muestras = ganados / (a.size * d.size)
+    lo, hi = np.percentile(muestras, [2.5, 97.5])
+    return float(lo), float(hi), float(np.mean(muestras > 0.5)), a.size, acotado
+
+
 def ef(act, dec, pct):
     todo = sorted([(s, 1) for s in act] + [(s, 0) for s in dec])
     k = max(1, int(round(len(todo) * pct / 100.0)))
@@ -303,8 +367,9 @@ def pareado_por_tamano(scores, pesados, quimias, positivos, decoys):
     quimica, un positivo debe ganar a los del fondo que pesan como el. Si solo
     gana a los pequeños, lo que ordena es el tamaño.
 
-    Devuelve (filas, quimias_que_ganan). Cada fila es
-    (ligando, pesados, cuantos comparados, AUC pareada, gana, quimia).
+    Devuelve (filas, quimias_que_ganan, gana_por_quimia). Cada fila es
+    (ligando, pesados, cuantos comparados, AUC pareada, gana, quimia). El tercero es
+    el mapa quimia -> lista de True/False, que necesita la prueba de permutacion.
     """
     filas, gana_por_quimia = [], {}
     for q in sorted(quimias):
@@ -325,7 +390,77 @@ def pareado_por_tamano(scores, pesados, quimias, positivos, decoys):
             gana_por_quimia.setdefault(q, []).append(gana)
             filas.append((n_lig, n, len(par), auc_par, gana, q))
     ganan = [q for q, v in gana_por_quimia.items() if any(v)]
-    return filas, ganan
+    return filas, ganan, gana_por_quimia
+
+
+def permutacion_ganadoras(gana_por_quimia, quimias, scores, pesados, decoys,
+                          n_perm=N_PERM, semilla=SEMILLA_BOOT):
+    """¿El numero de químicas que ganan es mejor que el azar? (prueba de permutación)
+
+    POR QUE FALTA ESTA PRUEBA
+    ------------------------
+    El criterio que DECIDE (el C, emparejado por tamaño) dice "PASA" con dos
+    químicas de tres o dos de cinco, y no se le ha calculado nunca la probabilidad de
+    que eso pase con moléculas que no unen nada. Con pocas químicas, quedarse en la
+    mitad buena de su grupo de tamaño es facilísimo por casualidad, asi que el
+    veredicto que se viene leyendo no tiene el mismo grado de evidencia que el AUC y
+    desde hoy se lee con las dos cosas al lado.
+
+    EL NULO
+    -------
+    Bajo la hipótesis nula, cada positiva es una molécula del FONDO de tamaño
+    parecido. Se re-muestrea una por cada positiva real, de su mismo grupo de tamaño
+    (±2, ±3 o ±5 átomos pesados, la misma tolerancia que usa `pareado_por_tamano`),
+    y se cuenta cuántas químicas ganan. Se comparan esos pseudo-ligandos con SU propio
+    grupo de tamaño, igual que se compara el positivo real, que es lo único que hace
+    justo el criterio.
+
+    Devuelve (p_valor, n_ganadoras_observadas, n_quimias, tabla_del_nulo).
+    """
+    if not gana_por_quimia or not decoys:
+        return None
+    rng = np.random.default_rng(semilla)
+    qs = sorted(gana_por_quimia)
+    observadas = sum(1 for q in qs if any(gana_por_quimia[q]))
+    n_quimias = len(qs)
+
+    # Un grupo de tamaño por positiva real, con los margenes del criterio, agrupado
+    # por quimia: el criterio pregunta si el MEJOR miembro de la quimia gana, asi que
+    # el nulo tambien tiene que poder decidir por quimia y no por positivo.
+    por_quimia = {}
+    for q in qs:
+        for n_lig in quimias.get(q, []):
+            k = "ACT_" + n_lig
+            if k not in scores:
+                continue
+            n = pesados[k]
+            par = []
+            for margen in (2, 3, 5):
+                par = [j for j in decoys if abs(pesados[j] - n) <= margen]
+                if len(par) >= 20:
+                    break
+            if len(par) >= 5:
+                por_quimia.setdefault(q, []).append(
+                    (np.asarray([scores[j] for j in par], dtype=float),
+                     float(np.median([scores[j] for j in par]))))
+    if not por_quimia:
+        return None
+
+    nulos = np.zeros(n_perm, dtype=int)
+    for t in range(n_perm):
+        ganan = 0
+        for _q, grupos_q in por_quimia.items():
+            mejor = True     # gana si AL MENOS uno de sus miembros gana, como el criterio
+            for par, mediana in grupos_q:
+                # un pseudo-positivo del fondo, del mismo tamaño que el real
+                if par[rng.integers(0, par.size)] <= mediana:
+                    mejor = False
+                    break
+            if mejor:
+                ganan += 1
+        nulos[t] = ganan
+    p = float(np.mean(nulos >= observadas))
+    return p, observadas, n_quimias, nulos
 
 
 def evaluar(positivos, decoys, scores, pesados, quimias, etiqueta, nota="",
@@ -367,6 +502,26 @@ def evaluar(positivos, decoys, scores, pesados, quimias, etiqueta, nota="",
         log("   %s" % nota)
     log("=" * 78)
     log("   AUC crudo            %.3f" % auc_crudo)
+    ic = intervalo_auc(a, d)
+    if ic is None:
+        log("   IC 95%% del AUC crudo   (no se puede calcular con %d positivos)"
+            % len(a))
+    else:
+        lo, hi, p_azar, n_pos, acotado = ic
+        log("   IC 95%% del AUC crudo   [%.3f , %.3f]  (n+ = %d%s)"
+            % (lo, hi, n_pos,
+               "; fondo acotado a %d para el re-muestreo" % FONDO_MAX if acotado else ""))
+        log("      P(AUC real > 0,5, es decir por encima del azar) = %.2f" % p_azar)
+        if lo > 0.5:
+            log("      LECTURA: por encima del azar, y el margen NO toca el azar.")
+        elif hi < 0.5:
+            log("      LECTURA: por debajo del azar, y el margen NO toca el azar.")
+        else:
+            log("      LECTURA: **NO DISTINGUIBLE DEL AZAR** (el margen cruza 0,5).")
+            log("      Con %d positivos, este AUC no demuestra que el embudo falle:"
+                % n_pos)
+            log("      demuestra que no hay positivos medidos para decidirlo. Ningun")
+            log("      cambio de funcion de puntuacion se puede juzgar con este margen.")
     log("   AUC por atomo pesado %.3f" % auc_atomo)
     log("   AUC residual         %.3f   (afinidad - recta del fondo;"
         " un carbono pesado vale %+.3f kcal/mol)" % (auc_resid, b0))
@@ -431,7 +586,7 @@ def evaluar(positivos, decoys, scores, pesados, quimias, etiqueta, nota="",
     log("")
     log("      %-28s %-7s %-9s %-11s %s"
         % ("ligando", "atomos", "comparado", "AUC pareada", "gana?"))
-    filas_par, quimias_pareadas = pareado_por_tamano(
+    filas_par, quimias_pareadas, _gana_por_quimia = pareado_por_tamano(
         S, P, quimias, positivos, decoys)
     for n_lig, n, n_par, auc_par, gana, _ in filas_par:
         log("      %-28s %-7d %-9d %-11.3f %s"
@@ -441,6 +596,21 @@ def evaluar(positivos, decoys, scores, pesados, quimias, etiqueta, nota="",
     log("      quimias que ganan a los del fondo DE SU TAMAÑO: %d de %d -> %s"
         % (len(quimias_pareadas), len(quimias),
            ", ".join(quimias_pareadas) or "ninguna"))
+    perm = permutacion_ganadoras(_gana_por_quimia, quimias, S, P, decoys)
+    if perm is not None:
+        p_perm, obs, nq, nulos = perm
+        log("")
+        log("      PERMUTACIÓN: con moleculas del FONDO en lugar de los positivos, ese")
+        log("      mismo criterio daria %s de %d químicas, y se llega a %d en el %5.1f%%"
+            % (int(np.median(nulos)), nq, obs, 100.0 * p_perm))
+        log("      de las permutaciones. p = %.3f" % p_perm)
+        if p_perm < 0.05:
+            log("      LECTURA: ganar %d de %d NO es casualidad (p < 0,05)." % (obs, nq))
+        else:
+            log("      LECTURA: **ganar %d de %d no se distingue de que ganen moleculas"
+                % (obs, nq))
+            log("      que no unen nada** (p = %.3f). El PASA de arriba no es evidencia."
+                % p_perm)
 
     k_top = max(1, int(round(len(orden) * CORTE_EF / 100.0)))
     tam_top = np.mean([P[k] for k, _ in orden[:k_top]])
@@ -452,6 +622,12 @@ def evaluar(positivos, decoys, scores, pesados, quimias, etiqueta, nota="",
 
     # ------------------------------------------------------------------- criterio
     veredicto = "PASA" if len(quimias_pareadas) >= 2 else "NO PASA"
+    if perm is not None and perm[0] >= 0.05 and veredicto == "PASA":
+        # El PASA sigue siendo el que el proyecto fijó por adelantado y no se cambia a
+        # posteriori (mover la vara despues de ver el resultado es la forma mas rapida
+        # de convertir un proyecto en una historia). Lo que se hace es dejarlo escrito
+        # al lado: el PASA no es evidencia si la permutacion dice que no lo es.
+        veredicto = "PASA (PERO NO SIGNIFICATIVO: p = %.3f; ver arriba)" % perm[0]
     rec1 = _cuenta_recuperados(quimias, S, puesto, orden, 1.0)
     rec2 = _cuenta_recuperados(quimias, S, puesto, orden, 2.0)
     rec10 = _cuenta_recuperados(quimias, S, puesto, orden, 10.0)
@@ -490,6 +666,13 @@ def evaluar(positivos, decoys, scores, pesados, quimias, etiqueta, nota="",
     return {"etiqueta": etiqueta, "n_pos": len(positivos), "n_fondo": len(decoys),
             "auc_crudo": round(auc_crudo, 4), "auc_atomo": round(auc_atomo, 4),
             "auc_residual": round(auc_resid, 4),
+            # El intervalo va en el diccionario para que la tabla comparativa final
+            # pueda llevarlo. Un AUC sin margen, en una tabla que resume tres fondos,
+            # es justo el numero que se cita despues fuera de contexto.
+            "auc_ic95": None if ic is None else [round(ic[0], 4), round(ic[1], 4)],
+            "auc_p_supera_azar": None if ic is None else round(ic[2], 4),
+            "auc_separable_del_azar": None if ic is None
+            else bool(ic[0] > 0.5 or ic[1] < 0.5),
             "ef1": round(ef(a, d, 1.0), 3), "ef5": round(ef(a, d, 5.0), 3),
             "quimias_pareadas": quimias_pareadas,
             "quimias_corte_5pct": recuperados,
