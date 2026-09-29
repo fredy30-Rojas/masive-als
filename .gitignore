@@ -66,3 +66,7 @@ analysis/calibracion_dude_cdk2/*.mol2.gz
 # Cache descargada de DUD-E (102 ligandos + receptores + PDB originales).
 # Se regenera sola con elegir_control_dude.py; son 8,4 MB que no aportan al repo.
 analysis/calibracion_dude_cdk2/_cache_dude/
+
+# Poses del fondo duro de R-BIND contra SOD1: 152 ficheros que se regeneran con
+# acoplar_fondo_rbind_sod1.py (Vina de CPU, ~70 min). No aportan al repo.
+analysis/_validacion_SOD1_rbind/

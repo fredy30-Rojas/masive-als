@@ -126,12 +126,23 @@ LIGS_FONDO = os.path.join(BASE, "validacion_SOD1_v5", "ligands")
 
 # Fondo duro: un segundo fondo, opcional, con ligandos que SI se unen a su diana
 # (para TDP-43, los unidores de ARN de R-BIND 2.0). Sirve para preguntar lo que el
-# fondo emparejado no puede: si el embudo distingue quimia especifica de quimia
-# generica de ARN. Si es None, no hay segundo bloque y todo sale como siempre.
-POSES_FONDO2 = None
-LIGS_FONDO2 = None
-NOTA_FONDO2 = ""
-ETIQUETA_FONDO2 = "fondo duro"
+# fondo emparejado no puede: si el embudo distingue quimica especifica de quimica
+# generica de ARN.
+#
+# ACTIVO desde el 29 de septiembre. Estaba montado pero apagado porque no habia
+# ninguna pose de R-BIND en la CAJA de SOD1: las 152 que hay estan acopladas contra
+# TDP-43, y una pose en otra caja no es comparable con nada. Se acoplaron aqui con
+# `acoplar_fondo_rbind_sod1.py`, con el MISMO receptor, la MISMA caja, la MISMA
+# exhaustividad y la misma receta de preparacion que los positivos y los senuelos de
+# esta corrida, que es lo unico que hace legitima la comparacion. Motor: `vina.exe` de
+# CPU, el mismo con el que se acoplo el fondo duro de TDP-43, para que las dos dianas
+# se puntuen con el mismo motor. No se mezclan los dos fondos: cada bloque se puntua
+# con sus positivos y su fondo, que es lo que dice el docstring de arriba.
+POSES_FONDO2 = os.path.join(BASE, "_validacion_SOD1_rbind", "out")
+LIGS_FONDO2 = os.path.join(BASE, "_validacion_SOD1_rbind", "ligands")
+NOTA_FONDO2 = ("unidores de ARN de R-BIND 2.0, acoplados en la misma caja y con la "
+               "misma exhaustividad que los positivos")
+ETIQUETA_FONDO2 = "fondo duro (R-BIND 2.0, unidores de ARN)"
 
 # Tercer fondo: compuestos MEDIDOS que NO unen. No se puede inventar —solo existe
 # cuando alguien mide— pero si dejar montado: `fondo_inactivos.py` prepara y acopla con
