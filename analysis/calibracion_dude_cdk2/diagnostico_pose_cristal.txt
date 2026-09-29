@@ -1,0 +1,108 @@
+POR QUE EL MOTOR NO DEVUELVE LA POSE DEL CRISTAL DE CDK2
+   2026-09-29 18:48 | todo sin GPU
+
+receptor preparado: 2244 atomos pesados | ligando: 30 (9 polares)
+
+1. CABIA LA POSE DEL CRISTAL?
+   contactos a menos de 4 A: 17 residuos | distancia minima de atomos pesados 2.12 A
+   anclaje (LEU83, GLU81, HIE84, LEU134): GLU81 2.85, HIE84 3.76, LEU83 2.60, LEU134 3.21
+   contactos polares (N/O/F del ligando contra N/O del receptor a menos de 3,6 A): 6 | el mas corto 2.60 A
+
+2 y 3. QUE DEVUELVE EL MOTOR
+
+   caja20_depth20 | mejor pose 6 (-7.90 kcal/mol) a 3.81 A
+      nucleo pirimidina           1.45 A
+      fenilo difluorado           2.34 A
+      anillo fusionado            2.36 A
+      resto saturado + amonio     5.87 A
+      contactos polares 5 (el cristal tiene 6) | el mas corto 3.05 A
+      contactos comunes 12 de 17 | perdidos 5 | nuevos 5
+      el anclaje que se mantiene: HIE84, LEU83, LEU134
+      contactos que se pierden: GLU81, LYS33, LYS89, PHE80, VAL64
+      contactos nuevos: ARG297, GLN85, GLU8, GLU12, LEU298
+
+   caja20_depth32 | mejor pose 4 (-7.90 kcal/mol) a 6.55 A
+      nucleo pirimidina           4.56 A
+      fenilo difluorado           4.38 A
+      anillo fusionado            6.55 A
+      resto saturado + amonio     8.67 A
+      contactos polares 8 (el cristal tiene 6) | el mas corto 2.88 A
+      contactos comunes 12 de 17 | perdidos 5 | nuevos 3
+      el anclaje que se mantiene: GLU81, LEU83, LEU134
+      contactos que se pierden: ALA144, ASN132, HIE84, LYS33, PHE82
+      contactos nuevos: GLU12, GLY11, LYS129
+
+   caja22_depth20 | mejor pose 3 (-7.80 kcal/mol) a 6.87 A
+      nucleo pirimidina           4.52 A
+      fenilo difluorado           4.39 A
+      anillo fusionado            6.57 A
+      resto saturado + amonio     9.39 A
+      contactos polares 9 (el cristal tiene 6) | el mas corto 2.89 A
+      contactos comunes 12 de 17 | perdidos 5 | nuevos 4
+      el anclaje que se mantiene: GLU81, LEU83, LEU134
+      contactos que se pierden: ALA144, ASN132, HIE84, LYS33, PHE82
+      contactos nuevos: GLU12, GLY11, LYS129, VAL163
+
+   caja22_depth32 | mejor pose 9 (-7.90 kcal/mol) a 3.99 A
+      nucleo pirimidina           1.55 A
+      fenilo difluorado           2.50 A
+      anillo fusionado            2.36 A
+      resto saturado + amonio     6.16 A
+      contactos polares 5 (el cristal tiene 6) | el mas corto 2.99 A
+      contactos comunes 11 de 17 | perdidos 6 | nuevos 4
+      el anclaje que se mantiene: HIE84, LEU83, LEU134
+      contactos que se pierden: GLU81, LYS33, LYS89, PHE80, PHE82, VAL64
+      contactos nuevos: GLN85, GLU12, GLY11, LEU298
+
+   caja24_depth20 | mejor pose 7 (-8.10 kcal/mol) a 6.41 A
+      nucleo pirimidina           4.40 A
+      fenilo difluorado           4.45 A
+      anillo fusionado            6.43 A
+      resto saturado + amonio     8.43 A
+      contactos polares 8 (el cristal tiene 6) | el mas corto 2.82 A
+      contactos comunes 12 de 17 | perdidos 5 | nuevos 3
+      el anclaje que se mantiene: GLU81, LEU83, LEU134
+      contactos que se pierden: ALA144, ASN132, HIE84, LYS33, PHE82
+      contactos nuevos: GLU12, GLU162, VAL163
+
+   caja24_depth32 | mejor pose 9 (-8.00 kcal/mol) a 6.85 A
+      nucleo pirimidina           2.19 A
+      fenilo difluorado           8.16 A
+      anillo fusionado            6.58 A
+      resto saturado + amonio     7.66 A
+      contactos polares 4 (el cristal tiene 6) | el mas corto 2.79 A
+      contactos comunes 12 de 17 | perdidos 5 | nuevos 3
+      el anclaje que se mantiene: GLU81, HIE84, LEU83, LEU134
+      contactos que se pierden: ALA144, LYS33, PHE80, VAL18, VAL64
+      contactos nuevos: GLN85, GLU12, GLY11
+
+4. ESTABA TENSA LA POSE DEL CRISTAL? (MMFF94, hidrogenos relajados, mismas condiciones)
+   conformero del cristal: 49.19 kcal/mol (su minimo local 11.44 -> tension 37.76)
+   (la tension del cristal se mide con el MISMO protocolo que la de las poses:
+    atomos pesados fijos, hidrogenos regenerados y sueltos)
+   caja20_depth20   mejor pose: 63.77 kcal/mol (tension 51.91)
+      el cristal NO esta mas tenso que la pose del motor (49.19 contra 63.77): lo
+      descarto la PUNTUACION, no la tension.
+   caja20_depth32   mejor pose: 66.29 kcal/mol (tension 47.50)
+      el cristal NO esta mas tenso que la pose del motor (49.19 contra 66.29): lo
+      descarto la PUNTUACION, no la tension.
+   caja22_depth20   mejor pose: 68.68 kcal/mol (tension 56.49)
+      el cristal NO esta mas tenso que la pose del motor (49.19 contra 68.68): lo
+      descarto la PUNTUACION, no la tension.
+   caja22_depth32   mejor pose: 70.25 kcal/mol (tension 50.82)
+      el cristal NO esta mas tenso que la pose del motor (49.19 contra 70.25): lo
+      descarto la PUNTUACION, no la tension.
+   caja24_depth20   mejor pose: 58.67 kcal/mol (tension 43.24)
+      el cristal NO esta mas tenso que la pose del motor (49.19 contra 58.67): lo
+      descarto la PUNTUACION, no la tension.
+   caja24_depth32   mejor pose: 61.27 kcal/mol (tension 44.85)
+      el cristal NO esta mas tenso que la pose del motor (49.19 contra 61.27): lo
+      descarto la PUNTUACION, no la tension.
+
+SIGUIENTE PRUEBA (necesita la GPU, que esta con TBK1): caja estrecha
+   Si se repite el control con una caja de 6-8 A pegada a la pose del cristal y el
+   motor la reproduce, lo que fallaba era la BUSQUEDA. Si ni asi la saca, es la
+   PUNTUACION, y lo que hay que cambiar es el motor (Vinardo, o rescoring por
+   interacciones encima de las poses). Se lanza con:
+      python control_redocking_cdk2.py --caja 6 --depth 64
+      python control_redocking_cdk2.py --caja 8 --depth 64

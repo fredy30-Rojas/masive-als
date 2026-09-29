@@ -22,9 +22,15 @@ no va a soltar la GPU nunca, y quedarse esperandolo es perder la noche.
 
 QUE LANZA
 ---------
-`lanzar_banco_cdk2.py --decoys 4740`, que es la lectura 1:10 decidida con Fredy:
-474 activos contra 4.740 señuelos, unas cuatro horas. El banco entero son 27.846
-señuelos y se lanza despues, sobre lo ya hecho (el lanzador reanuda solo).
+1. Primero, unos minutos de tarjeta para la prueba que separa BUSQUEDA de
+   PUNTUACION: el control de redocking con `search_depth 128` en la misma caja
+   del banco. Si la pose del cristal no aparece ni agotando la busqueda, no es
+   que no la encuentre: es que no la quiere. Va antes que el banco a proposito
+   (despues serian cuatro horas de espera para tres minutos de prueba).
+2. Despues `lanzar_banco_cdk2.py --decoys 4740`, que es la lectura 1:10 decidida
+   con Fredy: 474 activos contra 4.740 señuelos, unas cuatro horas. El banco
+   entero son 27.846 señuelos y se lanza despues, sobre lo ya hecho (el lanzador
+   reanuda solo).
 
 Uso:
     python encadenar_cdk2.py
@@ -104,6 +110,31 @@ def esperar_tbk1():
                 % int((ahora - t0) / 60))
 
 
+def paso_previo():
+    """Antes del banco: la prueba que separa BUSQUEDA de PUNTUACION.
+
+    El control falla a 3,67-6,87 A con `search_depth 20`. Eso puede ser que la
+    pose no la encuentre (busqueda) o que la encuentre y la descarte (puntuacion).
+    Se distinguen agotando la busqueda en la MISMA caja del banco: si con
+    `search_depth 128` tampoco aparece, no es que no la encuentre: es que no la
+    quiere.
+
+    Cuesta unos minutos de tarjeta y responde la pregunta que Fredy pidio el 29
+    de septiembre. Va ANTES del banco a proposito: despues serian cuatro horas de
+    espera para tres minutos de prueba.
+    """
+    log("paso previo: busqueda agotada en la caja del banco (depth 128)")
+    for caja in (24, 20):
+        orden = [sys.executable, os.path.join(BASE, "control_redocking_cdk2.py"),
+                 "--caja", str(caja), "--depth", "128", "--centro", "ligando"]
+        with open(os.path.join(BASE, "encadenado_stdout.log"), "a",
+                  encoding="utf-8", errors="ignore") as f:
+            f.write("\n===== busqueda agotada caja %d =====\n" % caja)
+            f.flush()
+            subprocess.run(orden, cwd=BASE, stdout=f, stderr=subprocess.STDOUT)
+    log("paso previo terminado (el resultado queda en barrido_redocking_cdk2.txt)")
+
+
 def lanzar(decoys):
     orden = [sys.executable, os.path.join(BASE, "lanzar_banco_cdk2.py"),
              "--decoys", str(decoys)]
@@ -124,12 +155,16 @@ def main():
     ap.add_argument("--decoys", type=int, default=4740)
     ap.add_argument("--ya", action="store_true",
                     help="no esperar a TBK1 (para lanzarlo a mano)")
+    ap.add_argument("--sin-prueba", action="store_true",
+                    help="saltarse el paso previo de busqueda agotada")
     args = ap.parse_args()
 
     if not args.ya:
         motivo = esperar_tbk1()
         log("TBK1: %s. Se deja un minuto a la tarjeta que se quede libre." % motivo)
         time.sleep(60)
+    if not args.sin_prueba:
+        paso_previo()
     return lanzar(args.decoys)
 
 

@@ -139,7 +139,75 @@ casar por nombre y el otro no.
   submuestra acoplada sin que nadie tenga que estar mirando la hora.
 * **GPU**: RTX 4080, 8.128 MiB en uso.
 
-## 7. Archivos del dia
+## 7. Por que el motor no devuelve esa pose (investigado el mismo dia)
+
+El control falla y hay que saber por que antes de tocar nada. Son tres las
+sospechosas, y solo una es cierta: **busqueda** (la pose esta pero no la
+encuentra), **puntuacion** (la encuentra y la descarta) o **preparacion** (la pose
+no cabe en el receptor que hemos preparado). `diagnostico_pose_cristal.py` las
+separa sin usar la GPU, y el resultado es tajante.
+
+**La preparacion queda descartada.** La pose del cristal cabe: 17 residuos en
+contacto a menos de 4 A, distancia minima de atomos pesados 2,12 A (un enlace de
+hidrogeno, no un choque), y el anclaje canonico del sitio de ATP esta ahi entero,
+LEU83 a 2,60 A, GLU81 a 2,85 A, HIE84 y LEU134 tambien. Seis contactos polares. Si
+el motor huyera de esa zona por un choque, se veria aqui, y no se ve.
+
+**Y el motor no pierde el bolsillo.** El nucleo de diaminopirimidina se queda
+anclado al enganche en todas las variantes (LEU83 y LEU134 se mantienen siempre, y
+el centroide del ligando se queda a 1,2-3,3 A), pero el brazo saturado con el
+amonio se va de **5,9 a 9,4 A**. No es un ligando perdido: es un ligando anclado
+por un lado y con el otro brazo puesto en otro sitio.
+
+| fragmento | se mueve (peor caso de las 6 variantes) |
+|---|---|
+| nucleo pirimidina | 1,45 a 4,56 A |
+| fenilo difluorado | 2,34 a 8,16 A |
+| anillo fusionado | 2,36 a 6,58 A |
+| **resto saturado + amonio** | **5,87 a 9,39 A** |
+
+**Y el sitio donde lo pone no es peor en contactos.** El cristal hace 6 contactos
+polares; las poses del motor hacen entre 4 y 9, con el mas corto a 2,79-3,05 A
+frente a los 2,60 A del cristal. Es decir: el motor encuentra acomodos **iguales o
+con mas contactos**, y los prefiere. La funcion de puntuacion no esta echando de
+menos una interaccion que no ve; esta pesando distinto las que si ve.
+
+**Tampoco es un conformero forzado.** Energia MMFF94 del mismo esqueleto, con los
+atomos pesados fijos y los hidrogenos regenerados y relajados: el conformero del
+cristal da **49,19 kcal/mol** y las poses del motor **58,67 a 70,25**. El cristal
+esta entre 9 y 21 kcal/mol **menos** tenso que lo que devuelve el motor. No se
+descarta la pose del cristal por estar forzada.
+
+Con todo eso, la lectura es **(b) PUNTUACION**, con una salvedad honesta que hay
+que dejar escrita: la busqueda no se ha agotado del todo (se probo
+`search_depth` 20 y 32). Queda un matiz mas que no se puede comprobar con lo que
+hay en disco y que conviene no perder de vista: el brazo del amonio es un cation, y
+el `receptor.pdb` de DUD-E **no trae ni una sola molecula de agua** (cero HETATM),
+asi que si en el cristal ese cation esta sujeto por una red de aguas, ese anclaje
+se ha borrado antes de empezar. Es una hipotesis, no una medida, y va anotada como
+tal.
+
+### La prueba que lo cierra, ya encadenada
+
+Agotar la busqueda en la misma caja del banco: `search_depth 128` (y 9 poses) con
+caja de 24 A y de 20 A. Si la pose del cristal aparece, era busqueda. Si no
+aparece ni asi, es puntuacion y no hay mas que hablar. Son unos minutos de tarjeta
+y ya esta metido en el encadenador, **antes** del banco: despues serian cuatro
+horas de espera para tres minutos de prueba.
+
+### Que implica, si se confirma que es puntuacion
+
+Que el control no pase **no es un defecto del receptor ni de la caja**: es que este
+motor, con esta diana y con este ligando cationico, prefiere un acomodo distinto
+del mismo bolsillo. Para el objetivo del dia (medir el embudo contra un banco
+publico) eso es informacion, no un bloqueo: el AUC se mide igual y se lee con esto
+al lado. Para arreglarlo haria falta un rescoring, y aqui hay que ser claro: el
+proyecto ya sabe que su MM-GBSA no ordena (AUROC 0,498 en TBK1), asi que no es el
+rescoring que se va a probar por probar. Lo que esta prueba pide, si se confirma,
+es un motor con desolvacion de verdad (el CNN de GNINA, que ya esta en el proyecto,
+o un campo de fuerzas explicito), no otra capa encima de Vina.
+
+## 8. Archivos del dia
 
 | fichero | que es |
 |---|---|
@@ -152,3 +220,4 @@ casar por nombre y el otro no.
 | `encadenar_cdk2.py` / `.bat` | el encadenado detras de TBK1 |
 | `barrido_redocking_cdk2_corregido.txt` | el barrido remedido |
 | `diagnostico_orden_poses.txt` | el detalle de la prueba del orden |
+| `diagnostico_pose_cristal.py` | por que el motor no devuelve la pose: fragmentos, contactos, tension |
