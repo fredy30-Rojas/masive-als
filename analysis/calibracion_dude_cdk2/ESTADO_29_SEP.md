@@ -503,3 +503,44 @@ activos en general, no a uno en concreto.
 es 0,602, no es un banco trampeado; y el techo de 0,617 que se leyo antes es un
 numero de verdad, no un artefacto de la construccion del banco. Eso deja el embudo
 como la unica explicacion posible, que es justo lo que se estaba intentando demostrar.
+
+---
+
+## 13. Vinardo sobre las mismas poses de TDP-43: los fragmentos NO recuperan puesto (29 sep 2026, tarde)
+
+La pregunta era si la caida de los tres fragmentos de Nshogoza al final del ranking era
+**de la funcion de puntuacion** (Vina premia la superficie enterrada) o del **rango**.
+
+Se han re-puntado las 576 poses ya existentes de TDP-43 con las dos funciones
+(`_repuntar_vinardo.py`, `--score_only` con `--scoring vina` y `--scoring vinardo`; mismas
+coordenadas, solo cambia el termino; 576 de 576, 0 fallos, 128 s). Las metricas salen
+importando `evaluar()` del validador (`metricas_vinardo.py`), no con una copia.
+
+**Los puestos (fondo duro, lista de 159):**
+
+- fragmento_1 (13 pesados): 155 -> **155**
+- fragmento_2 (11 pesados): 159 -> **158**
+- fragmento_3 (15 pesados): 157 -> **159** (peor)
+
+Y dentro de su **propio grupo de tamano** (menos de 4 atomos pesados de diferencia), que
+es donde no cabe la explicacion del tamano: 11 de 14, 10 de 11 y 14 de 14. **Pierden
+tambien contra los suyos**, y Vinardo les hace un poco mas de dano.
+
+**A quien si ayuda:** los medianos y grandes. En su grupo de tamano, rTRD01 de 48 de 80 a
+**24 de 80**, PE859 de 17 de 40 a **10 de 40**. Vinardo quita parte del sesgo de tamano
+cuando la molecula tiene superficie que tapar; un fragmento no la tiene.
+
+**Las seis celdas de metricas (3 fondos x 2 funciones) NO PASSAN.** El AUC crudo sube un
+poco (0,313 -> 0,344 contra el duro) pero el AUC por atomo (0,724 -> 0,601) y el residual
+(0,439 -> 0,475) bajan, que son las dos medidas que quitan el tamano. EF5 = 0 en las seis.
+
+**Conclusion: el problema es el RANGO, no la funcion.** Y no se cambia el pipeline a
+Vinardo: esta documentada como peor en redocking, asi que se usa como experimento
+diagnostico, no como sustitucion.
+
+**Lo que si cambia es el criterio, si el proyecto quiere trabajar con fragmentos:** un
+fragmento pequeno solo tiene sentido si gana a lo que **no une nada** (el tercer fondo de
+`_medidos_no_unen/`, hoy vacio porque faltan los ensayos), no a lo que une otra cosa
+(unidores de ARN). Ese es el camino, no cambiar la funcion.
+
+Informe completo: `analysis/INFORME_VINARDO_RRM2_2026-09-29.md`.
