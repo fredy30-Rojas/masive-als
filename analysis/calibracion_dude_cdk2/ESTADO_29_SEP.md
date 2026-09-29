@@ -475,3 +475,31 @@ hacer cuando el control haya corrido. La comparacion absoluta con CDK2 (0,98 con
 
 Ficheros: `preparar_poses_gnina_andr.py`, `_wsl_puntuar_gnina_andr.py`,
 `_gnina_poses_andr/`, `gnina_andr.csv`.
+
+---
+
+## 12. AUDITARIA DE TBK1 CON EL MISMO CRITERIO (20:35)
+
+La cifra estrella del proyecto es el AUC de TBK1 (crudo 0,602 / por atomo 0,617), y
+nunca se habia comprobado si ese banco esta limpio. Con el mismo script y el mismo
+criterio que CDK2, ahora con `--diana`.
+
+**Concentracion de esqueletos:** 2.313 activos, **892 esqueletos de Murcko distintos**.
+86 esqueletos tienen 5+ activos y cubren el 53,5 % de los activos. El mas grande tiene
+148 (6,4 %). O sea, TBK1 **si** tiene familias, al contrario que CDK2, pero ninguna se
+come el banco: el mayor es el 6,4 %, muy por debajo del 30 % que se puso como aviso.
+
+**Solape activo-senuelo:** 37 senuelos de 33.361 (0,11 %) comparten esqueleto con un
+activo. Ninguno identico ni casi identico (Tanimoto >= 0,95).
+
+**La cuenta que TBK1 permite y CDK2 no** (3b): el banco de TBK1 guarda en cada senuelo
+el **activo del que se genero**, que DUD-E no da. Se puede preguntar si los senuelos
+estan "pegados" a su propio activo, que seria la forma sutil de inflar el AUC.
+De 1.500 senuelos evaluados, solo **5 (0,3 %)** son mas parecidos a su activo de origen
+que a cualquier otro activo. Es un banco bien construido: los senuelos se parecen a los
+activos en general, no a uno en concreto.
+
+**Conclusion:** los dos bancos estan limpios por el mismo criterio. Si el AUC de TBK1
+es 0,602, no es un banco trampeado; y el techo de 0,617 que se leyo antes es un
+numero de verdad, no un artefacto de la construccion del banco. Eso deja el embudo
+como la unica explicacion posible, que es justo lo que se estaba intentando demostrar.

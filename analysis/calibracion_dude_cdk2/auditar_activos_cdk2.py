@@ -52,12 +52,31 @@ from rdkit.Chem.Scaffolds import MurckoScaffold
 RDLogger.DisableLog("rdApp.*")
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-ISM_ACT = os.path.join(BASE, "actives_final.ism")
-ISM_DEC = os.path.join(BASE, "decoys_final.ism")
-INFORME = os.path.join(BASE, "informe_activos_cdk2.txt")
+TBK1 = os.path.join(os.path.dirname(BASE), "calibracion_tbk1")
 
 MIN_ACTIVOS = 5       # el umbral del validador: un esqueleto con 5+ es "familia"
+INFORME = None        # lo fija --diana en main()
 UMBRAL_CONCENTRACION = 0.30   # mas del 30 % de los activos en un esqueleto = aviso
+
+# Los dos bancos de DUD-E tienen formatos distintos, asi que se leen de dos maneras.
+# No es un detalle: son ficheros que hizo gente distinta en dias distintos, y el
+# error de leerlos igual seria silencioso.
+BANCOS = {
+    "cdk2": {
+        "ism_act": os.path.join(BASE, "actives_final.ism"),
+        "ism_dec": os.path.join(BASE, "decoys_final.ism"),
+        "csv_act": None,
+        "csv_dec": None,
+        "informe": os.path.join(BASE, "informe_activos_cdk2.txt"),
+    },
+    "tbk1": {
+        "ism_act": None,
+        "ism_dec": None,
+        "csv_act": os.path.join(TBK1, "compuestos_tbk1.csv"),
+        "csv_dec": os.path.join(TBK1, "decoys_tbk1.csv"),
+        "informe": os.path.join(BASE, "informe_activos_tbk1.txt"),
+    },
+}
 
 
 def log(m):
@@ -72,6 +91,39 @@ def leer_ism(ruta):
             p = l.split()
             if len(p) >= 2:
                 out.append((p[0], p[1]))
+    return out
+
+
+def leer_csv_banco(ruta, col_smiles, col_id):
+    """[(smiles, id)] de los CSV de TBK1, que no tienen .ism."""
+    import csv as _csv
+    out = []
+    with open(ruta, encoding="utf-8", errors="ignore", newline="") as f:
+        for r in _csv.DictReader(f):
+            s = (r.get(col_smiles) or "").strip()
+            i = (r.get(col_id) or "").strip()
+            if s and i:
+                out.append((s, i))
+    return out
+
+
+def senuelos_con_origen(ruta):
+    """TBK1: [(smiles, id_decoy, id_activo_origen)].
+
+    El banco de TBK1 guarda en cada senuelo el activo del que se genero, que es
+    informacion que DUD-E no da. Con eso se puede preguntar algo que no se podia
+    con CDK2: si los senuelos se parecen MAS a su propio activo que a los demas, y
+    por tanto si estan "pegados" a los activos.
+    """
+    import csv as _csv
+    out = []
+    with open(ruta, encoding="utf-8", errors="ignore", newline="") as f:
+        for r in _csv.DictReader(f):
+            s = (r.get("smiles") or "").strip()
+            i = (r.get("id") or "").strip()
+            a = (r.get("activo") or "").strip()
+            if s and i:
+                out.append((s, i, a))
     return out
 
 
@@ -109,6 +161,15 @@ def esqueleto(mol):
 
 
 def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--diana", default="cdk2", choices=sorted(BANCOS),
+                    help="que banco se audita (por defecto cdk2)")
+    args = ap.parse_args()
+    cfg = BANCOS[args.diana]
+    global INFORME
+    INFORME = cfg["informe"]
+
     lineas = []
 
     def w(m):
@@ -116,14 +177,17 @@ def main():
         lineas.append(m)
 
     t0 = time.time()
-    w("AUDITORIA DE LOS ACTIVOS DE CDK2, ANTES DEL AUC")
+    w("AUDITORIA DE LOS ACTIVOS DE %s, ANTES DEL AUC" % args.diana.upper())
     w("   %s" % time.strftime("%Y-%m-%d %H:%M"))
     w("   para que se vea si el AUC, sea cual sea, va a poder interpretarse")
     w("")
 
     w("1. CONCENTRACION DE ESQUELETOS (Murcko)")
-    activos = leer_ism(ISM_ACT)
-    w("   %d activos en el .ism" % len(activos))
+    if cfg["ism_act"]:
+        activos = leer_ism(cfg["ism_act"])
+    else:
+        activos = leer_csv_banco(cfg["csv_act"], "smiles", "molecule_chembl_id")
+    w("   %d activos" % len(activos))
     fam = defaultdict(list)
     sin_mol = sin_esq = 0
     for smi, ident in activos:
@@ -187,8 +251,9 @@ def main():
             if n_at <= 5:
                 w("   -> NO hay serie congenerica. Un MCS de %d atomos es un"
                   % n_at)
-                w("      esqueleto, no una familia. Los 474 activos son 474"
-                  " compuestos distintos")
+                w("      esqueleto, no una familia. Los %d activos son %d"
+                  " compuestos distintos"
+                  % (len(activos), len(fam)))
                 w("      y el AUC global mide el conjunto, no una familia."
                   " La premisa de que")
                 w("      venian de series congenericas era FALSA.")
@@ -199,8 +264,14 @@ def main():
 
     w("")
     w("2. SOLAPE ENTRE ESQUELETOS DE ACTIVOS Y DE SENUELOS")
-    decoys = leer_ism(ISM_DEC)
-    w("   %d senuelos en el .ism" % len(decoys))
+    if cfg["ism_dec"]:
+        decoys = leer_ism(cfg["ism_dec"])
+        origen = None
+    else:
+        tri = senuelos_con_origen(cfg["csv_dec"])
+        decoys = [(s, i) for s, i, _ in tri]
+        origen = {i: a for s, i, a in tri}
+    w("   %d senuelos" % len(decoys))
     fam_dec = defaultdict(list)
     for smi, ident in decoys:
         m = a_mol(smi)
@@ -267,6 +338,45 @@ def main():
                         ejemplos.append("casi identico (%.2f): %s ~ %s"
                                        % (simi, ident, ident_a))
                     break
+
+    # --- 3b. en TBK1 se puede mirar algo que en CDK2 no ---
+    if origen:
+        w("")
+        w("3b. SENUELOS PEGADOS A SU PROPIO ACTIVO (solo TBK1, que guarda el origen)")
+        # Cada senuelo se genero a partir de un activo concreto. Si un senuelo se
+        # parece a SU activo mas que a los demas, el banco premia al motor por
+        # reconocer al activo de origen, que es justo lo que se quiere medir, asi
+        # que tiene que ser comparable entre todos y no solo para algunos.
+        idx_origen = {}
+        for smi, ident in activos:
+            idx_origen[ident] = smi
+        gen2 = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
+        fps_act = {i: gen2.GetFingerprint(a_mol(s)) for i, s in
+                   idx_origen.items() if a_mol(s) is not None}
+        # OJO: el filtro es por el ACTIVO PADRE (el tercer elemento de la tripla),
+        # no por el id del senuelo, que casi nunca esta en la lista de activos.
+        muestra = [(s, i) for s, i, a in tri if a in fps_act][:1500]
+        pegados = 0
+        n_evaluados = 0
+        for smi, ident in muestra:
+            m = a_mol(smi)
+            if m is None:
+                continue
+            fp = gen2.GetFingerprint(m)
+            padre = origen.get(ident)
+            if padre not in fps_act:
+                continue
+            simio = DataStructs.TanimotoSimilarity(fp, fps_act[padre])
+            otros = [DataStructs.TanimotoSimilarity(fp, f) for k, f in
+                     fps_act.items() if k != padre]
+            n_evaluados += 1
+            if otros and simio > max(otros):
+                pegados += 1
+        w("   senuelos evaluados: %d" % n_evaluados)
+        w("   senuelos mas parecidos a SU activo que a cualquier otro: %d (%.1f %%)"
+          % (pegados, 100.0 * pegados / max(n_evaluados, 1)))
+        w("   (esperado: en un banco bien construido, POCOS. Si sale alto, los")
+        w("    senuelos estan pegados a su activo y el AUC se infla.)")
     w("   senuelos identicos a un activo: %d" % iguales)
     w("   senuelos casi identicos a un activo (Tanimoto >= 0,95): %d" % casi)
     for x in ejemplos:
@@ -276,29 +386,35 @@ def main():
 
     w("")
     w("4. GLOSARIO: COMO SE LEERA EL AUC CUANDO SALGA")
-    w("   Lo de arriba NO dice si el AUC de CDK2 es bueno o malo. Dice si el numero,")
+    w("   Lo de arriba NO dice si el AUC de %s es bueno o malo. Dice si el numero,"
+      % args.diana.upper())
     w("   sea cual sea, va a poder leerse como 'el motor discrimina esta diana' o si")
     w("   va a estar vacio de sentido por construccion (activos de una sola familia,")
     w("   senuelos con el mismo esqueleto).")
     w("")
-    w("   Concentracion de activos: %s" % ("ALTA, cuidado" if frac_top
-                                           > UMBRAL_CONCENTRACION else
-                                           "normal: 474 eskeletos distintos"))
-    w("   Solape activo-senuelo:     %s" % ("ALTO, cuidado" if len(comunes) else
-                                            "ninguno, bien"))
+    w("   Concentracion de activos: %s (%d esqueleto(s) distinto(s) para %d activos)"
+      % ("ALTA, cuidado" if frac_top > UMBRAL_CONCENTRACION else "normal",
+         len(fam), len(activos)))
+    frac_solape = 100.0 * n_dec_en_act / max(len(decoys), 1)
+    w("   Solape activo-senuelo:     %s (%d de %d, %.2f %%)"
+      % ("ALTO, cuidado" if frac_solape > 1.0 else "bajo, bien",
+         n_dec_en_act, len(decoys), frac_solape))
     w("")
-    w("   RESUMEN PARA LEER EL AUC: el banco de CDK2 NO tiene el defecto tipico de")
+    w("   RESUMEN PARA LEER EL AUC: el banco de %s NO tiene el defecto tipico de"
+      % args.diana.upper())
     w("   DUD-E (activos de una sola familia, o senuelos con el mismo esqueleto que")
-    w("   un activo). Hay 13 senuelos sobre 27.850 que comparten esqueleto con un")
-    w("   activo, un 0,05 %: demasiado poco para hinchar el AUC. Asi que si el AUC de")
-    w("   CDK2 sale bajo, no es que el banco este mal construido. Y si sale alto, es")
-    w("   de verdad. Lo que queda por encima es lo del control de redocking.")
+    w("   un activo). Hay %d senuelos sobre %s que comparten esqueleto con un"
+      % (n_dec_en_act, len(decoys)))
+    w("   activo, un %.2f %%: demasiado poco para hinchar el AUC. Asi que si el AUC"
+      % frac_solape)
+    w("   sale bajo, no es que el banco este mal construido. Y si sale alto, es de")
+    w("   verdad. Lo que queda por encima es lo del control de redocking.")
     w("   duracion: %.1f s" % (time.time() - t0))
 
     with open(INFORME, "w", encoding="utf-8") as f:
         f.write("\n".join(lineas) + "\n")
     log("")
-    log("informe: informe_activos_cdk2.txt")
+    log("informe: %s" % os.path.basename(INFORME))
     return 0
 
 
