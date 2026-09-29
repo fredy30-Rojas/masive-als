@@ -187,6 +187,61 @@ asi que si en el cristal ese cation esta sujeto por una red de aguas, ese anclaj
 se ha borrado antes de empezar. Es una hipotesis, no una medida, y va anotada como
 tal.
 
+### Lo que el propio cristal no decidió (segunda pasada del mismo día)
+
+Se bajó el PDB original entero (`1H00_cristal_completo.pdb`) para comprobar una
+hipótesis: que el amonio estuviera sujeto por una red de aguas que DUD-E quitó. La
+hipótesis es **falsa**, y al buscarla apareció algo bastante mas gordo.
+
+**El cristal trae el ligando DOS veces.** `FAP` (residuo 1300, altloc A) y `FCP`
+(residuo 1400, altloc B), las dos con **ocupación 0,50** y B medio ~47, a 0,40 Å de
+centroide. Comprobado: FAP es **exactamente** el mol2 de DUD-E (0,000 Å) y FCP está
+a 1,41 Å. No son dos moléculas: son **dos conformaciones alternativas del mismo
+ligando**, que el cristal no pudo decidir.
+
+Y la diferencia entre ellas se concentra en un sitio muy concreto:
+
+| parte | FAP contra FCP |
+|---|---|
+| núcleo de pirimidina | **0,00 Å** (idéntico) |
+| anillo fusionado | **0,00 Å** (idéntico) |
+| fenilo difluorado | 1,72 Å |
+| brazo saturado + amonio | 1,90 Å |
+
+**El amonio no está sujeto por nadie.** Medido sobre el PDB original: no tiene
+ningún átomo de proteína a menos de 4 Å (el más cercano, a 4,17 Å) y **ninguna agua
+a menos de 4,5 Å** (la más cercana, a 5,90 Å). Es un catión desolvatado, sin ningún
+enganche, en la zona que el propio cristal dejó sin determinar. La hipótesis del
+agua queda refutada, pero por el camino se entendió lo importante: **es justo el
+grupo que el motor mueve de 6 a 9 Å**.
+
+### Entonces el listón de 2 Å sobre los 30 átomos no vale para este ligando
+
+Pedirle al motor que clave con 2 Å un grupo que (a) el cristal modela en dos
+posiciones al 50 %, (b) no toca a nadie y (c) está a 4,17 Å de lo más cercano, es
+pedirle que acierte algo que la estructura no sabe. El control hay que leerlo por
+partes —núcleo anclado contra brazo suelto—, que es lo que hacen
+`cristal_1h00_dos_conformaciones.py` y su informe `cristal_1h00.txt`:
+
+| variante | pose | **núcleo (12 átomos)** | brazo (18 átomos) |
+|---|---|---|---|
+| caja 20 Å, depth 20 | 6 | **1,95 Å — PASA** | 4,65 Å |
+| caja 20 Å, depth 32 | 6 | 4,97 Å | 9,47 Å |
+| caja 22 Å, depth 20 | 7 | 5,06 Å | 9,41 Å |
+| caja 22 Å, depth 32 | 9 | **2,00 Å — PASA** | 4,88 Å |
+| caja 24 Å, depth 20 | 2 | 5,25 Å | 8,24 Å |
+| caja 24 Å, depth 32 | 9 | 4,91 Å | 7,88 Å |
+
+Sobre el núcleo, que es lo único que el cristal tiene clavado y lo que se ancla al
+enganche de LEU83 y GLU81, el motor **sí lo reproduce**: 1,95 y 2,00 Å en dos de las
+seis variantes. Sobre el brazo, ninguna. Así que el control no se puede leer como un
+sí o un no sobre 30 átomos: leído por partes, el núcleo pasa.
+
+Esto no borra lo de antes, lo ordena: la preparación está descartada, el motor no
+pierde el bolsillo, y lo que no acierta es la colocación de un catión que el cristal
+tampoco tiene resuelto. Queda por ver si con la búsqueda agotada aparece el núcleo en
+mas variantes.
+
 ### La prueba que lo cierra, ya encadenada
 
 Agotar la busqueda en la misma caja del banco: `search_depth 128` (y 9 poses) con
@@ -221,3 +276,5 @@ o un campo de fuerzas explicito), no otra capa encima de Vina.
 | `barrido_redocking_cdk2_corregido.txt` | el barrido remedido |
 | `diagnostico_orden_poses.txt` | el detalle de la prueba del orden |
 | `diagnostico_pose_cristal.py` | por que el motor no devuelve la pose: fragmentos, contactos, tension |
+| `cristal_1h00_dos_conformaciones.py` | las dos conformaciones del cristal y el nucleo separado del brazo |
+| `1H00_cristal_completo.pdb` | el PDB original entero, con las 209 aguas y las dos copias del ligando |

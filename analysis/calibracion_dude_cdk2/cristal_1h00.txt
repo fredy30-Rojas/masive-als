@@ -1,0 +1,41 @@
+EL CRISTAL DE CDK2 TIENE EL LIGANDO EN DOS CONFORMACIONES — 2026-09-29 18:56
+
+las dos moleculas del cristal
+   FAP residuo 1300 altloc A: ocupacion 0.50 | B medio 46.8
+   FCP residuo 1400 altloc B: ocupacion 0.50 | B medio 46.5
+
+   FAP contra el mol2 de DUD-E: 0.000 A  <- es el mismo, el mol2 es FAP
+   FCP contra el mol2 de DUD-E: 1.412 A
+   las dos entre si: 1.41 A
+
+donde esta la diferencia entre las dos conformaciones
+   nucleo (12 atomos)   0.00 A
+   brazo (18 atomos)    1.82 A
+      nucleo pirimidina    0.00 A
+      anillo fusionado     0.00 A
+      fenilo difluorado    1.72 A
+      brazo + amonio       1.90 A
+
+el amonio (N5), que es lo que el motor mueve 6-9 A
+   atomo de proteina mas cercano: 4.17 A | atomos a menos de 4 A: 0
+   agua mas cercana:              5.90 A | aguas a menos de 4,5 A: 0
+   -> no esta sujeto por nadie: ni por la proteina ni por una red de aguas.
+
+EL MOTOR, CON EL NUCLEO APARTE DEL BRAZO (bolsillo, sin alinear)
+   variante         pose      nucleo (12 at.)        brazo (18 at.)        
+   caja20_depth20   6 (-7.9)  1.95 A  PASA           4.65 A                
+   caja20_depth32   6 (-7.9)  4.97 A                 9.47 A                
+   caja22_depth20   7 (-7.8)  5.06 A                 9.41 A                
+   caja22_depth32   9 (-7.9)  2.00 A  PASA           4.88 A                
+   caja24_depth20   2 (-8.1)  5.25 A                 8.24 A                
+   caja24_depth32   9 (-8.0)  4.91 A                 7.88 A                
+
+LECTURA
+   El liston de 2 A sobre los 30 atomos exige clavar tambien el brazo del
+   amonio, que en el cristal no toca nada (ni proteina a menos de 4 A ni
+   agua a menos de 4,5 A) y esta modelado en dos posiciones al 50 %. Sobre
+   el NUCLEO, que es lo unico que el cristal tiene clavado y lo que se
+   ancla al enganche, el motor si lo reproduce: 1,95-2,00 A en las dos
+   variantes que pasan. Sobre el BRAZO no lo reproduce ninguna.
+   Conclusion: el control no se puede leer como un si o un no sobre 30
+   atomos. Se lee por partes, y por partes el nucleo pasa.
