@@ -1,0 +1,50 @@
+ELEGIR UNA DIANA DE DUD-E PARA EL QUE EL CONTROL VALGA
+   2026-09-29 19:41 | criterios: rotatorios <= 2, 12-45 atomos, sin choques
+
+FASE 1. RIGIDEZ Y TAMANO DEL LIGANDO CRISTALINO (102 dianas)
+   20/102
+   40/102
+   60/102
+   80/102
+   100/102
+   101 ligandos leidos, 1 que no se pudieron abrir
+   no se leyeron: aa2ar
+
+   los 20 mas rigidos (0 o 1 enlace rotatorio, tamano razonable):
+   diana      pesados rotatorios anillos  polares  pdb
+   andr       21      0         4        2        2AM9
+   akt1       19      1         4        6        3CQW
+   aces       21      1         4        2        1E66
+   mapk2      29      1         6        5        3M2W
+   comt       14      2         1        8        3BWM
+   kith       17      2         2        7        2B8T
+   sahh       19      2         3        8        1LI4
+   kit        22      2         3        5        
+   mcr        26      2         5        5        2AA2
+   pygm       28      2         4        6        1C8K
+   dpp4       31      2         4        6        2I78
+
+   con 0 enlaces rotatorios en total: 2
+
+FASE 2. ANCLAJE (baja el receptor de las 11 mejor preseleccionadas)
+   diana      rotatorios sin pareja  d min     expuesto  residuos
+   andr       0         0 de 2      2.65      0.05      3
+   akt1       1         2 de 6      2.56      0.00      3
+   aces       1         1 de 2      2.91      0.00      3
+   mapk2      1         2 de 5      2.97      0.03      4
+   comt       2         5 de 8      2.52      0.00      3
+   kith       2         2 de 7      2.63      0.00      2
+   sahh       2         2 de 8      2.67      0.00      3
+   kit        2         2 de 5      2.74      0.00      3
+   mcr        2         0 de 5      2.77      0.04      4
+   pygm       2         4 de 6      2.61      0.14      4
+   dpp4       2         5 de 6      2.66      0.06      4
+
+FASE 3. EL CRISTAL DE VERDAD (esto es lo que mato a CDK2)
+   andr       2AM9 | 4 grupo(s) HETATM: SO4 (5 at., B 53.8), TES (21 at., B 19.2), DTT (8 at., B 42.8), GOL (6 at., B 57.8)
+   akt1       3CQW | 3 grupo(s) HETATM: TPO (11 at., B 33.3), MN (1 at., B 43.3), CQW (19 at., B 30.7)
+   aces       1E66 | 2 grupo(s) HETATM: NAG (28 at., B 61.0), HUX (21 at., B 26.1)
+   mapk2      3M2W | 2 grupo(s) HETATM: L8I (29 at., B 28.4), MG (1 at., B 20.2)
+   comt       3BWM | 4 grupo(s) HETATM: MG (1 at., B 31.1), K (1 at., B 39.5), SAM (27 at., B 28.6), DNC (14 at., B 31.6)
+   kith       2B8T | 3 grupo(s) HETATM: ZN (4 at., B 33.3), THM (68 at., B 29.5), TRS (8 at., B 30.8)
+   sahh       1LI4 | 3 grupo(s) HETATM: NAD (44 at., B 19.1), NOC (19 at., B 19.2), IPA (8 at., B 31.2)

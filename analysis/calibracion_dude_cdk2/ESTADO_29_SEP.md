@@ -344,3 +344,99 @@ sistema. El resultado está en `gnina_cdk2.csv`.
 | `_wsl_puntuar_gnina.py` | puntua las 56 poses con GNINA dentro de WSL |
 | `gnina_cdk2.csv` | las 56 puntuaciones (afinidad, CNNscore, CNNaffinity) |
 | `_kaggle/` | el kernel de Kaggle preparado, por si vuelve la cuota |
+
+---
+
+## 10. LA DIANA DEL CONTROL: `andr` (20:48)
+
+CDK2 no vale como control. Se eligio otro, y la eleccion se hizo con medidas, no con
+intencion.
+
+### Como se cribaron las 102 dianas de DUD-E
+
+`elegir_control_dude.py` en tres fases, con lo que se puede medir SIN acoplar:
+
+1. **rigidez y tamano** — enlaces rotatorios y atomos pesados del `crystal_ligand.mol2`
+   de las 102 dianas;
+2. **anclaje** — bajando el receptor: cuantos polares del ligando se quedan sin N/O
+   de proteina a menos de 3,5 A, distancia minima, fraccion expuesta;
+3. **el cristal de verdad** — bajando el PDB original de las ganadoras: cuantas copias
+   del ligando hay y que factores B tienen. Esto es lo que mato a CDK2.
+
+**Solo 4 de 101 ligandos tienen 0 o 1 enlace rotatorio** (2 tienen 0). La criba fue
+dura, y esa dureza es el resultado: casi ningun ligando cristalino de DUD-E es
+rigido.
+
+Abriendo a 2 rotatorios salen 11 candidatas, y la criba de anclaje las separa rapido:
+`comt` (5 de 8 polares sueltos), `dpp4` (5 de 6), `pygm` (4 de 6) y `kith` se
+descartan solas.
+
+### La pericia del cristal (`verificar_cristal_control.py`)
+
+Mide lo que el filtro de rigidez no ve, y es justo lo que hunde a CDK2. Resultado de
+las cuatro de la criba corta:
+
+| diana | ligando | copias | altloc | B medio | polares sueltos | d min |
+|---|---|---|---|---|---|---|
+| **andr** | TES | 1 | no | **19,2** | **0 de 2** | 2,65 A |
+| akt1 | CQW | 1 | no | 30,7 | 2 de 6 | 2,56 A |
+| aces | HUX | 1 | no | 26,1 | 1 de 2 | 2,91 A |
+| mapk2 | L8I | 1 | no | 28,4 | 2 de 5 | 2,98 A |
+
+Contra CDK2: dos copias al 50 %, B ~47, y el amonio sin pareja ni en proteina (4,17 A)
+ni en agua (5,90 A).
+
+Ademas se comprueba que el mol2 de DUD-E **es** el HETATM del PDB, emparejando por
+elemento: RMSD 0,0000 A en las cuatro. Y que el `receptor.pdb` de DUD-E es el mismo
+cristal: 1.874 de 1.878 atomos empalman con 2AM9 por nombre de atomo (mediana 0,006 A;
+los 158 que sobran son las cadenas del dimero que DUD-E no incluye). Sin esto, todas
+las medidas de anclaje serian mentira.
+
+Un fallo del filtro que conviene contar: `kith` era la octava mas rigida, pero su
+ligando TRS esta a **9,92 A** de la proteina — es un aditivo de cristalizacion, no un
+ligando de bolsillo. Lo caza la distancia minima, no la rigidez. Por eso el criterio
+de anclaje no es opcional.
+
+### La ganadora
+
+**`andr` / TES**, el ligando es un **esteroide** (C19H30O2, 21 atomos pesados, 4
+anillos, **0 enlaces rotatorios**, TPSA 40,5, carga 0). En el receptor de androgenos,
+2AM9. Gana en todo lo que importa:
+
+- no tiene **ni un brazo que pueda girar**, que era el problema de CDK2;
+- una sola copia, sin altloc, ocupacion 1,00: el cristal no duda de la geometria;
+- B medio 19,2, el mas bajo de las candidatas: la densidad esta bien definida;
+- los dos polares con N/O de proteina a menos de 3,5 A (0 de 2 sueltos);
+- solo 1 de 21 atomos a mas de 4,5 A de cualquier cosa: esta dentro del bolsillo;
+- residuos del bolsillo Leu704, Asn705, Met742, Trp741, Phe764, Thr877, Met895: los
+  canonicos del sitio de union de androgenos.
+
+Preparado (`preparar_receptor_andr.py`): receptor de 2.270 atomos, todos los residuos
+en la tabla de meeko, caja de 24 A centrada en `[26.77, 2.34, 4.63]`.
+
+### El control (`control_redocking_andr.py`)
+
+Reutiliza las funciones ya probadas de `control_redocking_cdk2.py` en vez de copiarlas,
+cambiando rutas y nombre de ligando, para que los dos controles midan igual. Verificado
+sin GPU: la correspondencia de atomos se deduce y da **0,0000 A** sobre 21 pesados, asi
+que lo que se acopla es la pose del cristal y la medida significa algo.
+
+El resultado sale solo: `encadenar_andr.py` espera a que el banco de CDK2 termine y la
+tarjeta quede libre, y entonces hace caja 24 A depth 20, caja 24 A depth 128 (que separa
+BUSQUEDA de PUNTUACION) y, si no pasa, el barrido 20/22/24 x 20/32. Esta corriendo desde
+las 19:48.
+
+Tambien se anadio `control_andr()` al final de `encadenar_cdk2.py`, para las próximas
+veces, aunque ese proceso ya estaba en marcha y no le llega el cambio.
+
+### Ficheros nuevos
+
+| fichero | que es |
+|---|---|
+| `elegir_control_dude.py` | el cribado de las 102 dianas, con `--rotatorios` para abrirlo |
+| `verificar_cristal_control.py` | la pericia del cristal: copias, altloc, B, anclaje, aguas |
+| `preparar_receptor_andr.py` | receptor y caja de `andr` |
+| `control_redocking_andr.py` | el control, sobre las funciones del de CDK2 |
+| `encadenar_andr.py` / `.bat` | el vigilante que lo lanza cuando la GPU se libere |
+| `control_dude.txt`, `control_dude_candidatos.csv` | la criba |
+| `control_dude_pericia.txt` | la pericia de las candidatas |

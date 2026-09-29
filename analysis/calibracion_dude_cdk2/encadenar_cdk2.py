@@ -31,6 +31,9 @@ QUE LANZA
    con Fredy: 474 activos contra 4.740 señuelos, unas cuatro horas. El banco
    entero son 27.846 señuelos y se lanza despues, sobre lo ya hecho (el lanzador
    reanuda solo).
+3. Y al final, el control de `andr`, que es el que DE VERDAD decide si el AUC se
+   puede leer: CDK2 no vale como control (su ligando venia dos veces al 50 % y con
+   un brazo suelto), asi que se eligio otra diana. Ver `control_andr()`.
 
 Uso:
     python encadenar_cdk2.py
@@ -165,6 +168,60 @@ def lanzar(decoys):
     return codigo
 
 
+def control_andr():
+    """EL CONTROL DE VERDAD, en la diana elegida. Al final, a proposito.
+
+    CDK2 resulto ser un control MAL ELEGIDO, no una prueba de que el embudo fallara:
+    su ligando venia modelado dos veces al 50 % y el brazo del amonio no tocaba ni la
+    proteina ni el agua. Para tener una lectura que signifique algo hace falta OTRO
+    control, y el 29 de septiembre se eligio `andr`: su ligando TES es un esteroide
+    con 0 enlaces rotatorios, una sola copia en el cristal (B medio 19,2) y los dos
+    polares con pareja de proteina a menos de 3,5 A. Ver `elegir_control_dude.py` y
+    `verificar_cristal_control.py`.
+
+    Va al FINAL de la cadena, despues de las cuatro horas del banco, por dos
+    razones: es lo mas barato de todo (pocas variantes de un minuto cada una), y sus
+    numeros no hacen falta para el AUC, que se mide igual. Pero es el que decide si
+    el AUC se puede leer o no, asi que tiene que estar SI O SI.
+
+    Con la caja de 24 A primero (la del proyecto) y, si hace falta, el barrido.
+    """
+    log("control de andr: el esteroide TES contra su propio cristal (2AM9)")
+    for tam, depth in ((24, 20), (24, 128)):
+        orden = [sys.executable, os.path.join(BASE, "control_redocking_andr.py"),
+                 "--caja", str(tam), "--depth", str(depth),
+                 "--centro", "bolsillo"]
+        with open(os.path.join(BASE, "encadenado_stdout.log"), "a",
+                  encoding="utf-8", errors="ignore") as f:
+            f.write("\n===== control de andr, caja %d depth %d =====\n"
+                    % (tam, depth))
+            f.flush()
+            subprocess.run(orden, cwd=BASE, stdout=f, stderr=subprocess.STDOUT)
+    log("control de andr terminado (barrido_redocking_andr.txt)")
+
+    # Si con la caja del proyecto no pasa, no se abandona: se prueba el barrido
+    # completo, que es lo que se hizo con CDK2 antes de concluir que el problema no
+    # era el motor.
+    try:
+        with open(os.path.join(BASE, "barrido_redocking_andr.txt"),
+                  encoding="utf-8", errors="ignore") as f:
+            texto = f.read()
+    except OSError:
+        texto = ""
+    if "PASA" not in texto:
+        log("andr no pasa con la caja de 24 A: se prueba el barrido 20/22/24 x 20/32")
+        with open(os.path.join(BASE, "encadenado_stdout.log"), "a",
+                  encoding="utf-8", errors="ignore") as f:
+            f.write("\n===== control de andr, barrido completo =====\n")
+            f.flush()
+            subprocess.run([sys.executable,
+                            os.path.join(BASE, "control_redocking_andr.py"),
+                            "--barrido", "--centro", "bolsillo"],
+                           cwd=BASE, stdout=f, stderr=subprocess.STDOUT)
+    else:
+        log("andr PASA: no hace falta el barrido completo")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--decoys", type=int, default=4740)
@@ -172,6 +229,8 @@ def main():
                     help="no esperar a TBK1 (para lanzarlo a mano)")
     ap.add_argument("--sin-prueba", action="store_true",
                     help="saltarse el paso previo de busqueda agotada")
+    ap.add_argument("--sin-andr", action="store_true",
+                    help="saltarse el control de andr del final")
     args = ap.parse_args()
 
     if not args.ya:
@@ -180,7 +239,15 @@ def main():
         time.sleep(60)
     if not args.sin_prueba:
         paso_previo()
-    return lanzar(args.decoys)
+    codigo = lanzar(args.decoys)
+    if not args.sin_andr:
+        try:
+            control_andr()
+        except Exception as e:  # noqa: BLE001
+            # El banco ya esta hecho: un fallo del control no debe taparlo ni
+            # impedir que se escriba el log.
+            log("el control de andr fallo: %r" % e)
+    return codigo
 
 
 if __name__ == "__main__":
