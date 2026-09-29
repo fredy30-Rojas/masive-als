@@ -41,3 +41,20 @@ analysis/calibracion_tbk1/_lote_tmp/
 analysis/calibracion_tbk1/_control_bx795/out/
 analysis/calibracion_tbk1/actividades_tbk1.json
 analysis/calibracion_tbk1/receptor_tbk1.json
+
+# Validacion estandar sobre DUD-E CDK2: igual que TBK1. Lo pesado se regenera con
+# preparar_banco_cdk2.py desde el tarball de DUD-E; en git van los scripts, el
+# informe, el receptor preparado, la caja y los ficheros .ism (la identidad del
+# banco), que es lo que hace falta para rehacer cualquier cuenta.
+analysis/calibracion_dude_cdk2/ligands/
+analysis/calibracion_dude_cdk2/out/
+analysis/calibracion_dude_cdk2/_lote_tmp/
+analysis/calibracion_dude_cdk2/_control_cdk2/*/out/
+analysis/calibracion_dude_cdk2/_control_cdk2/*/ligands/
+analysis/calibracion_dude_cdk2/receptor_cdk2.json
+analysis/calibracion_dude_cdk2/resultados_cdk2.csv
+analysis/calibracion_dude_cdk2/motor_stdout.log
+analysis/calibracion_dude_cdk2/encadenado_stdout.log
+analysis/calibracion_dude_cdk2/*.tar.gz
+analysis/calibracion_dude_cdk2/*.sdf.gz
+analysis/calibracion_dude_cdk2/*.mol2.gz
