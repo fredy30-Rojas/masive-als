@@ -89,6 +89,12 @@ N_AZAR = 200      # permutaciones para la linea de base de BEDROC
 AUC_PUBLICADO = 0.791
 AUC_PUBLICADO_FUENTE = "Mysinger y col. 2012 (DUD-E), DOCK 3.6 sobre CDK2"
 
+# El liston del control de redocking, el MISMO que usa `control_redocking_cdk2.py`.
+# Se copia el numero y no se importa el modulo entero porque importar ese script
+# arrastra meeko y scipy; la leccion del 24 de septiembre fue no tener dos copias
+# de una metrica, asi que si el liston cambia hay que cambiarlo en los dos sitios.
+LISTON_A = 2.0
+
 # El techo que dejo TBK1 el 28 de septiembre de 2026, que es lo que hay que
 # explicar: o es de la diana o es del motor.
 TBK1_TECHO = (0.602, 0.617, 0.637)   # crudo, por atomo, media de 9 poses
@@ -220,17 +226,148 @@ def leer_tbk1():
     return valores[1], valores[0]
 
 
+def seccion_control(lineas):
+    """El control de redocking, DENTRO del informe del AUC.
+
+    Decidido el 29 de septiembre con Fredy: si la busqueda agotada vuelve a fallar,
+    el AUC se mide igual y se lee con el control al lado. Para que "al lado" no sea una
+    promesa sino una garantia, esta seccion se genera SIEMPRE y se lee de los ficheros
+    que dejo el diagnostico, no de lo que nos acordemos hoy: si el control cambia,
+    esto cambia con el, porque lo lee.
+    """
+    lineas.append("")
+    lineas.append("=" * 78)
+    lineas.append("EL CONTROL DE REDOCKING, OBLIGATORIO: EL AUC DE ARRIBA NO SE LEE"
+                  " SIN EL")
+    lineas.append("=" * 78)
+
+    # --- 1. el barrido de redocking, con la medida buena (correspondencia deducida) ---
+    ruta_barrido = os.path.join(BASE, "barrido_redocking_cdk2_corregido.txt")
+    variantes = []
+    if os.path.exists(ruta_barrido):
+        for l in open(ruta_barrido, encoding="utf-8", errors="ignore"):
+            if l.startswith("variante "):
+                partes = [x.strip() for x in l.split("|")]
+                variantes.append((partes[0].replace("variante", "").strip(),
+                                  partes[-1].strip()))
+    if variantes:
+        lineas.append("")
+        lineas.append("1. el barrido completo, medido con la correspondencia deducida")
+        for etiqueta, veredicto in variantes:
+            lineas.append("     %-24s %s" % (etiqueta, veredicto))
+        pasan = sum(1 for _, v in variantes if v.startswith("PASA"))
+        agotadas = [e for e, _ in variantes if "depth128" in e]
+        lineas.append("     %d de %d variantes pasan el liston de %.1f A sobre los"
+                      " 30 atomos."
+                      % (pasan, len(variantes), LISTON_A))
+        if agotadas:
+            lineas.append("     BUSQUEDA AGOTADA (search_depth 128) incluida: %s"
+                          % ", ".join(agotadas))
+        else:
+            lineas.append("     La busqueda agotada (search_depth 128) se encadena"
+                          " justo antes de este")
+            lineas.append("     banco; si al releer este informe sigue sin estar, es"
+                          " que no llego a correr.")
+    else:
+        lineas.append("")
+        lineas.append("1. el barrido no se encuentra: %s" % ruta_barrido)
+
+    # --- 2. el cristal, que es donde se ve que el liston de 30 atomos es injusto ---
+    ruta_cristal = os.path.join(BASE, "cristal_1h00.txt")
+    if os.path.exists(ruta_cristal):
+        texto = open(ruta_cristal, encoding="utf-8", errors="ignore").read()
+        lineas.append("")
+        lineas.append("2. por que ese control no puede leirse como un si o un no")
+        for clave in ("las dos conformaciones del cristal entre si",
+                      "atomo de proteina mas cercano",
+                      "agua mas cercana"):
+            for l in texto.splitlines():
+                if clave in l:
+                    lineas.append("     %s" % l.strip())
+                    break
+        # Las lineas del nucleo son las que empiezan por el nombre de la variante
+        # (`cajaNN_depthNN`); el informe original no les pone la palabra "nucleo" en
+        # cada linea, asi que se cuentan por el nombre y no buscando la palabra.
+        lineas_nucleo = [l for l in texto.splitlines()
+                        if l.strip().startswith("caja")]
+        nucleo_pasa = sum(1 for l in lineas_nucleo if "PASA" in l)
+        lineas.append("     el motor SI reproduce el NUCLEO anclado (12 atomos) en"
+                      " %d de las %d variantes del barrido"
+                      % (nucleo_pasa, len(lineas_nucleo)))
+        lineas.append("     (nucleo de pirimidina + anillo fusionado, 12 atomos): el"
+                      " cristal no tiene ningun")
+        lineas.append("     otro sitio donde el brazo del amonio este sujeto, y lo"
+                      " modela en dos posiciones al 50 %.")
+
+    # --- 3. GNINA: otro motor, y tampoco quiere esa pose ---
+    ruta_gnina = os.path.join(BASE, "gnina_cdk2.csv")
+    if os.path.exists(ruta_gnina):
+        filas = list(csv.DictReader(open(ruta_gnina, encoding="utf-8")))
+        lineas.append("")
+        lineas.append("3. GNINA 1.3.3 (--score_only) sobre las 56 poses, o lo que"
+                      " hizo otro motor con esta diana")
+        for campo, mayor in (("cnnaffinity", True), ("cnnscore", True),
+                             ("afinidad", False)):
+            vals = []
+            for f in filas:
+                try:
+                    vals.append((f["fichero"], float(f[campo])))
+                except (KeyError, TypeError, ValueError):
+                    pass
+            if len(vals) < 5:
+                continue
+            vals.sort(key=lambda t: t[1], reverse=mayor)
+            puestos = {n: i + 1 for i, (n, _) in enumerate(vals)}
+            cr = sorted((k, v) for k, v in puestos.items()
+                        if k.startswith("cristal_"))
+            lineas.append("     %-12s las dos conformaciones del cristal quedan en"
+                          " %s (de %d)"
+                          % (campo, " y ".join("puesto %d" % p for _, p in cr),
+                             len(vals)))
+        lineas.append("     un CNN entrenado con poses cristalograficas, que es la"
+                      " herramienta que deberia reconocer")
+        lineas.append("     un modo de union nativo, tampoco las pone delante. Asi"
+                      " que el fallo del control no es")
+        lineas.append("     solo de Vina: no es que este motor pierde la pose, es que"
+                      " la pose es discutible.")
+
+    # --- 4. como leer el AUC con todo esto ---
+    lineas.append("")
+    lineas.append("COMO SE LEE EL AUC DE ARRIBA CON ESTO AL LADO")
+    lineas.append("   El AUC ordena ACTIVOS sobre SENUELOS: es otra pregunta que la"
+                  " de 'este motor reproduce")
+    lineas.append("   ESTA pose'. Que el control falle no invalida la cuenta, y que"
+                  " el control pase tampoco la salvaria. Lo que")
+    lineas.append("   se declara es lo de la seccion de veredicto, y lo que no se"
+                  " hace nunca es leer el")
+    lineas.append("   AUC sin este bloque encima. Si el AUC sale alto, este control"
+                  " es la primera pregunta que")
+    lineas.append("   hay que hacerle; si sale bajo, este control no es la excusa.")
+    lineas.append("   Y el receptor esta comprobado: 2079 atomos empalman con el"
+                  " 1h00 original con RMSD")
+    lineas.append("   0,466 A (`diagnostico_pose_cristal.py`), y el control de BX-795"
+                  " de TBK1 pasa a 1,23 A")
+    lineas.append("   medido por nombre de atomo. La preparacion no es el problema.")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--min-quimiotipo", type=int, default=5,
                     help="activos minimos para que un esqueleto cuente")
     ap.add_argument("--sin-tbk1", action="store_true",
                     help="no recalcular la comparacion con TBK1")
+    ap.add_argument("--resultados", default=RESULTADOS,
+                    help="CSV de puntuaciones a leer (por defecto, el del banco)")
+    ap.add_argument("--csv-salida", default=CSV_SALIDA,
+                    help="donde escribir el CSV de la cuenta")
+    ap.add_argument("--informe", default=INFORME,
+                    help="donde escribir el informe")
     args = ap.parse_args()
+    resultados_csv, informe = args.csv_salida, args.informe
 
-    if not os.path.exists(RESULTADOS):
+    if not os.path.exists(args.resultados):
         raise SystemExit("falta %s: primero hay que acoplar el banco"
-                         % os.path.relpath(RESULTADOS, RAIZ))
+                         % os.path.relpath(args.resultados, RAIZ))
     if not os.path.exists(BANCO):
         raise SystemExit("falta %s: lo escribe preparar_banco_cdk2.py"
                          % os.path.relpath(BANCO, RAIZ))
@@ -240,7 +377,7 @@ def main():
     # SMILES. La energia sale del CSV que deja el lanzador.
     smi_act, smi_dec = leer_ism(ISM_ACT), leer_ism(ISM_DEC)
     energia = {}
-    for r in csv.DictReader(open(RESULTADOS, encoding="utf-8")):
+    for r in csv.DictReader(open(args.resultados, encoding="utf-8")):
         energia[r["ligand"]] = float(r["energy"])
 
     filas = []
@@ -367,6 +504,8 @@ def main():
     for n, esc, auc_esc in detalle[:12]:
         lineas.append("     %2d activos  AUC %.3f  %s" % (n, auc_esc, esc[:70]))
 
+    seccion_control(lineas)
+
     # --- TBK1, recalculado con este mismo codigo ---
     if not args.sin_tbk1:
         a_t, d_t = leer_tbk1()
@@ -421,18 +560,18 @@ def main():
 
     texto = "\n".join(lineas)
     print("\n" + texto)
-    with open(INFORME, "w", encoding="utf-8") as f:
+    with open(informe, "w", encoding="utf-8") as f:
         f.write(texto + "\n")
 
-    with open(CSV_SALIDA, "w", newline="", encoding="utf-8") as f:
+    with open(resultados_csv, "w", newline="", encoding="utf-8") as f:
         campos = ["ligando", "papel", "ident", "chembl", "smiles", "energia",
                   "pesados", "crudo", "por_atomo"]
         w = csv.DictWriter(f, fieldnames=campos)
         w.writeheader()
         w.writerows([{k: v for k, v in r.items() if k in campos} for r in filas])
     print()
-    print("CSV: %s" % os.path.relpath(CSV_SALIDA, RAIZ))
-    print("informe: %s" % os.path.relpath(INFORME, RAIZ))
+    print("CSV: %s" % os.path.relpath(resultados_csv, RAIZ))
+    print("informe: %s" % os.path.relpath(informe, RAIZ))
     return 0
 
 

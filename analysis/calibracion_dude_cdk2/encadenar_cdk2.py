@@ -134,6 +134,21 @@ def paso_previo():
             subprocess.run(orden, cwd=BASE, stdout=f, stderr=subprocess.STDOUT)
     log("paso previo terminado (el resultado queda en barrido_redocking_cdk2.txt)")
 
+    # Y ahora hay que REMEDIR: el control escribe en el fichero crudo, pero el
+    # informe del AUC lee el corregido (el que deduce la correspondencia de atomos y
+    # separa el nucleo del brazo). Sin este paso, las variantes de depth 128 no
+    # aparecerian en el informe y la seccion del control contaria solo las seis.
+    log("remediendo el barrido con la medida buena, para que el informe lo vea")
+    with open(os.path.join(BASE, "encadenado_stdout.log"), "a",
+              encoding="utf-8", errors="ignore") as f:
+        f.write("\n===== remedicion del barrido =====\n")
+        f.flush()
+        subprocess.run([sys.executable, os.path.join(BASE,
+                                                    "diagnostico_orden_poses.py"),
+                        "--remedir-barrido"],
+                       cwd=BASE, stdout=f, stderr=subprocess.STDOUT)
+    log("remedicion hecha (barrido_redocking_cdk2_corregido.txt)")
+
 
 def lanzar(decoys):
     orden = [sys.executable, os.path.join(BASE, "lanzar_banco_cdk2.py"),

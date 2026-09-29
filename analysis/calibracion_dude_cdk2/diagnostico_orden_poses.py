@@ -159,8 +159,12 @@ def main():
                 log("   El control NO PASA en ninguna, y ahora con la medida buena.")
                 log("   El motor no encuentra esta pose en esta caja: no es la"
                     " metrica.")
-            with open(REMEDIDO, "a", encoding="utf-8") as f:
-                f.write("\n=== remedicion %s ===\n" % time.strftime("%Y-%m-%d %H:%M"))
+            # Se ESCRIBE, no se anade: este fichero es el resumen de una pasada
+            # completa, y si se anadiese cada vez que se corre el diagnostico (que es
+            # justo lo que hace el encadenador tras la busqueda agotada) el recuento
+            # de variantes del informe del AUC contaria las mismas dos veces.
+            with open(REMEDIDO, "w", encoding="utf-8") as f:
+                f.write("=== remedicion %s ===\n" % time.strftime("%Y-%m-%d %H:%M"))
                 for etiqueta, r, mejor, pasa in corregidas:
                     f.write("variante %-14s | entrada %.4f A | mejor pose %d |"
                             " %+.2f kcal/mol | bolsillo %.2f A | piso %.2f A |"
