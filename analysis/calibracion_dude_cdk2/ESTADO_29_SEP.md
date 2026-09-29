@@ -440,3 +440,38 @@ veces, aunque ese proceso ya estaba en marcha y no le llega el cambio.
 | `encadenar_andr.py` / `.bat` | el vigilante que lo lanza cuando la GPU se libere |
 | `control_dude.txt`, `control_dude_candidatos.csv` | la criba |
 | `control_dude_pericia.txt` | la pericia de las candidatas |
+
+---
+
+## 11. GNINA SOBRE `andr`: EL CRISTAL SI SE RECONOCE (20:25)
+
+Con CDK2 el CNN tampoco puso el cristal por delante (puestos 29 y 55 de 56). Con `andr`
+la pregunta es al reves, y la respuesta es buena.
+
+**Pose del cristal de `andr` (TES, 2AM9), puntuada con GNINA 1.3.3 `--score_only`:**
+
+| | CNNscore | CNNaffinity | afinidad clasica |
+|---|---|---|---|
+| **andr / TES (cristal)** | **0,982** | **8,574** | **-10,91** |
+| cdk2 / FAP (cristal, altloc A) | 0,230 | 6,398 | -4,60 |
+| cdk2 / FCP (cristal, altloc B) | 0,112 | 6,187 | -2,60 |
+
+Un CNNscore de 0,98 esta en el rango que GNINA reserva para modos de union nativos, y
+la afinidad clasica (-10,91 kcal/mol) es mas fuerte que CUALQUIER pose que devolvio
+Vina-GPU en CDK2 (media -8,25). El CNN, que es una herramienta independiente de Vina y
+entrenada con poses cristalograficas, reconoce esta pose sin ninguna ayuda.
+
+**Lo que esto ya dice, sin esperar al motor:** la eleccion de `andr` no era solo
+"menos mala que CDK2". La pose del cristal de `andr` es, para un tercero
+independiente, la pose buena de este bolsillo. El control, cuando corra, ya no es una
+prueba con resultado desconocido: es una comprobacion.
+
+**OJO, y es importante lo que NO se ha hecho todavia:** solo se ha puntuado UNA pose,
+la del cristal. El script se niega a dar veredicto (`return 2`, y lo dice en voz
+alta), porque una puntuacion alta de una sola pose no es una segunda opinion: es un
+numero suelto. Falta puntuar las 9 poses de cada variante del motor, y solo se puede
+hacer cuando el control haya corrido. La comparacion absoluta con CDK2 (0,98 contra
+0,23) si es informativa; el puesto relativo dentro de este diana, todavia no.
+
+Ficheros: `preparar_poses_gnina_andr.py`, `_wsl_puntuar_gnina_andr.py`,
+`_gnina_poses_andr/`, `gnina_andr.csv`.
