@@ -262,7 +262,68 @@ rescoring que se va a probar por probar. Lo que esta prueba pide, si se confirma
 es un motor con desolvacion de verdad (el CNN de GNINA, que ya esta en el proyecto,
 o un campo de fuerzas explicito), no otra capa encima de Vina.
 
-## 8. Archivos del dia
+## 8. GNINA sobre las poses: el CNN tampoco quiere esa pose
+
+Como el control no pasa, la pregunta que quedaba era si **otro motor** lo arregla. Se
+puntuaron con GNINA 1.3.3 (`--score_only`, sin volver a acoplar) las **56 poses**: las
+dos conformaciones del cristal y las 9 de cada una de las 6 variantes del motor.
+Tarda 75 segundos.
+
+| medida | cristal FAP | cristal FCP | media del motor (54) | puesto del cristal |
+|---|---|---|---|---|
+| CNNscore | 0,230 | 0,112 | **0,493** | 29 y 55 de 56 |
+| CNNaffinity | 6,398 | 6,187 | **6,625** | 34 y 41 de 56 |
+| afinidad tipo Vina | −4,60 | −2,60 | **−8,25** | **55 y 56 de 56** |
+
+**El CNN no rescata la pose del cristal.** Y no por poco: en la afinidad clásica el
+cristal queda **último de 56**, a 3,7 kcal/mol de la media del motor. Un CNN entrenado
+con poses cristalográficas, que es justo la herramienta que debería reconocer un modo
+de unión nativo, lo pone en la mitad de abajo.
+
+### Y el receptor es el que dice ser
+
+Antes de leer nada de esto había que descartar que el receptor estuviera mal. Se
+comparó `receptor_cdk2.pdb` con el 1h00 original: **2079 átomos pesados empalman por
+nombre de residuo y de átomo, con RMSD 0,466 Å**, y el único residuo que "falta" son
+las histidinas, que DUD-E nombra HIE/HID y el PDB nombra HIS. Es la misma proteína, en
+el mismo marco. La preparación aguanta el tercer control del día.
+
+### Lo que esto quiere decir, junto con todo lo anterior
+
+Ni Vina, ni el CNN de GNINA, ni el propio cristal están de acuerdo sobre dónde va ese
+ligando: el cristal lo modela en dos posiciones al 50 %, el amonio no toca nada, y las
+dos funciones de puntuación probadas —una de ellas entrenada con cristales— rechazan
+la geometría cristalográfica y prefieren la que encuentra el motor.
+
+Leido entero, el control de CDK2 **no es evidencia contra el embudo**: es un control
+mal elegido para este ligando. Lo que hay que decir del banco de CDK2 es esto, y con
+esto se lee el AUC cuando salga:
+
+* el núcleo anclado **sí se reproduce** (1,95 y 2,00 Å en 2 de 6 variantes);
+* el brazo que no se reproduce es un catión sin anclaje y con dos posiciones en el
+  cristal;
+* ningún motor probado, incluido un CNN de cristales, prefiere la geometría
+  cristalográfica;
+* y el receptor está bien, comprobado tres veces.
+
+### Como se corrió, por si hay que repetirlo
+
+Kaggle no estaba disponible: **la cuota semanal de GPU de la cuenta está agotada**
+(30 h, gastadas en la corrida del CNN de TBK1 la noche anterior). Se hizo en el Ubuntu
+que ya estaba instalado en **WSL**, que no gasta cuota:
+
+1. binario estático `gnina.cuda12.8.static` de v1.3.3, bajado de las releases;
+2. las librerías CUDA **sin pip ni apt** (este Ubuntu no trae ninguno de los dos):
+   `_wsl_bajar_libs.py` baja los `.whl` de PyPI y los descomprime con el python3 del
+   sistema en `~/gnina/libs` — cuDNN 9, cudart, cublas, cufft, curand, cusparse,
+   cusolver, nvrtc y nvJitLink, que son las nueve que pide el binario;
+3. `_wsl_puntuar_gnina.py`, que pone el `LD_LIBRARY_PATH` desde dentro de Python (así
+   no hay una sola comilla de por medio, que fue lo que falló a la primera).
+
+Todo queda en `~/gnina` dentro de WSL: se borra con un `rm -rf` y no toca nada del
+sistema. El resultado está en `gnina_cdk2.csv`.
+
+## 9. Archivos del dia
 
 | fichero | que es |
 |---|---|
@@ -278,3 +339,8 @@ o un campo de fuerzas explicito), no otra capa encima de Vina.
 | `diagnostico_pose_cristal.py` | por que el motor no devuelve la pose: fragmentos, contactos, tension |
 | `cristal_1h00_dos_conformaciones.py` | las dos conformaciones del cristal y el nucleo separado del brazo |
 | `1H00_cristal_completo.pdb` | el PDB original entero, con las 209 aguas y las dos copias del ligando |
+| `preparar_poses_gnina.py` | las 56 poses en PDBQT de un modelo, para puntuar |
+| `_wsl_bajar_libs.py` | librerias CUDA de GNINA sin pip ni apt |
+| `_wsl_puntuar_gnina.py` | puntua las 56 poses con GNINA dentro de WSL |
+| `gnina_cdk2.csv` | las 56 puntuaciones (afinidad, CNNscore, CNNaffinity) |
+| `_kaggle/` | el kernel de Kaggle preparado, por si vuelve la cuota |
