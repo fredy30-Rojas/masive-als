@@ -1,0 +1,39 @@
+REMARK SMILES COc1nc(NCCC2=CCCCC2)nc(OC)n1
+REMARK SMILES IDX 6 1 5 3 3 4 4 5 19 6 16 7 15 8 2 9 1 10 17 11 18 12 7 13
+REMARK SMILES IDX 8 14 9 15 10 16 14 17 11 18 13 19 12 20
+REMARK H PARENT 6 2
+ROOT
+ATOM      1  N   UNL     1       0.002   1.263  -0.439  1.00  0.00    -0.354 N 
+ATOM      2  H   UNL     1      -0.024   2.272  -0.348  1.00  0.00     0.163 HD
+ENDROOT
+BRANCH   1   3
+ATOM      3  C   UNL     1       1.327   0.878  -0.298  1.00  0.00     0.232 A 
+ATOM      4  C   UNL     1       3.013  -0.581  -0.509  1.00  0.00     0.324 A 
+ATOM      5  N   UNL     1       1.730  -0.314  -0.713  1.00  0.00    -0.159 NA
+ATOM      6  N   UNL     1       3.899   0.232   0.050  1.00  0.00    -0.140 NA
+ATOM      7  C   UNL     1       3.383   1.397   0.418  1.00  0.00     0.324 A 
+ATOM      8  N   UNL     1       2.121   1.775   0.265  1.00  0.00    -0.159 NA
+BRANCH   4   9
+ATOM      9  O   UNL     1       3.409  -1.826  -0.951  1.00  0.00    -0.467 OA
+ATOM     10  C   UNL     1       4.771  -2.118  -0.672  1.00  0.00     0.282 C 
+ENDBRANCH   4   9
+BRANCH   7  11
+ATOM     11  O   UNL     1       4.192   2.348   1.005  1.00  0.00    -0.467 OA
+ATOM     12  C   UNL     1       5.528   1.909   1.205  1.00  0.00     0.282 C 
+ENDBRANCH   7  11
+ENDBRANCH   1   3
+BRANCH   1  13
+ATOM     13  C   UNL     1      -0.723   0.718  -1.578  1.00  0.00     0.120 C 
+BRANCH  13  14
+ATOM     14  C   UNL     1      -1.421  -0.614  -1.258  1.00  0.00     0.052 C 
+BRANCH  14  15
+ATOM     15  C   UNL     1      -2.667  -0.474  -0.403  1.00  0.00    -0.072 C 
+ATOM     16  C   UNL     1      -3.898  -0.463  -0.948  1.00  0.00    -0.028 C 
+ATOM     17  C   UNL     1      -2.461  -0.405   1.094  1.00  0.00     0.031 C 
+ATOM     18  C   UNL     1      -5.166  -0.397  -0.147  1.00  0.00     0.027 C 
+ATOM     19  C   UNL     1      -3.715   0.019   1.865  1.00  0.00     0.005 C 
+ATOM     20  C   UNL     1      -4.956  -0.690   1.338  1.00  0.00     0.004 C 
+ENDBRANCH  14  15
+ENDBRANCH  13  14
+ENDBRANCH   1  13
+TORSDOF 6

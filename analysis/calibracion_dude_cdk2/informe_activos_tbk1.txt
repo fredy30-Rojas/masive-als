@@ -1,0 +1,63 @@
+AUDITORIA DE LOS ACTIVOS DE TBK1, ANTES DEL AUC
+   2026-09-29 20:34
+   para que se vea si el AUC, sea cual sea, va a poder interpretarse
+
+1. CONCENTRACION DE ESQUELETOS (Murcko)
+   2313 activos
+   892 eskeletos distintos | 0 activos sin mol legible | 0 sin esqueleto
+   esqueletos con 5+ activos: 86
+   esos cubren 1237 de 2313 activos (53.5 %)
+   el esqueleto mas grande: 148 activos (6.4 % del total)
+   bien: la concentracion no llega al 30 % en un solo esqueleto
+   los 8 esquelestos mas poblados:
+      148 activos | c1nc(Nc2ccc(N3CCN(C4COC4)CC3)cc2)nc(-c2ccc(OC3CCNCC3)cc2)n1
+      127 activos | c1cc(-c2ccc3nc(Nc4cc(CN5CCNCC5)ccn4)[nH]c3c2)ncn1
+       74 activos | O=C(C1CC1)N1CCN(Cc2ccnc(Nc3nc4ccc(-c5ccncn5)cc4[nH]3)c2)CC1
+       69 activos | O=C(Nc1cnc(-c2cccnc2)cn1)C1CC1
+       35 activos | c1cc(-c2ccc3nc(Nc4cc(CN5CCNCC5)ccn4)[nH]c3c2)ccn1
+       29 activos | O=C(Nc1cnc(-c2ccccc2)cn1)C1CC1
+       27 activos | c1cc(CN2CCNCC2)cc(Nc2nc3ccc(-c4ncno4)cc3[nH]2)n1
+       26 activos | c1nc(Nc2cn[nH]c2)nc(-c2ccc(OC3CCNCC3)cc2)n1
+
+1b. SON CONGENERICOS? (maximo comun subestructura)
+   MCS sobre una muestra de 60 activos: 5 atomos
+   -> NO hay serie congenerica. Un MCS de 5 atomos es un
+      esqueleto, no una familia. Los 2313 activos son 892 compuestos distintos
+      y el AUC global mide el conjunto, no una familia. La premisa de que
+      venian de series congenericas era FALSA.
+
+2. SOLAPE ENTRE ESQUELETOS DE ACTIVOS Y DE SENUELOS
+   33361 senuelos
+   esqueletos de activo que tambien salen en senuelos: 7
+   senuelos que caen en un esqueleto de activo: 37 de 33361 (0.11 %)
+   OJO: 37 senuelos comparten esqueleto con algun activo. Un senuelo con
+        el mismo esqueleto que un activo es dificil por construccion, y eso hace el
+        AUC mas alto de lo que corresponde. Se dice, no se calla.
+
+3. SENUELOS IGUALES O CASI A UN ACTIVO (fallo de construccion del banco)
+
+3b. SENUELOS PEGADOS A SU PROPIO ACTIVO (solo TBK1, que guarda el origen)
+   senuelos evaluados: 1500
+   senuelos mas parecidos a SU activo que a cualquier otro: 5 (0.3 %)
+   (esperado: en un banco bien construido, POCOS. Si sale alto, los
+    senuelos estan pegados a su activo y el AUC se infla.)
+   senuelos identicos a un activo: 0
+   senuelos casi identicos a un activo (Tanimoto >= 0,95): 0
+   bien: ningun senuelo es (casi) un activo
+
+4. GLOSARIO: COMO SE LEERA EL AUC CUANDO SALGA
+   Lo de arriba NO dice si el AUC de TBK1 es bueno o malo. Dice si el numero,
+   sea cual sea, va a poder leerse como 'el motor discrimina esta diana' o si
+   va a estar vacio de sentido por construccion (activos de una sola familia,
+   senuelos con el mismo esqueleto).
+
+   Concentracion de activos: normal (892 esqueleto(s) distinto(s) para 2313 activos)
+   Solape activo-senuelo:     bajo, bien (37 de 33361, 0.11 %)
+
+   RESUMEN PARA LEER EL AUC: el banco de TBK1 NO tiene el defecto tipico de
+   DUD-E (activos de una sola familia, o senuelos con el mismo esqueleto que
+   un activo). Hay 37 senuelos sobre 33361 que comparten esqueleto con un
+   activo, un 0.11 %: demasiado poco para hinchar el AUC. Asi que si el AUC
+   sale bajo, no es que el banco este mal construido. Y si sale alto, es de
+   verdad. Lo que queda por encima es lo del control de redocking.
+   duracion: 137.3 s

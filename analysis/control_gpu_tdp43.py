@@ -224,9 +224,30 @@ def main():
     ap.add_argument("--puntuar", action="store_true")
     ap.add_argument("--todo", action="store_true")
     ap.add_argument("--limite", type=int, default=0)
+    # Repetir EL MISMO control con OTRO receptor (misma caja, mismo protocolo) y ver
+    # si el veredicto cambia. Es la prueba que decide si el cribado grande de
+    # gpu_dock/resultados_libreria (receptor TDP43_v2.pdbqt) hereda la validacion
+    # que se hizo con 4BS2_ph74.pdbqt, que son dos ficheros distintos por la
+    # protonacion. Anadido el 25 sep 2026; sin estas opciones todo sigue igual.
+    ap.add_argument("--receptor", default=None,
+                    help="otro receptor .pdbqt (por defecto, el de la validacion)")
+    ap.add_argument("--salida", default=None,
+                    help="otra carpeta de salida (por defecto, la de la validacion)")
     args = ap.parse_args()
     if not any([args.montar, args.acoplar, args.puntuar, args.todo]):
         ap.error("hay que decir que hacer: --montar, --acoplar, --puntuar o --todo")
+
+    if args.receptor or args.salida:
+        global RECEPTOR, SALIDA, LIGS, OUT, OUT_DURO, PEND, LOG
+        if args.receptor:
+            RECEPTOR = os.path.abspath(args.receptor)
+        if args.salida:
+            SALIDA = os.path.abspath(args.salida)
+            LIGS = os.path.join(SALIDA, "ligands")
+            OUT = os.path.join(SALIDA, "out")
+            OUT_DURO = os.path.join(SALIDA, "out_duro")
+            PEND = os.path.join(SALIDA, "pendientes")
+            LOG = os.path.join(SALIDA, "acoplar_gpu.log")
 
     os.makedirs(SALIDA, exist_ok=True)
     log("")

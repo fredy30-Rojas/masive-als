@@ -544,3 +544,45 @@ fragmento pequeno solo tiene sentido si gana a lo que **no une nada** (el tercer
 (unidores de ARN). Ese es el camino, no cambiar la funcion.
 
 Informe completo: `analysis/INFORME_VINARDO_RRM2_2026-09-29.md`.
+
+---
+
+## 14. Vinardo tambien en SOD1, y dos correcciones del camino (29 sep 2026, noche)
+
+`repunuar_vinardo.py` (antes `_repunuar_vinardo.py`) ahora es parametrizable por diana y
+toma receptor, caja y carpetas de `validar_diana_limpia.DIANAS`. El receptor y el tamano
+van DENTRO de la tarea, no en globales: en Windows el ProcessPoolExecutor usa `spawn`, que
+re-importa el modulo, y un `--target SOD1` habria puntuado contra el receptor de TDP-43 sin
+decir nada.
+
+**Correccion 1 (la importante): nueve positivos estaban contados como fondo blando.**
+Los 7 `ACT_` con `apto=si` de `verdad_de_referencia.csv` son positivos; los otros 7 `ACT_`
+(berberina, cefarantina, coptisina, epiberberina, ketoconazol, nitidina, sanguinarina) NO
+son de union medida y el validador los deja fuera de todo. La primera corrida los metio en
+el fondo blando. La regla ahora sale de la tabla, no del prefijo. TDP-43: 122 de fondo
+blando, no 131; SOD1: 482, no 513.
+
+**Correccion 2: `--score_only` NO devuelve la afinidad del docking.** La diferencia es de
+1,96 kcal de mediana en TDP-43 y 1,23 en SOD1 (hasta 8). Se descarto la caja antes de
+aceptarlo: `diagnostico_score_only.py` puntua las mismas poses con la caja del docking y
+con la caja centrada en la pose y sale EXACTAMENTE lo mismo (0,000 en 8 poses). Es que al
+acoplar Vina arma las mapas en rejilla gruesa y relaja la pose; al re-puntar evalua la
+pose guardada. Parejo para todos, asi que no altera el ranking pero si las cifras. Por eso
+`metricas_vinardo.py` usa la afinidad DEL DOCKING para la columna Vina.
+
+**Regresion:** con la afinidad del docking, las celdas de Vina reproducen las publicadas
+al milimetro (TDP-43 0,301/0,686, 0,357/0,734, 0,332/0,713; SOD1 0,440/0,564 y
+0,313/0,838).
+
+**Resultado con Vinardo: las DOCE celdas NO PASSAN.** TDP-43 blando 0,384/0,684/0,502,
+duro 0,344/0,601/0,475, los dos 0,362/0,638/0,493. SOD1 blando 0,432/0,518/0,447
+(EF5 3,64 -> 1,82), duro 0,274/0,710/0,575, los dos 0,394/0,564/0,469 (EF5 3,64 -> 0).
+En SOD1 va peor, no mejor.
+
+**Los fragmentos siguen sin recuperar** (seccion 13): 155, 158 y 159 de 159, y uno peor.
+Y en SOD1 los farmacos PEQUEÑOS si funcionan dentro de su grupo de tamano (adrenalina 1 de
+16, dopamina 3 de 12): un farmaco pequeno no pierde siempre, pierde cuando al lado hay
+algo de su tamano que une otra cosa, que es justo lo que pasa en TDP-43 con los 14 ligandos
+del fondo de 11 a 17 atomos.
+
+Informe: `analysis/INFORME_VINARDO_RRM2_2026-09-29.md`.

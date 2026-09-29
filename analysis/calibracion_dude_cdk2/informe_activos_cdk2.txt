@@ -1,0 +1,57 @@
+AUDITORIA DE LOS ACTIVOS DE CDK2, ANTES DEL AUC
+   2026-09-29 20:36
+   para que se vea si el AUC, sea cual sea, va a poder interpretarse
+
+1. CONCENTRACION DE ESQUELETOS (Murcko)
+   474 activos
+   474 eskeletos distintos | 0 activos sin mol legible | 0 sin esqueleto
+   esqueletos con 5+ activos: 0
+   esos cubren 0 de 474 activos (0.0 %)
+   el esqueleto mas grande: 1 activos (0.2 % del total)
+   bien: la concentracion no llega al 30 % en un solo esqueleto
+   los 8 esquelestos mas poblados:
+        1 activos | c1nnc(Cc2cscn2)[nH]1
+        1 activos | c1ncc2cc(-c3ccsc3)ccc2n1
+        1 activos | c1ncc(SCc2ncc(CC3CCCCC3)o2)s1
+        1 activos | c1ncc(Cc2nn3cnnc3s2)s1
+        1 activos | c1nc2c(NCC3CC3)nc(NC3CCCCC3)nc2n1C1CCCC1
+        1 activos | c1nc(NCc2ccc3c(c2)OCO3)c2nc[nH]c2n1
+        1 activos | c1nc(NC2CCCC2)c2nc[nH]c2n1
+        1 activos | c1n[nH]c2c1CCc1n[nH]cc1-2
+
+1b. SON CONGENERICOS? (maximo comun subestructura)
+   MCS sobre una muestra de 60 activos: 3 atomos
+   -> NO hay serie congenerica. Un MCS de 3 atomos es un
+      esqueleto, no una familia. Los 474 activos son 474 compuestos distintos
+      y el AUC global mide el conjunto, no una familia. La premisa de que
+      venian de series congenericas era FALSA.
+
+2. SOLAPE ENTRE ESQUELETOS DE ACTIVOS Y DE SENUELOS
+   27850 senuelos
+   esqueletos de activo que tambien salen en senuelos: 7
+   senuelos que caen en un esqueleto de activo: 13 de 27850 (0.05 %)
+   OJO: 13 senuelos comparten esqueleto con algun activo. Un senuelo con
+        el mismo esqueleto que un activo es dificil por construccion, y eso hace el
+        AUC mas alto de lo que corresponde. Se dice, no se calla.
+
+3. SENUELOS IGUALES O CASI A UN ACTIVO (fallo de construccion del banco)
+   senuelos identicos a un activo: 0
+   senuelos casi identicos a un activo (Tanimoto >= 0,95): 0
+   bien: ningun senuelo es (casi) un activo
+
+4. GLOSARIO: COMO SE LEERA EL AUC CUANDO SALGA
+   Lo de arriba NO dice si el AUC de CDK2 es bueno o malo. Dice si el numero,
+   sea cual sea, va a poder leerse como 'el motor discrimina esta diana' o si
+   va a estar vacio de sentido por construccion (activos de una sola familia,
+   senuelos con el mismo esqueleto).
+
+   Concentracion de activos: normal (474 esqueleto(s) distinto(s) para 474 activos)
+   Solape activo-senuelo:     bajo, bien (13 de 27850, 0.05 %)
+
+   RESUMEN PARA LEER EL AUC: el banco de CDK2 NO tiene el defecto tipico de
+   DUD-E (activos de una sola familia, o senuelos con el mismo esqueleto que
+   un activo). Hay 13 senuelos sobre 27850 que comparten esqueleto con un
+   activo, un 0.05 %: demasiado poco para hinchar el AUC. Asi que si el AUC
+   sale bajo, no es que el banco este mal construido. Y si sale alto, es de
+   verdad. Lo que queda por encima es lo del control de redocking.
+   duracion: 88.8 s

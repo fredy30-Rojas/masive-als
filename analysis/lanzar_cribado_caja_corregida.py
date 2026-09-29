@@ -99,7 +99,14 @@ def escribir_config(diana, cfg, ligdir, outdir):
 
 
 def lanzar(diana, ligdir, outdir, cfg):
-    subprocess.run([EXE, "--config", cfg], cwd=GPU, capture_output=True, timeout=None)
+    p = subprocess.run([EXE, "--config", cfg], cwd=GPU, capture_output=True, timeout=None)
+    # La salida del motor se guarda SIEMPRE: si algo falla, el motivo tiene que quedar
+    # escrito al lado de las poses, y no en una consola que se cierra.
+    with open(os.path.join(outdir, "_motor.log"), "wb") as f:
+        f.write(b"config: " + cfg.encode("utf-8") + b"\n")
+        f.write(b"returncode: " + str(p.returncode).encode("ascii") + b"\n")
+        f.write(b"\n--- stdout ---\n" + (p.stdout or b""))
+        f.write(b"\n--- stderr ---\n" + (p.stderr or b""))
     hechos = glob.glob(os.path.join(outdir, "*_out.pdbqt"))
     return len(hechos)
 

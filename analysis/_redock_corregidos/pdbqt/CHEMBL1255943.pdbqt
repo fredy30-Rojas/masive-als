@@ -1,0 +1,43 @@
+REMARK  Name = 
+REMARK  7 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: N_1  and  CA_2
+REMARK    2  A    between atoms: CA_2  and  CB_3
+REMARK    3  A    between atoms: CA_2  and  C_8
+REMARK    4  A    between atoms: CB_3  and  CG_4
+REMARK    5  A    between atoms: CG_4  and  CD_5
+REMARK    6  A    between atoms: CD_5  and  OE2_7
+REMARK    7  A    between atoms: C_8  and  OXT_10
+REMARK                            x       y       z     vdW  Elec       q    Type
+REMARK                         _______ _______ _______ _____ _____    ______ ____
+ROOT
+ATOM      1  CA  GLU A   1       0.571   0.004  -1.374  0.00  0.00    +0.000 C 
+ENDROOT
+BRANCH   1   2
+ATOM      2  N   GLU A   1       1.003   0.089   0.024  0.00  0.00    +0.000 NA
+ATOM      3  H1  GLU A   1       0.554  -0.660   0.597  0.00  0.00    +0.000 HD
+ATOM      4  H2  GLU A   1       2.042  -0.016   0.081  0.00  0.00    +0.000 HD
+ENDBRANCH   1   2
+BRANCH   1   5
+ATOM      5  C   GLU A   1      -0.916   0.222  -1.502  0.00  0.00    +0.000 C 
+ATOM      6  O   GLU A   1      -1.428   0.259  -2.611  0.00  0.00    +0.000 OA
+BRANCH   5   7
+ATOM      7  OXT GLU A   1      -1.681   0.391  -0.403  0.00  0.00    +0.000 OA
+ATOM      8  HXT GLU A   1      -2.639   0.513  -0.471  0.00  0.00    +0.000 HD
+ENDBRANCH   5   7
+ENDBRANCH   1   5
+BRANCH   1   9
+ATOM      9  CB  GLU A   1       1.043  -1.318  -2.035  0.00  0.00    +0.000 C 
+BRANCH   9  10
+ATOM     10  CG  GLU A   1       0.606  -2.645  -1.379  0.00  0.00    +0.000 C 
+BRANCH  10  11
+ATOM     11  CD  GLU A   1      -0.876  -2.911  -1.415  0.00  0.00    +0.000 C 
+ATOM     12  OE1 GLU A   1      -1.334  -3.674  -2.254  0.00  0.00    +0.000 OA
+BRANCH  11  13
+ATOM     13  OE2 GLU A   1      -1.677  -2.421  -0.447  0.00  0.00    +0.000 OA
+ATOM     14  HE2 GLU A   1      -2.618  -2.643  -0.411  0.00  0.00    +0.000 HD
+ENDBRANCH  11  13
+ENDBRANCH  10  11
+ENDBRANCH   9  10
+ENDBRANCH   1   9
+TORSDOF 7

@@ -47,7 +47,7 @@ def log(m=""):
 
 
 def cargar_csv(ruta):
-    """Lee el CSV del re-puntado -> (vina, vinardo, papel)."""
+    """Lee el CSV del re-puntado -> (vina_csv, vinardo, papel)."""
     vina, vinar, papel = {}, {}, {}
     with open(ruta, encoding="utf-8") as fh:
         for r in csv.DictReader(fh):
@@ -55,6 +55,52 @@ def cargar_csv(ruta):
             vinar[r["ligand"]] = float(r["vinardo"])
             papel[r["ligand"]] = r["papel"]
     return vina, vinar, papel
+
+
+def vina_del_docking(V, papel, cfg):
+    """La afinidad que Vina ESCRIBIO al acoplar cada pose.
+
+    No es lo mismo que `repunuar_vinardo.py --scoring vina`, y esta medido que no:
+    `--score_only` sobre la misma pose sale de media 2 kcal MAS NEGATIVA que el
+    `REMARK VINA RESULT` del docking, con la caja del docking y con la caja centrada
+    en la pose igual (`diagnostico_score_only.py`). Al acoplar, Vina construye las
+    mapas en una rejilla gruesa y relaja la pose; al re-puntar, la affinity sale de la
+    funcion sobre la pose guardada. El desplazamiento esparejo para todos los
+    ligandos, asi que no altera el RANKING, pero si altera las cifras absolutas.
+
+    Por eso la columna Vina de las metricas se lee del docking: es la misma que uso
+    `validar_sod1_limpia.py`, y por tanto las cifras son comparables con las
+    publicadas. La de `--score_only` se queda para comparar las dos FUNCIONES sobre la
+    misma pose, que es la pregunta de los fragmentos.
+    """
+    poses2 = cfg.get("poses2") or os.path.join(os.path.dirname(V.LIGS_FONDO2), "out")
+    out_salida = os.path.join(cfg["salida"], "out")
+    dirs = {"positivo": [out_salida, cfg["poses"]],
+            "fondo blando": [cfg["poses"]],
+            "fondo duro": [poses2]}
+    out, faltan = {}, []
+    for nombre, pap in sorted(papel.items()):
+        found = None
+        for d in dirs.get(pap, []):
+            for cand in (nombre, "ACT_" + nombre):
+                p = os.path.join(d, cand + "_out.pdbqt")
+                if os.path.exists(p):
+                    found = p
+                    break
+            if found:
+                break
+        if not found:
+            faltan.append(nombre)
+            continue
+        aff = V.afinidad(found)
+        if aff is None:
+            faltan.append(nombre)
+        else:
+            out[nombre] = aff
+    if faltan:
+        log("!! %d ligandos sin afinidad de docking: %s"
+            % (len(faltan), ", ".join(faltan[:8])))
+    return out
 
 
 def resolver(V, nombre, dirs_ligs):
@@ -96,6 +142,18 @@ def main():
             % (len(faltan), ", ".join(sorted(faltan)[:8])))
         return 2
 
+    # La columna Vina que se usa para las metricas es la del DOCKING, no la del
+    # re-puntado; el desplazamiento entre las dos se mide y se enseña.
+    vina_csv = dict(vina)
+    vina = vina_del_docking(V, papel, cfg)
+    if len(vina) < len(papel):
+        log("   (se puntua con docking lo que se pudo leer: %d de %d)"
+            % (len(vina), len(papel)))
+    dif = [vina[k] - vina_csv[k] for k in vina if k in vina_csv]
+    dif.sort()
+    log("   score_only frente al docking: mediana %+.3f, maximo %+.3f kcal/mol"
+        % (dif[len(dif) // 2], dif[-1]))
+
     # --- positively known: las filas de verdad_de_referencia de esta diana --------
     filas = [r for r in csv.DictReader(
         open(os.path.join(BASE, "verdad_de_referencia.csv"), encoding="utf-8"))
@@ -127,11 +185,17 @@ def main():
         log("%-12s %d ligandos" % (k, len(v)))
 
     # --- atomos pesados ----------------------------------------------------------
-    # Tres carpetas, en el mismo orden que usa el validador: la del fondo blando, la
-    # del fondo duro y la de la salida de la corrida (alli acaban los positivos que
-    # hubo que re-acoplar, como los tres fragmentos de Nshogoza). Sin la tercera,
-    # esos tres se quedarian fuera y el veredicto seria de un subconjunto distinto.
-    dirs = [cfg["ligands"], cfg["ligands2"], os.path.join(cfg["salida"], "ligands")]
+    # Las carpetas de ligandos, en el mismo orden que usa el validador: la del fondo
+    # blando, la del fondo duro y la de la salida de la corrida (alli acaban los
+    # positivos que hubo que re-acoplar, como los tres fragmentos de Nshogoza). Sin
+    # la tercera, esos tres se quedarian fuera y el veredicto seria de otro
+    # subconjunto. Para SOD1 `DIANAS` no declara el fondo duro (lo creo
+    # `validar_sod1_limpia`), asi que se lee de ahi: `None` no es una carpeta.
+    dirs = [d for d in (cfg["ligands"], cfg["ligands2"]) if d]
+    dirs.append(os.path.join(cfg["salida"], "ligands"))
+    ligs_duro = V.LIGS_FONDO2
+    if not cfg["ligands2"] and ligs_duro:
+        dirs.append(ligs_duro)
     pesados = {}
     sin_pesados = []
     for k in papel:
@@ -156,6 +220,8 @@ def main():
     log("%-11s %-7s %7s %7s %9s %7s %7s %9s"
         % ("fondo", "func", "AUC", "AUC/at", "residual", "EF5%",
            "quim 5%", "veredicto"))
+    log("   (vina = afinidad del docking, la misma que usa el validador;"
+        " vinardo = re-puntado)")
     filas_out = []
     for nombre_f, decoys in (("fondo blando", fondos_f["fondo blando"]),
                              ("fondo duro", fondos_f["fondo duro"]),
@@ -177,6 +243,10 @@ def main():
     log("=" * 78)
     log("LOS TRES FRAGMENTOS DE RRM2: PUESTO CONTRA CADA FONDO, VINA -> VINARDO")
     log("=" * 78)
+    log("Aqui las dos columnas son las de `--score_only`, la misma pose y el mismo")
+    log("binario: es la comparacion justa entre FUNCIONES. La tabla de metricas de")
+    log("arriba usa la afinidad del docking para Vina, para que sus cifras sean")
+    log("comparables con las publicadas.")
     log("%-24s %5s %-9s %-14s %-14s %6s"
         % ("ligando", "pesad", "quimia", "puesto con vina", "puesto con vinardo",
            "delta"))
@@ -186,10 +256,7 @@ def main():
             continue
         for nombre_f, decoys in (("blando", fondos_f["fondo blando"]),
                                  ("duro", fondos_f["fondo duro"])):
-            S = {k: sc[k] for k in pos_f + decoys}
-            orden = sorted(S.items(), key=lambda kv: kv[1])
-            puesto = {k: i + 1 for i, (k, _) in enumerate(orden)}
-            for func, sc in (("vina", vina), ("vinardo", vinar)):
+            for func, sc in (("vina", vina_csv), ("vinardo", vinar)):
                 S = {k: sc[k] for k in pos_f + decoys}
                 orden = sorted(S.items(), key=lambda kv: kv[1])
                 puesto = {k: i + 1 for i, (k, _) in enumerate(orden)}
@@ -218,7 +285,7 @@ def main():
     log("parecido quita lo segundo: si el fragmento pierde tambien ahi, ningun")
     log("cambio de funcion lo arregla, porque el problema es el rango de la diana.")
     decoys = fondos_f["fondo duro"]
-    for func, sc in (("vina", vina), ("vinardo", vinar)):
+    for func, sc in (("vina", vina_csv), ("vinardo", vinar)):
         log("")
         log("%s:" % func)
         log("   %-16s %6s %-16s %-18s %s"
