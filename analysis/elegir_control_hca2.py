@@ -42,11 +42,15 @@ FASE 2 (bajando el .cif de las que pasaron):
      el receptor, todo lo medido carece de sentido.
   5. **ANCLAJE**: cada N/O del ligando con un N/O de proteina a menos de 3,5 A. Un
      polar sin pareja es un brazo suelto; en CDK2 se iba a 6-9 A.
-  6. **SIN AGUAS SUELTAS**: pocas HOH. No es que esten prohibidas: es que un puente de
-     agua del que depende el ligando no lo va a predecir Vina.
+  6. **SIN AGUAS PUENTE**: pocas aguas a menos de 3,5 A del ligando. Los cristales de
+     hCA2 vienen empapados (6t4o tiene 388 aguas en el archivo) y ese total no dice
+     nada; lo que decide es si el ligando depende de un puente de agua, porque Vina
+     no lo va a predecir. Jarabes: ninguna. Cristal con puente: el control falla por
+     una razon que no es del motor.
   7. **FACTOR B bajo**: ligando bien ordenado. B alto es ocupacion parcial y pose
      ambigua, que es media mitad del problema de CDK2.
-  8. **UN SOLO LIGANDO**: una sola copia. Dos copias al 50 % mataron a CDK2.
+  8. **UN SOLO LIGANDO, UNA SOLA CONFORMACION**: una sola copia y ninguna
+     conformacion alternativa del farmaco. Dos copias al 50 % mataron a CDK2.
 
 QUE DESCARTA Y QUE NO
 ---------------------
@@ -254,7 +258,28 @@ def comps_de_entrada(pdb_id):
 def medir_cristal(pdb_id, comp_id):
     """Pericia sobre las coordenadas reales del .cif.
 
-    (n_zn, d_al_zn, sin_pareja, polares, dmin, expuesto, aguas, b_medio, n_copias)
+    (n_zn, d_al_zn, sin_pareja, polares, dmin, expuesto, aguas_cerca, b_medio,
+     n_copias, n_altloc)
+
+    TRES COSAS QUE HAY QUE HACER BIEN Y QUE SALEN MIRANDO UN CRISTAL, NO DE
+    MEMORIA:
+
+    1. **Las conformaciones alternativas (altloc) se tiran.** 5jes tiene 141 atomos
+       en conformacion A y 141 en B: el ligando esta modelado en DOS posiciones.
+       Si se miden las dos a la vez, la distancia minima entre el ligando y la
+       proteina sale 0,25 A, que parece un choque y en realidad son las dos
+       conformaciones superpuestas. Se queda con la A. Cuantas alternativas hay se
+       cuenta y se dice, porque un ligando con dos conformaciones a la vez es
+       justamente lo que mato al control de CDK2 (dos copias al 50 %).
+    2. **Las aguas se cuentan las que TOCAN el ligando, no todas.** Los cristales de
+       hCA2 vienen empapados: 6t4o tiene 388 aguas en el archivo. Un numero de 388
+       no dice nada, porque lo que importa es si el ligando depende de un puente de
+       agua, y eso se ve contando las que estan a menos de 3,5 A del ligando.
+       Jarabes: ninguna, cristal perfecto. Con agua puente: Vina no la va a predecir
+       y el control falla por una razon que no es del motor.
+    3. **Las copias se cuentan por cadena, no por conformacion.** Un dimer con dos
+       copias del farmaco son dos copias reales, y eso tambien hay que verlo antes de
+       prometer el redocking.
     """
     if MMCIF2Dict is None:
         return None, "biopython no esta instalado"
@@ -269,62 +294,68 @@ def medir_cristal(pdb_id, comp_id):
         return None, "cif ilegible: %r" % e
     if "_atom_site.group_PDB" not in d:
         return None, "cif sin _atom_site"
+
     g = d["_atom_site.group_PDB"]
     comp = d["_atom_site.label_comp_id"]
     atomo = d["_atom_site.label_atom_id"]
     elem = d.get("_atom_site.type_symbol") or [a[:1] for a in atomo]
     try:
-        x = np.array([float(v) for v in d["_atom_site.Cartn_x"]])
-        y = np.array([float(v) for v in d["_atom_site.Cartn_y"]])
-        z = np.array([float(v) for v in d["_atom_site.Cartn_z"]])
+        xyz = np.stack([np.array([float(v) for v in d["_atom_site.Cartn_x"]]),
+                        np.array([float(v) for v in d["_atom_site.Cartn_y"]]),
+                        np.array([float(v) for v in d["_atom_site.Cartn_z"]])],
+                       axis=1)
     except Exception as e:  # noqa: BLE001
         return None, "coordenadas: %r" % e
-    xyz = np.stack([x, y, z], axis=1)
     bs = d.get("_atom_site.B_iso_or_equiv")
-    bfac = np.array([float(v) if v not in (".", "?") else 0.0 for v in bs]) if bs \
-        else np.zeros(len(g))
-    # modelos: si hay mas de uno, se queda el primero con el ligando
-    try:
-        mod = d.get("_atom_site.pdbx_PDB_model_num")
-    except Exception:  # noqa: BLE001
-        mod = None
+    bfac = np.array([float(v) if v not in (".", "?") else 0.0
+                     for v in bs]) if bs else np.zeros(len(g))
+
+    # Los atomos de hidrogeno no cuentan para nada de lo que se mide aqui: ni los
+    # choques, ni el anclaje, ni el radio del ligando.
+    heavy = np.array([str(e).upper() != "H" for e in elem])
+
+    # 1) un solo modelo y una sola conformacion alternativa
     sel = np.ones(len(g), dtype=bool)
+    mod = d.get("_atom_site.pdbx_PDB_model_num")
     if mod:
-        sel = np.array([m == mod[0] for m in mod])
+        sel &= np.array([m == mod[0] for m in mod])
+    alt = d.get("_atom_site.label_alt_id")
+    n_alt = 0
+    if alt:
+        lig_alt = sorted({a for a, ci, s in zip(alt, comp, sel)
+                         if s and ci == comp_id and a not in (".", "?")})
+        n_alt = len(lig_alt)
+        # se queda la conformacion A si la hay, y si no la primera. Todas las
+        # alternativas del farmaco se cuentan aparte (n_alt) para poder descartar el
+        # cristal: un farmaco modelado en dos posiciones a la vez es el problema
+        # exacto de CDK2, aqui con otro nombre.
+        quedarse = lig_alt[0] if lig_alt else None
+        sel &= np.array([(a in (".", "?")) or (quedarse is None or a == quedarse)
+                         for a in alt])
 
-    es_prot = np.array([(gi == "ATOM") for gi in g]) & sel
-    es_lig = np.array([(ci == comp_id) for ci in comp]) & sel
-    es_zn = np.array([(ci in ("ZN", "ZN2")) for ci in comp]) & sel
-    es_hoh = np.array([(ci in ("HOH", "DOD", "WAT")) for ci in comp]) & sel
+    es_prot = np.array([gi == "ATOM" for gi in g]) & sel & heavy
+    es_lig = np.array([ci == comp_id for ci in comp]) & sel & heavy
+    es_zn = np.array([ci in ("ZN", "ZN2") for ci in comp]) & sel
+    es_hoh = np.array([ci in ("HOH", "DOD", "WAT") for ci in comp]) & sel
 
-    P = xyz[es_prot]
-    L = xyz[es_lig]
-    Zn = xyz[es_zn]
-    HOH = xyz[es_hoh]
+    P, L, Zn, HOH = xyz[es_prot], xyz[es_lig], xyz[es_zn], xyz[es_hoh]
     if len(L) == 0:
         return None, "el farmaco no esta en el primer modelo"
-
-    heavy = np.array([(str(e).upper() != "H") for e in elem]) & sel
-    L = L[heavy[es_lig]]
-    Le = [str(elem[i]).upper() for i in np.where(es_lig)[0] if heavy[i]]
-    b_medio = float(np.mean(bfac[es_lig])) if es_lig.any() else 0.0
-
-    # cuantas copias del farmaco hay (agrupando por numero de modelo/residuo)
+    if len(P) == 0:
+        return None, "sin proteina en el archivo"
+    Le = [str(elem[i]).upper() for i in np.where(es_lig)[0]]
+    b_medio = float(np.mean(bfac[es_lig]))
+    copias = 1
     try:
         asym = d["_atom_site.label_asym_id"]
         copias = len({a for a, m in zip(asym, es_lig) if m})
     except Exception:  # noqa: BLE001
-        copias = 1
+        pass
 
-    if len(P) == 0:
-        return None, "sin proteina en el archivo"
     dm = np.linalg.norm(L[:, None, :] - P[None, :, :], axis=2)
     dmin = float(dm.min())
     idx_pol = [i for i, e in enumerate(Le) if e in ("N", "O")]
-    sin_pareja = 0
-    for i in idx_pol:
-        if dm[i].min() > CORTE_PAREJA:
-            sin_pareja += 1
+    sin_pareja = sum(1 for i in idx_pol if dm[i].min() > CORTE_PAREJA)
     expuesto = float((dm.min(axis=1) > 4.5).mean())
     d_zn = None
     if len(Zn):
@@ -332,8 +363,11 @@ def medir_cristal(pdb_id, comp_id):
             if e == "N":
                 v = float(np.linalg.norm(Zn - L[i], axis=1).min())
                 d_zn = v if d_zn is None else min(d_zn, v)
-    return (len(Zn), d_zn, sin_pareja, len(idx_pol), dmin, expuesto, len(HOH),
-            b_medio, copias), None
+    # 2) aguas que TOCAN el ligando, no todas
+    aguas_cerca = (len(HOH) and int((np.linalg.norm(
+        HOH[:, None, :] - L[None, :, :], axis=2).min(axis=1) < 3.5).sum())) or 0
+    return (len(Zn), d_zn, sin_pareja, len(idx_pol), dmin, expuesto, aguas_cerca,
+            b_medio, copias, n_alt), None
 
 
 def main():
@@ -344,9 +378,33 @@ def main():
     ap.add_argument("--offset", type=int, default=0)
     ap.add_argument("--fase2_max", type=int, default=60,
                     help="cuantas de la fase 1 bajan a la pericia de cristal")
+    ap.add_argument("--csv", default=None,
+                    help="nombre del CSV de salida. Hace falta para correr la criba "
+                         "en varios procesos por tramos: si todos escribieran el "
+                         "mismo fichero, el ultimo que terminara pisaria a los "
+                         "demas y se perderian tres cuartos de las entradas sin "
+                         "avisar.")
+    ap.add_argument("--desde_csv", default=None,
+                    help="se salta la fase 1 y lee los finalistas de este CSV. La "
+                         "fase 2 no necesita volver a preguntar a la API lo mismo "
+                         "que la fase 1, y con 1.135 entradas eso son casi dos horas "
+                         "de reloj por no haber guardado el paso.")
+    ap.add_argument("--cache", default=None,
+                    help="fichero de cache de la API. Cada proceso por tramo lleva "
+                         "el suyo: comparten uno y cada escritura lo pisa con la "
+                         "copia que ese proceso tinha al arrancar, y se pierden las "
+                         "consultas ya hechas. No da resultados falsos, pero tira "
+                         "la cache a la basura.")
     args = ap.parse_args()
 
     os.makedirs(CACHE, exist_ok=True)
+    global CSV_SALIDA, CACHE_JSON, INFORME
+    if args.csv:
+        CSV_SALIDA = os.path.join(DIR, args.csv)
+    if args.cache:
+        CACHE_JSON = os.path.join(DIR, args.cache)
+    if args.csv:
+        INFORME = os.path.join(DIR, args.csv.replace(".csv", ".txt"))
     cargar_cache()
     lineas = []
 
@@ -371,6 +429,17 @@ def main():
     log("   cribando %d entradas (offset %d)" % (len(lote), args.offset))
 
     # ---------------- FASE 1: quimica, sin bajar coordenadas ----------------
+    if args.desde_csv:
+        log("")
+        log("   (modo --desde_csv: se salta la criba y se leen los finalistas de %s)"
+            % args.desde_csv)
+        with open(args.desde_csv, newline="", encoding="utf-8") as f:
+            fase1 = list(csv.DictReader(f))
+        log("   %d finalistas desde el CSV" % len(fase1))
+        with open(INFORME, "w", encoding="utf-8") as f:
+            f.write("\n".join(lineas) + "\n")
+        return _fase2(args, log, lineas, fase1)
+
     log("")
     log("=" * 78)
     log("FASE 1. EL FARMACO ES SULFONAMIDA, RIGIDO Y DE TAMANO NORMAL? (sin bajar")
@@ -456,15 +525,25 @@ def main():
         log("csv: %s" % os.path.basename(CSV_SALIDA))
         return 0
 
+    return _fase2(args, log, lineas, fase1)
+
+
+def _fase2(args, log, lineas, fase1):
+    """Pericia de cristal sobre los finalistas de la fase 1.
+
+    Va en su propia funcion para que el modo --desde_csv pueda llamarla sin repasar
+    las 1.135 entradas de la API otra vez: la criba ya esta hecha y escrita en el CSV,
+    y volver a preguntar lo mismo son casi dos horas de reloj.
+    """
     # ---------------- FASE 2: pericia del cristal ----------------
     log("")
     log("=" * 78)
     log("FASE 2. PERICIA DEL CRISTAL (baja el .cif de las %d primeras)"
         % min(args.fase2_max, len(fase1)))
     log("=" * 78)
-    log("%-6s %-4s %3s %6s %6s %7s %6s %5s %5s  %s"
-        % ("pdb", "comp", "pts", "nZn", "N-Zn", "sinPareja", "dmin", "aguas",
-           "B", "copias"))
+    log("%-6s %-4s %3s %6s %6s %7s %6s %6s %5s %5s %4s"
+        % ("pdb", "comp", "pts", "nZn", "N-Zn", "sinPareja", "dmin", "agua<3.5",
+           "B", "cop", "alt"))
     cribadas = []
     for r in sorted(fase1, key=lambda x: x["pesados"])[:args.fase2_max]:
         m, err = medir_cristal(r["pdb"], r["comp"])
@@ -472,7 +551,8 @@ def main():
             r["nota"] = err
             log("%-6s %-4s  no se pudo medir: %s" % (r["pdb"], r["comp"], err))
             continue
-        n_zn, d_zn, sin_pareja, polares, dmin, expuesto, aguas, b_medio, copias = m
+        (n_zn, d_zn, sin_pareja, polares, dmin, expuesto, aguas, b_medio, copias,
+         n_alt) = m
         puntos = 0
         if n_zn >= 1:
             puntos += 10
@@ -487,6 +567,8 @@ def main():
             puntos += 5
         if copias <= 1:
             puntos += 10
+        if n_alt == 0:
+            puntos += 10
         if dmin < 2.5:
             puntos -= 25          # receptor y ligando no son del mismo cristal
         r.update({"n_zn": n_zn,
@@ -494,55 +576,75 @@ def main():
                   "sin_pareja": sin_pareja, "polares": polares,
                   "dmin": "%.2f" % dmin, "expuesto": "%.2f" % expuesto,
                   "aguas": aguas, "b_medio": "%.1f" % b_medio, "copias": copias,
-                  "puntos": puntos, "nota": ""})
+                  "n_altloc": n_alt, "puntos": puntos, "nota": ""})
         cribadas.append(r)
-        log("%-6s %-4s %3d %6d %6s %7s %6.2f %5d %5.0f  %d"
+        log("%-6s %-4s %3d %6d %6s %7s %6.2f %6d %5.0f %5d %4d"
             % (r["pdb"], r["comp"], puntos, n_zn,
                "-" if d_zn is None else "%.2f" % d_zn,
-               "%d/%d" % (sin_pareja, polares), dmin, aguas, b_medio, copias))
+               "%d/%d" % (sin_pareja, polares), dmin, aguas, b_medio, copias,
+               n_alt))
 
     log("")
     log("LAS QUE PASAN TODO")
     log("   sulfonamida + Zn coordinado (N a <= %.1f A) + rigido + ningun polar suelto"
         % CORTE_ZN)
-    log("   + <= %d aguas + B <= %.0f + una sola copia" % (MAX_AGUAS, MAX_B))
+    log("   + <= %d aguas puente + B <= %.0f + una sola copia y una sola conformacion"
+        % (MAX_AGUAS, MAX_B))
+    # El CSV se lee y vuelve como texto, y comparar "16" con 45 en Python da error.
+    # No es un detalle: es la diferencia entre que el filtro funcione o reviente.
+    def num(r, k, defecto):
+        try:
+            return float(r.get(k))
+        except (TypeError, ValueError):
+            return defecto
+
     ganan = [r for r in cribadas
-             if r.get("n_zn", 0) >= 1 and r.get("d_al_zn") != ""
-             and r["d_al_zn"] != "" and float(r["d_al_zn"]) <= CORTE_ZN
-             and r.get("sin_pareja", 99) == 0
-             and r.get("aguas", 999) <= MAX_AGUAS
-             and r.get("b_medio", 999) <= MAX_B
-             and r.get("copias", 99) <= 1]
+             if num(r, "n_zn", 0) >= 1
+             and num(r, "d_al_zn", 99) <= CORTE_ZN
+             and num(r, "sin_pareja", 99) == 0
+             and num(r, "aguas", 999) <= MAX_AGUAS
+             and num(r, "b_medio", 999) <= MAX_B
+             and num(r, "copias", 99) <= 1
+             and num(r, "n_altloc", 0) == 0
+             and num(r, "dmin", 99) >= 2.5]
     log("   %d de %d" % (len(ganan), len(cribadas)))
-    for r in sorted(ganan, key=lambda x: -x.get("puntos", 0))[:15]:
-        log("   %-6s %3d pts | %-4s | %2d pes. %d rot | N-Zn %s | %d aguas | B %.0f"
-            % (r["pdb"], r.get("puntos", 0), r["comp"], r["pesados"],
-               r["rotatorios"], r["d_al_zn"], r["aguas"], r["b_medio"]))
+    for r in sorted(ganan, key=lambda x: -num(x, "puntos", 0))[:15]:
+        log("   %-6s %3.0f pts | %-4s | %2.0f pes. %.0f rot | N-Zn %.2f A |"
+            " %.0f agua puente | B %.0f | %.0f copias"
+            % (r["pdb"], num(r, "puntos", 0), r["comp"], num(r, "pesados", 0),
+               num(r, "rotatorios", 0), num(r, "d_al_zn", 0), num(r, "aguas", 0),
+               num(r, "b_medio", 0), num(r, "copias", 0)))
     if not ganan:
         log("")
         log("   ninguna reune todo. Las 10 mejor puntuadas, con lo que les falla:")
-        for r in sorted(cribadas, key=lambda x: -x.get("puntos", 0))[:10]:
+        for r in sorted(cribadas, key=lambda x: -num(x, "puntos", 0))[:10]:
             fallas = []
-            if r.get("n_zn", 0) < 1:
+            if num(r, "n_zn", 0) < 1:
                 fallas.append("sin Zn")
-            elif not r.get("d_al_zn") or float(r["d_al_zn"]) > CORTE_ZN:
+            elif num(r, "d_al_zn", 99) > CORTE_ZN:
                 fallas.append("N no llega al Zn (%s)" % r.get("d_al_zn", "-"))
-            if r.get("sin_pareja"):
-                fallas.append("%d polar suelto" % r["sin_pareja"])
-            if r.get("aguas", 0) > MAX_AGUAS:
-                fallas.append("%d aguas" % r["aguas"])
-            if r.get("b_medio", 0) > MAX_B:
-                fallas.append("B %.0f" % r["b_medio"])
-            if r.get("copias", 1) > 1:
-                fallas.append("%d copias" % r["copias"])
-            log("   %-6s %3d pts | %-28s | %s"
-                % (r["pdb"], r.get("puntos", 0), r["nombre"][:28],
+            if num(r, "sin_pareja", 0):
+                fallas.append("%.0f polar suelto" % num(r, "sin_pareja", 0))
+            if num(r, "aguas", 0) > MAX_AGUAS:
+                fallas.append("%.0f agua puente" % num(r, "aguas", 0))
+            if num(r, "b_medio", 0) > MAX_B:
+                fallas.append("B %.0f" % num(r, "b_medio", 0))
+            if num(r, "copias", 1) > 1:
+                fallas.append("%.0f copias" % num(r, "copias", 1))
+            if num(r, "n_altloc", 0) > 0:
+                fallas.append("%.0f conformaciones alternativas"
+                              % num(r, "n_altloc", 0))
+            if num(r, "dmin", 99) < 2.5:
+                fallas.append("choque a %.2f A" % num(r, "dmin", 99))
+            log("   %-6s %3.0f pts | %-28s | %s"
+                % (r["pdb"], num(r, "puntos", 0), r["nombre"][:28],
                    ", ".join(fallas) if fallas else "CUMPLE"))
 
     with open(CSV_SALIDA, "w", newline="", encoding="utf-8") as f:
         campos = ["pdb", "comp", "nombre", "pesados", "rotatorios", "sulfonamida",
                   "n_zn", "d_al_zn", "sin_pareja", "polares", "dmin", "expuesto",
-                  "aguas", "b_medio", "copias", "puntos", "nota", "smiles"]
+                  "aguas", "b_medio", "copias", "n_altloc", "puntos", "nota",
+                  "smiles"]
         w = csv.DictWriter(f, fieldnames=campos, extrasaction="ignore")
         w.writeheader()
         for r in cribadas:

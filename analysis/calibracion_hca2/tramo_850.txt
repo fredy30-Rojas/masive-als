@@ -1,0 +1,42 @@
+ELEGIR EL CO-CRISTAL DE CONTROL DE hCA2
+   2026-09-30 15:34
+   Con 1.135 entradas no se coge la primera: se miden los criterios que ya
+   hicieron pasar a andr, para no repetir el fallo de CDK2.
+   entradas PDB asociadas a hCA2: 1135
+   cribando 200 entradas (offset 850)
+
+==============================================================================
+FASE 1. EL FARMACO ES SULFONAMIDA, RIGIDO Y DE TAMANO NORMAL? (sin bajar
+       ni un .cif: sale de la API de PDBe y de la de RCSB)
+==============================================================================
+   ...40/200  (23 pasan la quimica)
+
+   196 entradas con farmaco medido y 55 con sulfonamida rigida de tamano
+   4 sin farmaco tipo 'bound' | 141 sin sulfonamida que pase | 0 fallos
+
+   las 25 primeras por tamano (menor = mas encajada en el bolsillo):
+   6t4o   MJ2   12 pes. 1 rot | 3,5-dimethylbenzenesulfonamide
+   6t4n   F1A   13 pes. 1 rot | 2,4,6-trimethylbenzenesulfonamide
+   6xvh   O3B   13 pes. 2 rot | (4-sulfamoylphenyl)boronic acid
+   7qsi   EWF   13 pes. 1 rot | 2,3-dihydroindole-1-sulfonamide
+   6t4p   MHK   14 pes. 1 rot | naphthalene-1-sulfonamide
+   6t81   MUE   14 pes. 1 rot | naphthalene-2-sulfonamide
+   6u4q   PX7   14 pes. 0 rot | 4-methyl-1lambda~6~,2,4-benzothiadiazine-1,1
+   6u4t   PX7   14 pes. 0 rot | 4-methyl-1lambda~6~,2,4-benzothiadiazine-1,1
+   6ugp   Q7A   14 pes. 0 rot | 5-chloro-1lambda~6~,2,4-benzothiadiazine-1,1
+   6ugq   Q7A   14 pes. 0 rot | 5-chloro-1lambda~6~,2,4-benzothiadiazine-1,1
+   6ugr   Q71   14 pes. 0 rot | 7-fluoro-1lambda~6~,2,4-benzothiadiazine-1,1
+   6ugz   Q71   14 pes. 0 rot | 7-fluoro-1lambda~6~,2,4-benzothiadiazine-1,1
+   6uh0   PX7   14 pes. 0 rot | 4-methyl-1lambda~6~,2,4-benzothiadiazine-1,1
+   6yqt   P9E   14 pes. 1 rot | 2-sulfanylidene-3~{H}-1,3-benzoxazole-5-sulf
+   7jnr   VFG   14 pes. 3 rot | N-(5-sulfamoyl-1,3,4-thiadiazol-2-yl)propana
+   7jo0   VFG   14 pes. 3 rot | N-(5-sulfamoyl-1,3,4-thiadiazol-2-yl)propana
+   6ugn   Q77   15 pes. 0 rot | 5,7-dimethyl-1lambda~6~,2,4-benzothiadiazine
+   6ugo   Q77   15 pes. 0 rot | 5,7-dimethyl-1lambda~6~,2,4-benzothiadiazine
+   7jnv   VFJ   15 pes. 4 rot | N-(5-sulfamoyl-1,3,4-thiadiazol-2-yl)butanam
+   7jnw   VFM   15 pes. 3 rot | 2-methyl-N-(5-sulfamoyl-1,3,4-thiadiazol-2-y
+   7jo1   VFJ   15 pes. 4 rot | N-(5-sulfamoyl-1,3,4-thiadiazol-2-yl)butanam
+   7jo2   VFM   15 pes. 3 rot | 2-methyl-N-(5-sulfamoyl-1,3,4-thiadiazol-2-y
+   7rnz   64W   15 pes. 2 rot | 4-[(methylcarbamoyl)amino]benzene-1-sulfonam
+   7jnx   VGS   16 pes. 2 rot | 2,2-dimethyl-N-(5-sulfamoyl-1,3,4-thiadiazol
+   7jo3   VGS   16 pes. 2 rot | 2,2-dimethyl-N-(5-sulfamoyl-1,3,4-thiadiazol

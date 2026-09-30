@@ -1,0 +1,41 @@
+ELEGIR EL CO-CRISTAL DE CONTROL DE hCA2
+   2026-09-30 15:53
+   Con 1.135 entradas no se coge la primera: se miden los criterios que ya
+   hicieron pasar a andr, para no repetir el fallo de CDK2.
+   entradas PDB asociadas a hCA2: 1135
+   cribando 85 entradas (offset 1050)
+
+==============================================================================
+FASE 1. EL FARMACO ES SULFONAMIDA, RIGIDO Y DE TAMANO NORMAL? (sin bajar
+       ni un .cif: sale de la API de PDBe y de la de RCSB)
+==============================================================================
+
+   85 entradas con farmaco medido y 27 con sulfonamida rigida de tamano
+   0 sin farmaco tipo 'bound' | 58 sin sulfonamida que pase | 0 fallos
+
+   las 25 primeras por tamano (menor = mas encajada en el bolsillo):
+   8vzg   AZM   13 pes. 2 rot | 5-ACETAMIDO-1,3,4-THIADIAZOLE-2-SULFONAMIDE
+   8qh8   V8I   15 pes. 2 rot | 2,4-dichloro-5-sulfamoylbenzoic acid
+   8qhg   V8I   15 pes. 2 rot | 2,4-dichloro-5-sulfamoylbenzoic acid
+   8qhj   V8I   15 pes. 2 rot | 2,4-dichloro-5-sulfamoylbenzoic acid
+   8rns   A1H15  18 pes. 3 rot | 1-carbamimidoyl-3-[(4-sulfamoylphenyl)methyl
+   8rou   A1H15  18 pes. 3 rot | 1-carbamimidoyl-3-[(4-sulfamoylphenyl)methyl
+   8row   A1H15  18 pes. 3 rot | 1-carbamimidoyl-3-[(4-sulfamoylphenyl)methyl
+   8olf   VS9   23 pes. 2 rot | [(8~{S},9~{S},13~{S},14~{S})-13-methyl-6,7,8
+   8omh   VS9   23 pes. 2 rot | [(8~{S},9~{S},13~{S},14~{S})-13-methyl-6,7,8
+   8oko   VR3   24 pes. 2 rot | [(3~{S},8~{S},9~{S},10~{R},13~{S},14~{S})-10
+   8okt   VRN   24 pes. 2 rot | [(8~{R},9~{S},13~{S},14~{S})-13-methyl-17-ox
+   8omb   VRN   24 pes. 2 rot | [(8~{R},9~{S},13~{S},14~{S})-13-methyl-17-ox
+   8ufw   WJN   24 pes. 3 rot | 4-{[4-(trifluoromethyl)phenyl]carbamamido}be
+   8ufx   WJN   24 pes. 3 rot | 4-{[4-(trifluoromethyl)phenyl]carbamamido}be
+   8oke   VQC   25 pes. 2 rot | [(3~{S},8~{R},9~{S},10~{R},13~{S},14~{S})-10
+   8okq   VQC   25 pes. 2 rot | [(3~{S},8~{R},9~{S},10~{R},13~{S},14~{S})-10
+   8olm   VSM   25 pes. 2 rot | [(3~{S},5~{S},8~{S},13~{R},14~{R})-5,14-dime
+   8okg   VQH   26 pes. 3 rot | [(3~{S},8~{S},9~{S},10~{R},13~{S},14~{S},17~
+   8okp   VQW   26 pes. 2 rot | [(3~{R},5~{R},8~{R},9~{S},10~{S},13~{S},14~{
+   8olk   VQH   26 pes. 3 rot | [(3~{S},8~{S},9~{S},10~{R},13~{S},14~{S},17~
+   8omp   VQW   26 pes. 2 rot | [(3~{R},5~{R},8~{R},9~{S},10~{S},13~{S},14~{
+   9fjq   A1IDL  26 pes. 3 rot | 5,7,8-tris(fluoranyl)-1,1-bis(oxidanylidene)
+   8okj   VRI   27 pes. 3 rot | [(3~{R},5~{S},8~{R},9~{S},10~{S},13~{S},14~{
+   8ola   A1H69  27 pes. 3 rot | [(3~{R},5~{R},8~{R},9~{S},10~{S},13~{S},14~{
+   8oli   VRI   27 pes. 3 rot | [(3~{R},5~{S},8~{R},9~{S},10~{S},13~{S},14~{

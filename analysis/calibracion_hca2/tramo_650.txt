@@ -1,0 +1,44 @@
+ELEGIR EL CO-CRISTAL DE CONTROL DE hCA2
+   2026-09-30 15:34
+   Con 1.135 entradas no se coge la primera: se miden los criterios que ya
+   hicieron pasar a andr, para no repetir el fallo de CDK2.
+   entradas PDB asociadas a hCA2: 1135
+   cribando 200 entradas (offset 650)
+
+==============================================================================
+FASE 1. EL FARMACO ES SULFONAMIDA, RIGIDO Y DE TAMANO NORMAL? (sin bajar
+       ni un .cif: sale de la API de PDBe y de la de RCSB)
+==============================================================================
+   ...80/200  (29 pasan la quimica)
+   ...120/200  (38 pasan la quimica)
+   ...200/200  (74 pasan la quimica)
+
+   200 entradas con farmaco medido y 74 con sulfonamida rigida de tamano
+   0 sin farmaco tipo 'bound' | 126 sin sulfonamida que pase | 0 fallos
+
+   las 25 primeras por tamano (menor = mas encajada en el bolsillo):
+   5t71   75W   12 pes. 2 rot | 4-[(E)-diazenyl]benzene-1-sulfonamide
+   6hqx   4JC   12 pes. 2 rot | 4-ethylbenzenesulfonamide
+   6i0w   M4S   12 pes. 2 rot | 4-methoxybenzenesulfonamide
+   6rjj   K5W   12 pes. 1 rot | 2,3-bis(fluoranyl)benzenesulfonamide
+   6rnp   KBB   12 pes. 1 rot | 2,5-bis(fluoranyl)benzenesulfonamide
+   6rob   KBZ   12 pes. 1 rot | 4-cyanobenzenesulfonamide
+   6roe   FBT   12 pes. 1 rot | 2,6-DIFLUOROBENZENESULFONAMIDE
+   6rrg   FBU   12 pes. 1 rot | 3,5-DIFLUOROBENZENESULFONAMIDE
+   6hr3   4JE   13 pes. 3 rot | 4-propylbenzenesulfonamide
+   6i1u   3W8   13 pes. 3 rot | 4-ethoxybenzenesulfonamide
+   6q3o   4SO   13 pes. 2 rot | 4-sulfamoylbenzoic acid
+   6rfh   4SO   13 pes. 2 rot | 4-sulfamoylbenzoic acid
+   6rg5   S2O   13 pes. 3 rot | 4-(2-hydroxyethyl)benzenesulfonamide
+   6rh4   4NZ   13 pes. 2 rot | 4-nitrobenzenesulfonamide
+   6ceh   EZ1   14 pes. 4 rot | 4-[(prop-2-en-1-yl)selanyl]benzene-1-sulfona
+   6hxd   6YP   14 pes. 4 rot | 4-butylbenzenesulfonamide
+   6i2f   3W6   14 pes. 4 rot | 4-propoxybenzenesulfonamide
+   6rri   KFH   14 pes. 1 rot | 2,3,5,6-tetrakis(fluoranyl)benzenesulfonamid
+   6d1l   FQV   15 pes. 3 rot | 4-[(but-2-yn-1-yl)selanyl]benzene-1-sulfonam
+   6ouk   N7J   15 pes. 1 rot | (2Z)-2-(hydroxyimino)-2,3-dihydro-1,3-benzox
+   6oum   N7J   15 pes. 1 rot | (2Z)-2-(hydroxyimino)-2,3-dihydro-1,3-benzox
+   6rs5   KGK   15 pes. 1 rot | 2,3,5,6-tetrakis(fluoranyl)-4-methyl-benzene
+   6sd7   L7T   15 pes. 1 rot | 2,3,4,5,6-pentafluorobenzenesulfonamide
+   6sdh   0VV   15 pes. 1 rot | N-[(2E)-3,4-dihydroquinazolin-2(1H)-ylidene]
+   6sdi   0VV   15 pes. 1 rot | N-[(2E)-3,4-dihydroquinazolin-2(1H)-ylidene]
