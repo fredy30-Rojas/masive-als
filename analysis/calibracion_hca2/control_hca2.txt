@@ -1,0 +1,26 @@
+ELEGIR EL CO-CRISTAL DE CONTROL DE hCA2
+   2026-09-30 15:08
+   Con 1.135 entradas no se coge la primera: se miden los criterios que ya
+   hicieron pasar a andr, para no repetir el fallo de CDK2.
+   entradas PDB asociadas a hCA2: 1135
+   cribando 60 entradas (offset 0)
+
+==============================================================================
+FASE 1. EL FARMACO ES SULFONAMIDA, RIGIDO Y DE TAMANO NORMAL? (sin bajar
+       ni un .cif: sale de la API de PDBe y de la de RCSB)
+==============================================================================
+
+   58 entradas con farmaco medido y 10 con sulfonamida rigida de tamano
+   2 sin farmaco tipo 'bound' | 48 sin sulfonamida que pase | 0 fallos
+
+   las 25 primeras por tamano (menor = mas encajada en el bolsillo):
+   1cim   PTS   17 pes. 1 rot | (4S-TRANS)-4-(AMINO)-5,6-DIHYDRO-6-METHYL-4H
+   1cin   MTS   18 pes. 2 rot | (4S-TRANS)-4-(METHYLAMINO)-5,6-DIHYDRO-6-MET
+   1cil   ETS   19 pes. 3 rot | (4S-TRANS)-4-(ETHYLAMINO)-5,6-DIHYDRO-6-METH
+   1bnu   AL3   22 pes. 3 rot | 3,4-DIHYDRO-4-HYDROXY-2-(2-THIENYMETHYL)-2H-
+   1eou   SMS   22 pes. 3 rot | SULFAMIC ACID 2,3-O-(1-METHYLETHYLIDENE)-4,5
+   1bn3   AL6   23 pes. 3 rot | 2-(3-METHOXYPHENYL)-2H-THIENO-[3,2-E]-1,2-TH
+   1bnn   AL1   23 pes. 3 rot | 3,,4-DIHYDRO-2-(3-METHOXYPHENYL)-2H-THIENO-[
+   1bnt   AL2   24 pes. 3 rot | 3,4-DIHYDRO-4-HYDROXY-2-(4-METHOXYPHENYL)-2H
+   1bnm   AL8   25 pes. 4 rot | (R)-3,4-DIHYDRO-2-(3-METHOXYPHENYL)-4-METHYL
+   1bnv   AL7   25 pes. 4 rot | (S)-3,4-DIHYDRO-2-(3-METHOXYPHENYL)-4-METHYL
