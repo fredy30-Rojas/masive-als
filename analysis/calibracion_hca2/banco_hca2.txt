@@ -1,0 +1,51 @@
+BANCO DE hCA2: activos medidos y sus senuelos emparejados
+   2026-09-30 18:24
+   Criterios DUD-E: MW +-25, logP +-2.5, HBD/HBA/rot +-2, carga igual, Tanimoto < 0.25 contra TODOS los activos de hCA2
+
+ACTIVOS MEDIDOS DESCARGADOS: 1200
+   1200 compuestos con mol legible
+   familias de Murcko de 5+ activos: 46
+   positivos elegidos: 60, uno por familia, por pchembl descendente
+   pchembl del mas activo: 10.00 | del mas debil: 8.82
+   positivos: activos_hca2.csv
+   de los cuales 60 son sulfonamidas (100 %)
+
+PREPARANDO LOS ACTIVOS (receta canonica del proyecto)
+   10/60 (0 s)
+   20/60 (0 s)
+   30/60 (0 s)
+   40/60 (0 s)
+   50/60 (0 s)
+   60/60 (0 s)
+   60 de 60 activos preparados en 0 s
+   de los cuales 0 salieron tras quitar la sal del SMILES
+
+COMPROBANDO QUE LA SULFONAMIDA VA DESPROTONADA (es lo que une al zinc)
+   sulfonamidas con el N como donador de H (mal para coordinar al Zn): 60 de 60
+   AVISO: CHEMBL331858, CHEMBL304757, CHEMBL140110, CHEMBL138253, CHEMBL142132, CHEMBL63396. Un N con H nocoordina igual. Se dice, no se calla;
+          el AUC de hCA2 puede salir bajo por esto y no por el motor.
+
+SEÑUELOS: emparejados en propiedades, contra TODOS los activos de hCA2
+   fondo full_library_solo.smi: 66478
+   fondo decoys_library.smi: 6462
+   1200 activos medidos de hCA2 excluidos del fondo
+   señuelos asignados: 2413 (objetivo 3000)
+   ACTIVOS SIN 50 señuelos: 14
+   (con menos de 25 no se puede hacer un AUC util)
+   esqueletos de los 60 positivos: 59
+   senuelos descartados por compartir esqueleto con un activo: 10
+   senuelos definitivos: 2403 -> decoys_hca2.csv
+   activos con menos de 25 senuelos: 12
+
+AUDITORIA DEL BANCO (antes de que exista ningun AUC)
+   1908 esqueletos en los 2403 senuelos
+
+   CONTRA LOS 60POSITIVOS DEL BANCO (esto es lo que importa):
+      senuelos que comparten esqueleto con un positivo: 0 de 2403
+      bien: ninguno. El AUC no se infla por construccion del banco.
+
+   CONTRA TODA LA SERIE MEDIDA DE hCA2 (informativo, no sesga el AUC):
+      senuelos que comparten esqueleto con algun activo de los 281: 14 (0.58 %)
+      esos activos NO entran en el banco, asi que no puntuan y el
+      numero no afecta al AUC. Se dice para que no se lea como un fallo
+      del banco cuando no lo es.
