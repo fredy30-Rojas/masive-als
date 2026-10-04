@@ -77,12 +77,29 @@ def leer_vina():
     return datos
 
 
+class FuenteAusente(Exception):
+    """Una fuente que deberia existir no esta. Nunca se escribe la salida asi."""
+
+
 def leer_gnina(gnina_top):
-    """{ (target, ligand): {cnn_score, cnn_affinity, vina} }"""
+    """{ (target, ligand): {cnn_score, cnn_affinity, vina} }
+
+    OJO: si el directorio no existe NO devuelve vacio. Un vacio silencioso ya
+    escribio una vez un consenso con "0 buenos en los tres" que era mentira
+    (4 oct 2026: el CNN volco en gnina_top5000 y aqui se pidio 10000). Un
+    directorio que falta es un error de quien llama, no un dato.
+    """
     datos = {}
     dir_gnina = os.path.join(BASE, "gpu_dock", f"gnina_top{gnina_top}")
     if not os.path.isdir(dir_gnina):
-        return datos
+        disponible = sorted(
+            d for d in os.listdir(os.path.join(BASE, "gpu_dock"))
+            if d.startswith("gnina_top")
+            and os.path.isdir(os.path.join(BASE, "gpu_dock", d)))
+        raise FuenteAusente(
+            f"no existe {dir_gnina}. Directorios de CNN que si hay: "
+            f"{', '.join(disponible) or 'ninguno'}. "
+            f"Pasa --gnina-top con el numero correcto.")
     for nombre in os.listdir(dir_gnina):
         if not (nombre.startswith("rescore_") and nombre.endswith(".csv")):
             continue
@@ -95,6 +112,9 @@ def leer_gnina(gnina_top):
                     "cnn_affinity": num(row.get("cnn_affinity")),
                     "error": row.get("error", ""),
                 }
+    if not datos:
+        raise FuenteAusente(
+            f"{dir_gnina} existe pero no tiene ninguna fila utilizable.")
     return datos
 
 
@@ -112,7 +132,12 @@ def main():
 
     mmgbsa = leer_mmgbsa()
     vina = leer_vina()
-    gnina = leer_gnina(args.gnina_top)
+    try:
+        gnina = leer_gnina(args.gnina_top)
+    except FuenteAusente as exc:
+        print(f"ERROR: {exc}")
+        print("No escribo nada: un consenso sin CNN seria un cero falso.")
+        return 2
 
     if not mmgbsa:
         print("No hay ranking de MM-GBSA; nada que cruzar.")
@@ -169,14 +194,22 @@ def main():
               "los_tres", "mmgbsa_dG", "puesto_mmgbsa", "vina_affinity",
               "puesto_vina", "cnn_affinity", "cnn_score", "puesto_cnn",
               "sospechoso"]
+
+    # Las comprobaciones van ANTES de escribir. Si van despues, el aviso sale
+    # pero el CSV malo ya esta en su sitio y parece bueno (paso el 4 oct 2026).
+    con_tres = [f for f in filas if f["n_motores"] == 3]
+    los_tres = [f for f in filas if f["los_tres"] == "SI"]
+    if not con_tres:
+        print("ERROR: ningun candidato tiene los tres motores medidos; eso no")
+        print("es un resultado, es un fallo de emparejamiento. No escribo.")
+        return 3
+
     with open(SALIDA, "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=campos)
         w.writeheader()
         for f in filas:
             w.writerow({c: f[c] for c in campos})
 
-    con_tres = [f for f in filas if f["n_motores"] == 3]
-    los_tres = [f for f in filas if f["los_tres"] == "SI"]
     print(f"candidatos: {len(filas)}")
     print(f"con los tres motores medidos: {len(con_tres)}")
     print(f"buenos en los tres (tercio superior): {len(los_tres)}")
